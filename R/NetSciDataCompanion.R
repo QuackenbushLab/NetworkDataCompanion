@@ -1,41 +1,89 @@
+library(TCGAPurityFiltering)
+library(recount)
+library(recount3)
+library(GenomicDataCommons)
+library(magrittr)
+
 NetSciDataCompanion=setRefClass("NetSciDataCompanion",
-         fields = list(TCGA_purities= "data.frame"),
+         fields = list(TCGA_purities= "data.frame",
+                       clinical_patient_data = "data.frame",
+                       project_name = "character"),
          methods = list(
-           mapBarcodeToBarcode = function(bc1, bc2){
-             ### SOME example ASSERTS
-             if(class(bc1) != "data.frame" | class(bc2) != "data.frame"){
-               stop("Error: barcodes need to be data.frames")
-             }
-
-
-             return("return me baby")
+           
+           
+           ## Extract experiment specific information and metadata from ranged summarized experiment object
+           ## Returns a named list with rds_sample_info corresponding to meta information about the samples (columns)
+           ##                       and rds_gene_info corresponding to meta information about genes (rows)
+           extractSampleAndGeneInfo = function(expression_rds_obj){
+             return(list(rds_sample_info=as.data.frame(colData(test_exp_rds)), rds_gene_info=as.data.frame(rowRanges(test_exp_rds))))
            },
            
-           logTPMNormalization = function(expression_matrix){
-             ### SOME example ASSERTS
-             if(class(expression_matrix) != "data.frame"){
-               stop("Error: expression matrices need to be data.frames")
+           
+           ## Maps two sets of barcodes
+           ## There are 4 different pieces of information returned in a named list that are all useful depending on the context they are used in
+           ## is_inter1 is an indicator (boolean) vector of the same length as bc1 that indicates which elements of bc1 are present in bc2
+           ## idcs1 indicate where to find each barcode of bc1 in bc2, NA if missing. That is, bc1[i] == bc2[idcs1[i]] (if idcs1[i] != NA)
+           ## The same information is provided for bc2
+           ## For example, if you want to map experiment 1 on experiment to, keeping only the information for samples that are present in both,
+           ## and reordering the first experiment to match the samples of the second, you can do
+           ## exp1[,is_inter1][,idcs1[is_inter1]]      --- this will remove samples that are not in exp2 and reorder to match exp2
+           ## exp2[,is_inter2]                         --- this will remove samples that are not in exp1
+           mapBarcodeToBarcode = function(bc1, bc2){
+             if(class(bc1) != "character" | class(bc2) != "character"){
+               stop("Error: barcodes need to be vectors of strings")
              }
-             return("log(TPM(expression_matrix)+1)")
+             return(list(is_inter1=(bc1 %in% bc2), idcs1=match(bc1, bc2), isinter2=(bc2 %in% bc1), idcs2=match(bc2, bc1)))
+           },
+           
+           
+           ## Computes the log TPM normalization based on an expression RDS object
+           ## Returns a named list with the count data.frame (useful for duplicate filtering based on sequencing depth, see filterDuplicatesSeqDepth)
+           ##                               TPM data.frame (useful for TPM based filtering, see filterGenesByTPM)
+           ##                and the actual logTPM which corresponds to log(TPM + 1)
+           logTPMNormalization = function(expression_rds_obj){
+             if(class(expression_rds_obj) != "RangedSummarizedExperiment"){
+               stop("Error: expression matrices need to be an RSE object")
+             }
+             assays(expression_rds_obj)$counts <- recount3::transform_counts(expression_rds_obj)
+             assays(expression_rds_obj)$TPM <- recount::getTPM(expression_rds_obj)
+             return(list(counts=assays(expression_rds_obj)$counts,
+                         TPM=assays(expression_rds_obj)$TPM,
+                         logTPM=log(assays(expression_rds_obj)$TPM + 1)))
            },
            
            #### more methods go here
            
            # maybe have this presaved in class
            extractSampleOnly = function(TCGA_barcodes){
-              return("barcode up to sample")
+             return(sapply(TCGA_barcodes, substr, 1, 12))
            },
            
            extractVialOnly = function(TCGA_barcodes){
-              return("barcode up to vial")
+              return(sapply(TCGA_barcodes, substr, 1, 16))
            },
            
            findDuplicates = function(TCGA_barcodes){
-              return("positions with same vial")
+              return(duplicated(extractVialOnly(TCGA_barcodes)))
            },
            
            mapUUIDtoTCGA = function(UUID){
-              return("internal lookup of UUID")
+              if(class(UUID) != "character"){
+                stop("Error: Expected UUID argument to be vector of strings")
+              }
+              info = files(legacy = legacy) %>%
+               GenomicDataCommons::filter( ~ file_id %in% UUID) %>%
+               GenomicDataCommons::select('cases.samples.submitter_id') %>%
+               results_all()
+              # The mess of code below is to extract TCGA barcodes
+              # id_list will contain a list (one item for each file_id)
+              # of TCGA barcodes of the form 'TCGA-XX-YYYY-ZZZ'
+              id_list = lapply(info$cases,function(a) {
+               a[[1]][[1]][[1]]})
+              # so we can later expand to a data.frame of the right size
+              barcodes_per_file = sapply(id_list,length)
+              # And build the data.frame
+              return(data.frame(file_id = rep(ids(info),barcodes_per_file),
+                               submitter_id = unlist(id_list)))
            },
            
            mapProbesToGenes = function(probelist, rangeUp, rangeDown){
@@ -46,25 +94,104 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
               return("M")
            },
            
-           filterDuplicatesSeqDepth = function(expression_matrix, TCGA_barcodes){
-           ## internally: look for same vials
-              return("indices of max seqdepth columns")
+           ## Filter out all duplicates (in terms of vials) based on sequencing depth
+           ## Returns indices about which samples to KEEP
+           filterDuplicatesSeqDepth = function(expression_count_matrix, TCGA_barcodes){
+             sample_barcodes <- extractSampleOnly(TCGA_barcodes)
+             seq_depth <- colSums(expression_count_matrix)
+             duplicate_throwout <- rep(NA, ncol(expression_count_matrix))
+             for (idx in 1:ncol(expression_count_matrix))
+             {
+               if (is.na(duplicate_throwout[idx]))
+               {
+                 ## find all vials and replicates of current sample
+                 rep_idcs <- sample_barcodes[idx] == sample_barcodes
+                 ## get those with highest seq depth
+                 max_sample_idx <- which.max(seq_depth * rep_idcs)
+                 ## throw out all but maximum one
+                 duplicate_throwout[rep_idcs] <- T
+                 duplicate_throwout[max_sample_idx] <- F
+               }
+             }
+            return(which(!duplicate_throwout))
            },
            
-           filterPurity = function(TCGA_barcodes, method, threshold){
-              return("filtered indices")
+           ## Filter samples indicated by *TCGA_barcodes* based on the method *method* and threshold *threshold*
+           ## Returns a list of indices indicating which samples should be kept
+           filterPurity = function(TCGA_barcodes, method="ESTIMATE", threshold=.6){
+             if(class(TCGA_barcodes) != "character"){
+               stop("Error: Expected TCGA_barcodes argument to be vector of strings")
+             }
+             if (!(method %in% c("ESTIMATE", "ESTIMATE",
+                                 "ABSOLUTE", "LUMP", "IHC", "CPE")))
+             sample_names <- sapply(TCGA_barcodes, substr, 1, 16)
+             purity_names <- sapply(rownames(TCGA_purities), substr, 1, 16)
+             name_matching <- match(purity_names, sample_names)
+             cut <- TCGA_purities[,method] > threshold
+             cut[is.na(cut)] <- F
+             cut_idcs <- name_matching[cut]
+             cut_idcs <- cut_idcs[!is.na(cut_idcs)]
+             return(cut_idcs)
            },
            
-           filterTumorType = function(type_of_tumor, clinical_data){
-              return("filtered indices")
+           ## Filtering samples with a particular sample type (e.g., "Primary Tumor", "Solid Tissue Normal", "Primary Blood Derived Cancer - Peripheral Blood")
+           filterTumorType = function(TCGA_barcodes, type_of_tumor, rds_info){
+             if(class(TCGA_barcodes) != "character"){
+               stop("Error: TCGA_barcodes argument needs to be a character vector")
+             }
+             if(class(type_of_tumor) != "character"){
+               stop("Error: type_of_tumor argument needs to be a string")
+             }
+             if(class(rds_info) != "data.frame"){
+               stop("Error: expression matrices need to be an RSE object")
+             }
+             sample_names <- sapply(TCGA_barcodes, substr, 1, 16)
+             ## use column names of original object
+             type_names <- sapply(rds_info$tcga.tcga_barcode, substr, 1, 16)
+             sample_type <- rds_info$tcga.cgc_sample_sample_type == type_of_tumor
+             sample_type[is.na(sample_type)] <- F
+             
+             return(which(sample_type[match(sample_names, type_names)]))
            },
            
-           filterGenesProteins = function(gene_expression, gene_info){
-              return("filteredGenesProteins")
+           ## Filter out protein coding genes based on rds info
+           filterGenesProteins = function(rds_gene_info){
+             if(class(rds_gene_info) != "data.frame"){
+               stop("Error: gene info argument should be a data.frame. Best \
+                    use extractSampleAndGeneInfo function to retrieve this information \
+                    from an rds expression object.")
+             }
+             return(which(rds_gene_info$gene_type == "protein_coding"))
            },
            
-           filterGenesByTPM = function(gene_expression_tpm, tpm_threshold, sample_fraction){
-             return("filteredGenesByTPM")
+           ## Filter all genes which have at least *tpm_threshold* TPM scores in at least *sample_fraction* of samples
+           ## expression_tpm_matrix should be TPM values (NOT log scaled)
+           ## sample_fraction should be in [0,1]
+           filterGenesByTPM = function(expression_tpm_matrix, tpm_threshold, sample_fraction){
+             if(class(expression_tpm_matrix) != "data.frame"){
+               stop("Error: expression_tpm_matrix argument should be a data.frame")
+             }
+             if(class(tpm_threshold) != "numeric" | tpm_threshold <= 0){
+               stop("Error: tpm_threshold argument should be a numeric > 0")
+             }
+             if(class(sample_fraction) != "numeric" | sample_fraction <= 0 | sample_fraction >= 1){
+               stop("Error: sample_fraction argument should be a numeric in [0,1]")
+             }
+             minSamples = sample_fraction*ncol(expression_tpm_matrix)
+             keep = rowSums(expression_tpm_matrix >= tpm_threshold) >= minSamples
+             return(which(keep))
+           },
+           
+           filterChromosome = function(rds_gene_info, chroms){
+             if(class(rds_gene_info) != "data.frame"){
+               stop("Error: gene info argument should be a data.frame. Best \
+                    use extractSampleAndGeneInfo function to retrieve this information \
+                    from an rds expression object.")
+             }
+             if (class(chroms) != "character"){
+               stop("Error: expected chroms argument to be a vector of strings.")
+             }
+             return(which(rds_gene_info$seqnames %in% chroms))
            },
            
            ######the following 3 could be implemented in Gene2Gene2Gene and used directly from there
@@ -79,8 +206,30 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            # # return all alias names
            # # use Panos genetogenetogene mapping
            
-           getGeneIdcs = function(gene_names, data){
-            return("returns indices of gene names in gene list")
+           getGeneIdcs = function(gene_names, rds_gene_info){
+             if(class(rds_gene_info) != "data.frame"){
+               stop("Error: gene info argument should be a data.frame. Best \
+                    use extractSampleAndGeneInfo function to retrieve this information \
+                    from an rds expression object.")
+             }
+             if (class(gene_names) != "character"){
+               stop("Error: expected gene_names argument to be a vector of strings.")
+             }
+             return(which(gene_names) %in% rds_gene_info)
+           },
+           
+           getStage = function(TCGA_barcodes){
+             sample_names <- extractSampleOnly(TCGA_barcodes)
+             stage_names <- clinical_patient_data$bcr_patient_barcode
+             stages <- clinical_patient_data$ajcc_pathologic_tumor_stage[match(sample_names, stage_names)]
+             return(stages)
+           },
+           
+           getSex = function(TCGA_barcodes){
+             sample_names <- extractSampleOnly(TCGA_barcodes)
+             sex_names <- clinical_patient_data$bcr_patient_barcode
+             sex <- clinical_patient_data$gender[match(sample_names, sex_names)]
+             return(sex)
            }
          )
 )
@@ -90,19 +239,21 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 ### the export decorator is for roxygen to know which methods to export
 
 #' @export "CreateNetSciDataCompanionObject"
-CreateNetSciDataCompanionObject <- function(argument_one = "An argument"){
+CreateNetSciDataCompanionObject <- function(clinical_patient_file, project_name){
   
-  ##if external data are to be loaded, they should be placed in the inst/extdata folder
-  ##for example, these could be the gene2gene2gene table computed already
-  fpath <- system.file("extdata", "purities.csv", package="NetSciDataCompanion")
+  ## Load purities for purity package
+  obj <- CreateTCGAPurityFilteringObject()
+  purities <- obj$get_tissue_purities(cancer_type = project_name)
   
-  external_data <- read.csv(file = fpath, sep="\t", header=TRUE, row.names = 1)
+  ## Load patient's clinical data
+  patient_data <- read.table(clinical_patient_file, header=T, sep=",")
+  ## maybe we want to keep the alternative column names later? For now this is discarded
+  alt_colnames <- patient_data[1:2,]
+  patient_data <- patient_data[-c(1,2),]
   
-  
-  ### do a bunch of stuff and arrive at the variables to be the fields of the object
-  TCGA_purities <- data.frame()
-  print(paste("I just created an object with argument: ",argument_one))
-  s <- NetSciDataCompanion$new(TCGA_purities = TCGA_purities)
+  s <- NetSciDataCompanion$new(TCGA_purities = purities,
+                               clinical_patient_data = patient_data,
+                               project_name = project_name)
 }
 
 
