@@ -70,7 +70,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
               if(class(UUID) != "character"){
                 stop("Error: Expected UUID argument to be vector of strings")
               }
-              info = files(legacy = legacy) %>%
+              info = files(legacy = T) %>%
                GenomicDataCommons::filter( ~ file_id %in% UUID) %>%
                GenomicDataCommons::select('cases.samples.submitter_id') %>%
                results_all()
@@ -94,10 +94,10 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
               return("M")
            },
            
-           ## Filter out all duplicates (in terms of vials) based on sequencing depth
+           ## Filter out all duplicates based on sequencing depth
            ## Returns indices about which samples to KEEP
-           filterDuplicatesSeqDepth = function(expression_count_matrix, TCGA_barcodes){
-             sample_barcodes <- extractSampleOnly(TCGA_barcodes)
+           filterDuplicatesSeqDepth = function(expression_count_matrix){
+             sample_barcodes <- extractSampleOnly(colnames(expression_count_matrix))
              seq_depth <- colSums(expression_count_matrix)
              duplicate_throwout <- rep(NA, ncol(expression_count_matrix))
              for (idx in 1:ncol(expression_count_matrix))
@@ -124,8 +124,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              }
              if (!(method %in% c("ESTIMATE", "ESTIMATE",
                                  "ABSOLUTE", "LUMP", "IHC", "CPE")))
-             sample_names <- sapply(TCGA_barcodes, substr, 1, 16)
-             purity_names <- sapply(rownames(TCGA_purities), substr, 1, 16)
+             sample_names <- extractVialOnly(TCGA_barcodes)
+             purity_names <- extractVialOnly(rownames(TCGA_purities))
              name_matching <- match(purity_names, sample_names)
              cut <- TCGA_purities[,method] > threshold
              cut[is.na(cut)] <- F
