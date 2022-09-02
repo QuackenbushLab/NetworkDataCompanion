@@ -1,9 +1,3 @@
-library(TCGAPurityFiltering)
-library(recount)
-library(recount3)
-library(GenomicDataCommons)
-library(magrittr)
-
 NetSciDataCompanion=setRefClass("NetSciDataCompanion",
          fields = list(TCGA_purities= "data.frame",
                        clinical_patient_data = "data.frame",
