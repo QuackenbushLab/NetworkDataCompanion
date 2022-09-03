@@ -1,25 +1,27 @@
 library(NetSciDataCompanion)
-library(TCGAPurityFiltering)
-library(recount)
-library(recount3)
-library(GenomicDataCommons)
-library(magrittr)
+# library(TCGAPurityFiltering)
+# library(recount)
+# library(recount3)
+# library(GenomicDataCommons)
+# library(magrittr)
 ###detach("package:NetSciDataCompanion")
 
 
-setwd("~/Projects/TCGA_data/preprocessing/")
+setwd("~/Downloads//")
 
 
 project_name <- "LUAD"
-patient_data <- "~/Projects/TCGA_data/preprocessing/luad/clinical_patient_luad.csv"
-exp_data <- "~/Projects/TCGA_data/preprocessing/luad/tcga_luad.rds"
-mut_data <- "~/Projects/TCGA_data/preprocessing/luad/tcga_luad_mutations.txt"
-mut_pivot_data <- "~/Projects/TCGA_data/preprocessing/luad/tcga_luad_mutations_pivot.csv"
-meth_data <- "~/Projects/TCGA_data/preprocessing/luad/tcga_luad_methylations.txt"
+patient_data <- "clinical_patient_luad.csv"
+exp_data <- "tcga_luad.rds"
+mut_data <- "tcga_luad_mutations.txt"
+mut_pivot_data <- "tcga_luad_mutations_pivot.csv"
+meth_data <- "tcga_luad_methylations.txt"
 
 
 # Create Companion Object
 ## TODO: this requires TCGAPurityFiltering to be loaded in this file
+## PANOS: in my case it worked without loading the package (but it could be for other reasons)
+## PANOS: we could also just include the 2 functions from the package to this one here
 obj <- CreateNetSciDataCompanionObject(clinical_patient_file = patient_data,
                                        project_name = project_name)
 
@@ -40,7 +42,6 @@ test_exp_logtpm <- test_exp_all$logTPM
 
 
 # Map column names to TCGA barcodes
-## TODO: this is not working. Can't update package.
 newcolnames <- obj$mapUUIDtoTCGA(colnames(test_exp_logtpm))
 colnames(test_exp_count) <- newcolnames[,2]
 colnames(test_exp_tpm) <- newcolnames[,2]
@@ -56,9 +57,9 @@ idcs_nonduplicate_tumor <- obj$filterDuplicatesSeqDepth(expression_count_matrix 
 idcs_nonduplicate_normal <- obj$filterDuplicatesSeqDepth(expression_count_matrix = test_exp_count[,idcs_normal])
 
 # Get indices of genes that have a minimum TPM in the data
-idcs_genes_mintpm <- obj$filterGenesByTPM(expression_tpm_matrix = test_exp_tpm)
-
-
+##PANOS: I am making this into a dataframe because the assert fails (but it fails in a weird way)
+test_exp_tpm_df <- data.frame(test_exp_tpm)
+idcs_genes_mintpm <- obj$filterGenesByTPM(test_exp_tpm_df, 1, 0.5)
 
 
 # read mutations and pivot
@@ -81,7 +82,10 @@ tumor_exp <- test_exp_logtpm[idcs_genes_mintpm, idcs_tumor][, intersect(idcs_non
 normal_exp <- test_exp_logtpm[idcs_genes_mintpm, idcs_normal][, intersect(idcs_nonduplicate_normal, idcs_purity[idcs_normal])]
 common_samples <- obj$mapBarcodeToBarcode(obj$extractVialOnly(colnames(tumor_exp)),
                                           obj$extractVialOnly(colnames(mutations_pivot)[-c(1,2)]))
+
+##SUBSCRIPT OUT OF BOUNDS ERROR
 tumor_exp[,common_samples$is_inter1][,common_samples$idcs1[common_samples$is_inter1]]
+
 mutations_exp <- cbind(mutations_pivot[,c(1,2)], mutations_pivot[,-c(1,2)][,common_samples$is_inter2])
 
 print(head(tumpr_exp))

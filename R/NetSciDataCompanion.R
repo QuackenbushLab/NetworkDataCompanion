@@ -116,8 +116,11 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              if(class(TCGA_barcodes) != "character"){
                stop("Error: Expected TCGA_barcodes argument to be vector of strings")
              }
-             if (!(method %in% c("ESTIMATE", "ESTIMATE",
+             if (!(method %in% c("ESTIMATE",
                                  "ABSOLUTE", "LUMP", "IHC", "CPE")))
+             {
+               stop("Error: Expected method name should be ESTIMATE, ABSOLUTE, LUMP, IHC, CPE")
+             }
              sample_names <- extractVialOnly(TCGA_barcodes)
              purity_names <- extractVialOnly(rownames(TCGA_purities))
              name_matching <- match(purity_names, sample_names)
