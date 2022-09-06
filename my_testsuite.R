@@ -19,17 +19,14 @@ meth_data <- "tcga_luad_methylations.txt"
 
 
 # Create Companion Object
-## TODO: this requires TCGAPurityFiltering to be loaded in this file
-## PANOS: in my case it worked without loading the package (but it could be for other reasons)
-## PANOS: we could also just include the 2 functions from the package to this one here
 obj <- CreateNetSciDataCompanionObject(clinical_patient_file = patient_data,
                                        project_name = project_name)
+
 
 # Read RDS expression data
 test_exp_rds <- readRDS(exp_data)
 
 # Extract included meta info from RDS expression object
-## TODO: this requires recount to be loaded by this file
 rds_info <- obj$extractSampleAndGeneInfo(test_exp_rds)
 rds_sample_info <- rds_info$rds_sample_info
 rds_gene_info <- rds_info$rds_gene_info
@@ -57,7 +54,6 @@ idcs_nonduplicate_tumor <- obj$filterDuplicatesSeqDepth(expression_count_matrix 
 idcs_nonduplicate_normal <- obj$filterDuplicatesSeqDepth(expression_count_matrix = test_exp_count[,idcs_normal])
 
 # Get indices of genes that have a minimum TPM in the data
-##PANOS: I am making this into a dataframe because the assert fails (but it fails in a weird way)
 test_exp_tpm_df <- data.frame(test_exp_tpm)
 idcs_genes_mintpm <- obj$filterGenesByTPM(test_exp_tpm_df, 1, 0.5)
 
@@ -70,7 +66,7 @@ mutations_pivot <- read.table(mut_pivot_data, header=T, sep=",")
 # NOTE: colnames (barcodes) are with . instead of -, replace
 colnames(mutations_pivot) <- gsub('.','-',colnames(mutations_pivot), fixed=T)
 # filter duplicates based on sequencing depth of expression in corresponding vials
-idcs_nonduplicate_muta <- filterDuplicatesSeqDepthOther(expression_count_matrix = test_exp_count[,idcs_tumor],
+idcs_nonduplicate_muta <- obj$filterDuplicatesSeqDepthOther(expression_count_matrix = test_exp_count[,idcs_tumor],
                                                        obj$extractVialOnly(colnames(mutations_pivot[,-c(1,2)]))) + 2
 
 
@@ -89,12 +85,17 @@ mutations_filtered <- mutations_pivot[, c(1,2,idcs_nonduplicate_muta)]
 ## match to normal
 common_samples <- obj$mapBarcodeToBarcode(obj$extractSampleOnly(colnames(tumor_exp)),
                                           obj$extractSampleOnly(colnames(normal_exp)))
-
 tumor_exp_matchednormal <- tumor_exp[,common_samples$is_inter1]
 normal_exp_matchednormal <- normal_exp[,common_samples$idcs1]
+## alternatively you can use a convenience wrapper
+matched_exps <- obj$filterBarcodesIntersection(tumor_exp, normal_exp)
+tumor_exp_matchednormal <- matched_exps[[1]]
+normal_exp_matchednormal <- matched_exps[[2]]
 
 # Get for example the sex of the matched samples
 obj$getSex(colnames(tumor_exp_matchednormal))
+
+
 
 ## match to mutations
 common_samples <- obj$mapBarcodeToBarcode(obj$extractSampleOnly(colnames(tumor_exp)),

@@ -21,7 +21,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## For example, if you want to map experiment 1 on experiment to, keeping only the information for samples that are present in both,
            ## and reordering the first experiment to match the samples of the second, you can do
            ## exp1[,is_inter1]                --- this will remove samples that are not in exp2
-           ## exp2[,idcs1[!is.na(idcs1)]]     --- this will remove samples that are not in exp1 and reorder to match exp1
+           ## exp2[,idcs1]                    --- this will remove samples that are not in exp1 and reorder to match exp1
            mapBarcodeToBarcode = function(bc1, bc2){
              if(class(bc1) != "character" | class(bc2) != "character"){
                stop("Error: barcodes need to be vectors of strings")
@@ -30,9 +30,22 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              m1 <- m1[!is.na(m1)]
              m2 <- match(bc2, bc1)
              m2 <- m2[!is.na(m2)]
-             return(list(is_inter1=(bc1 %in% bc2), idcs1=m1, isinter2=(bc2 %in% bc1), idcs2=m2))
+             return(list(is_inter1=(bc1 %in% bc2), idcs1=m1, is_inter2=(bc2 %in% bc1), idcs2=m2))
            },
            
+           ## A convenience wrapper function for mapBarcodeToBarcode that applies the function directly to two data frames
+           ## returns a list of the two argument data frames, intersected, and the second frame ordered to match the first
+           ## NOTE: Ordering is done based on columns, which are expected to be named by TCGA barcodes
+           filterBarcodesIntersection = function(exp1, exp2){
+             if("data.frame" %in% class(exp1) & "matrix" %in% class(exp1) ){
+               stop("Error: argument 1 needs to be data.frame or matrix")
+             }
+             if("data.frame" %in% class(exp2) & "matrix" %in% class(exp2) ){
+               stop("Error: argument 2 needs to be data.frame or matrix")
+             }
+             map <- mapBarcodeToBarcode(extractSampleOnly(colnames(exp1)), extractSampleOnly(colnames(exp2)))
+             return(list(exp1[,map$is_inter1], exp2[,map$idcs1]))
+           },
            
            ## Computes the log TPM normalization based on an expression RDS object
            ## Returns a named list with the count data.frame (useful for duplicate filtering based on sequencing depth, see filterDuplicatesSeqDepth)
@@ -151,6 +164,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              return(which(!duplicate_throwout))
            },
            
+           
            ## Filter samples indicated by *TCGA_barcodes* based on the method *method* and threshold *threshold*
            ## Returns a list of indices indicating which samples should be kept
            filterPurity = function(TCGA_barcodes, method="ESTIMATE", threshold=.6){
@@ -253,7 +267,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              if (class(gene_names) != "character"){
                stop("Error: expected gene_names argument to be a vector of strings.")
              }
-             return(which(gene_names) %in% rds_gene_info)
+             return(match(gene_names, rds_gene_info$gene_name))
            },
            
            getStage = function(TCGA_barcodes){
