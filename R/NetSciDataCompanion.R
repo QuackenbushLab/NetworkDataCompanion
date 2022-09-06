@@ -20,13 +20,17 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## The same information is provided for bc2
            ## For example, if you want to map experiment 1 on experiment to, keeping only the information for samples that are present in both,
            ## and reordering the first experiment to match the samples of the second, you can do
-           ## exp1[,is_inter1][,idcs1[is_inter1]]      --- this will remove samples that are not in exp2 and reorder to match exp2
-           ## exp2[,is_inter2]                         --- this will remove samples that are not in exp1
+           ## exp1[,is_inter1]                --- this will remove samples that are not in exp2
+           ## exp2[,idcs1[!is.na(idcs1)]]     --- this will remove samples that are not in exp1 and reorder to match exp1
            mapBarcodeToBarcode = function(bc1, bc2){
              if(class(bc1) != "character" | class(bc2) != "character"){
                stop("Error: barcodes need to be vectors of strings")
              }
-             return(list(is_inter1=(bc1 %in% bc2), idcs1=match(bc1, bc2), isinter2=(bc2 %in% bc1), idcs2=match(bc2, bc1)))
+             m1 <- match(bc1, bc2)
+             m1 <- m1[!is.na(m1)]
+             m2 <- match(bc2, bc1)
+             m2 <- m2[!is.na(m2)]
+             return(list(is_inter1=(bc1 %in% bc2), idcs1=m1, isinter2=(bc2 %in% bc1), idcs2=m2))
            },
            
            
@@ -108,6 +112,43 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                }
              }
             return(which(!duplicate_throwout))
+           },
+           
+           ## Filter out all duplicates based on sequencing depth, take random one if no info on seq depth for all vials
+           ## Returns indices in given tcga barcodes to KEEP
+           filterDuplicatesSeqDepthOther = function(expression_count_matrix, tcga_barcodes){
+             sample_vials_ge <- extractVialOnly(colnames(expression_count_matrix))
+             seq_depth <- colSums(expression_count_matrix)
+             duplicate_throwout <- rep(NA, length(tcga_barcodes))
+             for (idx in 1:length(tcga_barcodes))
+             {
+               if (is.na(duplicate_throwout[idx]))
+               {
+                 ## find all vials and replicates of current barcode
+                 rep_idcs <- which(extractSampleOnly(tcga_barcodes[idx]) == extractSampleOnly(tcga_barcodes))
+                 rep_vials <- extractVialOnly(tcga_barcodes[rep_idcs])
+                 ## match with vials in expression matrix
+                 mIdx <- match(rep_vials, sample_vials_ge)
+                 ## get matched vial with highest seqdepth, just take first one if no match at all
+                 max_sample_idx <- 1
+                 curr_max <- 0
+                 for (j in 1:length(mIdx))
+                 {
+                   if (!is.na(mIdx[j]))
+                   {
+                     if (seq_depth[mIdx[j]] > curr_max)
+                     {
+                       curr_max <- seq_depth[mIdx[j]]
+                       max_sample_idx <- rep_idcs[j]
+                     }
+                   }
+                 }
+                 ## throw out all but maximum one
+                 duplicate_throwout[rep_idcs] <- T
+                 duplicate_throwout[max_sample_idx] <- F
+               }
+             }
+             return(which(!duplicate_throwout))
            },
            
            ## Filter samples indicated by *TCGA_barcodes* based on the method *method* and threshold *threshold*

@@ -7,7 +7,7 @@ library(NetSciDataCompanion)
 ###detach("package:NetSciDataCompanion")
 
 
-setwd("~/Downloads//")
+setwd("~/Projects/TCGA_data/preprocessing/luad/")
 
 
 project_name <- "LUAD"
@@ -62,12 +62,16 @@ test_exp_tpm_df <- data.frame(test_exp_tpm)
 idcs_genes_mintpm <- obj$filterGenesByTPM(test_exp_tpm_df, 1, 0.5)
 
 
+
+
 # read mutations and pivot
 mutations <- read.table(mut_data, header=T, sep=" ")
 mutations_pivot <- read.table(mut_pivot_data, header=T, sep=",")
-# NOTE: colnames are with . instead of -, replace
+# NOTE: colnames (barcodes) are with . instead of -, replace
 colnames(mutations_pivot) <- gsub('.','-',colnames(mutations_pivot), fixed=T)
-# TODO: filter duplicates.
+# filter duplicates based on sequencing depth of expression in corresponding vials
+idcs_nonduplicate_muta <- filterDuplicatesSeqDepthOther(expression_count_matrix = test_exp_count[,idcs_tumor],
+                                                       obj$extractVialOnly(colnames(mutations_pivot[,-c(1,2)]))) + 2
 
 
 
@@ -77,16 +81,26 @@ colnames(mutations_pivot) <- gsub('.','-',colnames(mutations_pivot), fixed=T)
 
 # ASSEMBLE FILTERED DATA
 
-# obtain preprocessed expression data for filtered samples and filtered genes that are also present in the other omics
+# obtain preprocessed expression data for filtered samples and filtered genes that are also present in the other omics or for which we have normal
 tumor_exp <- test_exp_logtpm[idcs_genes_mintpm, idcs_tumor][, intersect(idcs_nonduplicate_tumor, idcs_purity[idcs_tumor])]
-normal_exp <- test_exp_logtpm[idcs_genes_mintpm, idcs_normal][, intersect(idcs_nonduplicate_normal, idcs_purity[idcs_normal])]
-common_samples <- obj$mapBarcodeToBarcode(obj$extractVialOnly(colnames(tumor_exp)),
-                                          obj$extractVialOnly(colnames(mutations_pivot)[-c(1,2)]))
+normal_exp <- test_exp_logtpm[idcs_genes_mintpm, idcs_normal][, idcs_nonduplicate_normal]
+mutations_filtered <- mutations_pivot[, c(1,2,idcs_nonduplicate_muta)]
 
-##SUBSCRIPT OUT OF BOUNDS ERROR
-tumor_exp[,common_samples$is_inter1][,common_samples$idcs1[common_samples$is_inter1]]
+## match to normal
+common_samples <- obj$mapBarcodeToBarcode(obj$extractSampleOnly(colnames(tumor_exp)),
+                                          obj$extractSampleOnly(colnames(normal_exp)))
 
-mutations_exp <- cbind(mutations_pivot[,c(1,2)], mutations_pivot[,-c(1,2)][,common_samples$is_inter2])
+tumor_exp_matchednormal <- tumor_exp[,common_samples$is_inter1]
+normal_exp_matchednormal <- normal_exp[,common_samples$idcs1]
 
-print(head(tumpr_exp))
-print(head(mutations_exp))
+# Get for example the sex of the matched samples
+obj$getSex(colnames(tumor_exp_matchednormal))
+
+## match to mutations
+common_samples <- obj$mapBarcodeToBarcode(obj$extractSampleOnly(colnames(tumor_exp)),
+                                          obj$extractSampleOnly(colnames(mutations_filtered[,-c(1,2)])))
+
+tumor_exp_matchedmutations <- tumor_exp[,common_samples$is_inter1]
+mutations_exp_matchedmutations <- cbind(mutations_filtered[,c(1,2)], mutations_filtered[,-c(1,2)][,common_samples$idcs1])
+
+
