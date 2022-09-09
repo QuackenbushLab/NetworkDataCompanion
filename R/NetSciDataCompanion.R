@@ -84,8 +84,75 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                                submitter_id = unlist(id_list)))
            },
 
-           mapProbesToGenes = function(probelist, rangeUp, rangeDown){
-              return("matrix of probes to gene name")
+
+           # rangeUp and rangeDown should both be positive numbers
+           # indicating the distance to look upstream and downstream
+           # from a probe for a TSS.
+           # the function will convert this to negative number.
+           # note this implementation ONLY looks for a TSS and not
+           # for gene body or other regions.
+
+           mapProbesToGenes = function(probelist, rangeUp, rangeDown, localManifestPath=NA){
+
+             if(is.na(localManifestPath))
+             {
+               # source hg38 with gencode 36 from https://zwdzwd.github.io/InfiniumAnnotation
+               download.file('https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz',
+                             destfile = "HM450.hg38.manifest.gencode.v36.tsv.gz")
+
+               # unzip
+               system2(command="gunzip",args=c("HM450.hg38.manifest.gencode.v36.tsv.gz"))
+
+               # load into memory
+               manifest = data.frame(fread("../../data/external/HM450.hg38.manifest.gencode.v36.tsv",sep="\t",header=T))
+
+               # for testing without wifi
+               manifest = read.table("~/research/repos/project-dragon-application/data/external/HM450.hg38.manifest.gencode.v36.tsv",sep="\t",header=T)
+
+               # remove from local storage
+               system2(command="rm",args="HM450.hg38.manifest.gencode.v36.tsv.gz")
+               system2(command="rm",args="HM450.hg38.manifest.gencode.v36.tsv")
+             }
+
+             if(!is.na(localManifestPath))
+             {
+               print(paste("[NetSciDataCompanion::mapProbesToGenes] Loading probe file from:",localManifestPath))
+               manifest = read.table(localManifestPath,sep="\t",header=T)
+             }
+
+             # get indices matching probes
+             smallManifest = manifest %>% filter(probeID %in% probelist)
+             rm(manifest)
+             gc()
+
+             # define empty map
+             mymap = matrix(rep(NA,4*nrow(smallManifest)),ncol=4)
+             mymap[,1] = probelist
+
+             # iterate through map with for loop
+             # please feel free to vectorize this etc
+             for(i in 1:nrow(smallManifest))
+             {
+               if(i %% 10000 == 0) print(paste("[NetSciDataCompanion::mapProbesToGenes] Processing probe number:",i))
+
+               x = smallManifest[i,]
+               genes = str_split(x$geneNames,";",simplify=T)
+               tssDist = as.numeric(str_split(x$distToTSS,";",simplify=T))
+               ensemblIDs = str_split(x$transcriptIDs,";",simplify=T)
+               inRegion = which(tssDist > -1*rangeUp & tssDist < rangeDown)
+               if(length(inRegion) > 0)
+               {
+                 genesInRegion = genes[inRegion]
+                 ensemblInRegion = ensemblIDs[inRegion]
+                 mymap[i,] =c (x$probeID,
+                               paste(genesInRegion,collapse=";"),
+                               paste(ensemblInRegion,collapse=";"),
+                               paste(tssDist,collapse=";"))
+               }
+             }
+
+             colnames(mymap) = c("probeID","geneName","ensemblID","distToTSS")
+             return(mymap)
            },
 
            # Input to convertBetaToM is a vector of methylation betas
