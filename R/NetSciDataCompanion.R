@@ -96,22 +96,21 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              if(is.na(localManifestPath))
              {
+               print("[NetSciDataCompanion::mapProbesToGenes] Sourcing probe annotation from https://zwdzwd.github.io/InfiniumAnnotation ...")
+
                # source hg38 with gencode 36 from https://zwdzwd.github.io/InfiniumAnnotation
                download.file('https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz',
                              destfile = "HM450.hg38.manifest.gencode.v36.tsv.gz")
 
                # unzip
-               system2(command="gunzip",args=c("HM450.hg38.manifest.gencode.v36.tsv.gz"))
+               system2(command="gunzip",args=c("inst/extdata/HM450.hg38.manifest.gencode.v36.tsv.gz"))
 
                # load into memory
-               manifest = data.frame(fread("../../data/external/HM450.hg38.manifest.gencode.v36.tsv",sep="\t",header=T))
-
-               # for testing without wifi
-               manifest = read.table("~/research/repos/project-dragon-application/data/external/HM450.hg38.manifest.gencode.v36.tsv",sep="\t",header=T)
+               manifest = data.frame(fread("inst/extdata/HM450.hg38.manifest.gencode.v36.tsv",sep="\t",header=T))
 
                # remove from local storage
-               system2(command="rm",args="HM450.hg38.manifest.gencode.v36.tsv.gz")
-               system2(command="rm",args="HM450.hg38.manifest.gencode.v36.tsv")
+               system2(command="rm",args="inst/extdata/HM450.hg38.manifest.gencode.v36.tsv.gz")
+               system2(command="rm",args="inst/extdataHM450.hg38.manifest.gencode.v36.tsv")
              }
 
              if(!is.na(localManifestPath))
