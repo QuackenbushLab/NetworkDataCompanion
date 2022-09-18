@@ -1,7 +1,8 @@
 NetSciDataCompanion=setRefClass("NetSciDataCompanion",
          fields = list(TCGA_purities= "data.frame",
                        clinical_patient_data = "data.frame",
-                       project_name = "character"),
+                       project_name = "character",
+                       gene_mapping = "data.frame"),
          methods = list(
 
 
@@ -314,18 +315,47 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              }
              return(which(rds_gene_info$seqnames %in% chroms))
            },
+           
+           ##gets gene information from gencode given a list of genes names or ids
+           ##it is supposed to automatically infer wheter id or name
+           ##it is supposed to automatically infer whether . exists in id
+           getGeneInfo = function(gene_names_or_ids){
+             is_id <-  grepl("ENSG", gene_names_or_ids, fixed=TRUE)
+             if(any(is_id == TRUE)){
+               version <- grepl(".", gene_names_or_ids, fixed=TRUE)
+               if(any(version == TRUE)){
+                 to_return <- subset(gene_mapping, gene_names_or_ids %in% gene_mapping$gene_id)
+               }
+               else{
+                 to_return <- subset(gene_mapping,  gene_names_or_ids %in% gene_mapping$gene_id_no_ver)
+               }
+             }
+             else{
+               to_return <- subset(gene_mapping, gene_names_or_ids %in% gene_mapping$gene_name)
+             }
+             return(to_return)
+           },
 
-           ######the following 3 could be implemented in Gene2Gene2Gene and used directly from there
+           ## the version corresponds to whether we want the . and number after from gene ids
+           geneNameToENSG = function(gene_names, version = FALSE){
+             to_return <- getGeneInfo(gene_names)
+             if(version == TRUE){
+               to_return <- to_return$gene_id
+             }
+             else{
+               to_return <- to_return$gene_id_no_ver
+             }
+             return(to_return)
+           },
+           
+           geneENSGToName = function(gene_ids){
+             to_return <- getGeneInfo(gene_ids)
+             return(to_return$gene_name)
+           },
 
-           # geneNameToENSG(gene_names)
-           # # use Panos genetogenetogene mapping
-           #
-           # geneENSGToName(gene_names)
-           # # use Panos genetogenetogene mapping
-           #
            # getGeneAliases(gene_names)
-           # # return all alias names
-           # # use Panos genetogenetogene mapping
+           # # TODO: return all alias names
+           # # 
 
            getGeneIdcs = function(gene_names, rds_gene_info){
              if(class(rds_gene_info) != "data.frame"){
@@ -371,10 +401,16 @@ CreateNetSciDataCompanionObject <- function(clinical_patient_file, project_name)
   ## maybe we want to keep the alternative column names later? For now this is discarded
   alt_colnames <- patient_data[1:2,]
   patient_data <- patient_data[-c(1,2),]
+  
+  fpath <- system.file("extdata", "gen_v26_mapping.csv", package="NetSciDataCompanion")
+  gene_mapping <- read.csv(file = fpath, sep=",", header=TRUE, row.names = NULL)
+  gene_mapping$gene_id_no_ver <- gsub("\\..*","",gene_mapping[,"gene_id"])
+  
 
   s <- NetSciDataCompanion$new(TCGA_purities = purities,
                                clinical_patient_data = patient_data,
-                               project_name = project_name)
+                               project_name = project_name,
+                               gene_mapping = gene_mapping)
 }
 
 
