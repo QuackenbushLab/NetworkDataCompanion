@@ -29,6 +29,17 @@ rds_info <- obj$extractSampleAndGeneInfo(test_exp_rds)
 rds_sample_info <- rds_info$rds_sample_info
 rds_gene_info <- rds_info$rds_gene_info
 
+# Some gene mapping
+gene_info_from_names <- obj$getGeneInfo(rds_gene_info$gene_name)
+genes_info_from_ids <- obj$getGeneInfo(rds_gene_info$gene_id)
+
+genes_from_names_to_ids <- data.frame(obj$geneNameToENSG(rds_gene_info$gene_name))
+genes_from_ids_to_names <- data.frame(obj$geneENSGToName(rds_gene_info$gene_id))
+
+gene_mapping <- obj$gene_mapping
+library(dplyr)
+to_return <- subset(gene_mapping,   rds_gene_info$gene_name %in%  gene_mapping$gene_name)
+
 # Normalize data
 test_exp_all <- obj$logTPMNormalization(test_exp_rds)
 test_exp_count <- test_exp_all$counts
