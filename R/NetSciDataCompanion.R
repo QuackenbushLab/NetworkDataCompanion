@@ -8,6 +8,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## Extract experiment specific information and metadata from ranged summarized experiment object
            ## Returns a named list with rds_sample_info corresponding to meta information about the samples (columns)
            ##                       and rds_gene_info corresponding to meta information about genes (rows)
+           ## 20220913 man page done
            extractSampleAndGeneInfo = function(expression_rds_obj){
              return(list(rds_sample_info=as.data.frame(colData(test_exp_rds)), rds_gene_info=as.data.frame(rowRanges(test_exp_rds))))
            },
@@ -32,7 +33,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              m2 <- m2[!is.na(m2)]
              return(list(is_inter1=(bc1 %in% bc2), idcs1=m1, is_inter2=(bc2 %in% bc1), idcs2=m2))
            },
-           
+
            ## A convenience wrapper function for mapBarcodeToBarcode that applies the function directly to two data frames
            ## returns a list of the two argument data frames, intersected, and the second frame ordered to match the first
            ## NOTE: Ordering is done based on columns, which are expected to be named by TCGA barcodes
@@ -46,8 +47,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              map <- mapBarcodeToBarcode(extractSampleOnly(colnames(exp1)), extractSampleOnly(colnames(exp2)))
              return(list(exp1[,map$is_inter1], exp2[,map$idcs1]))
            },
-           
-           
+
+
            ## Computes the log TPM normalization based on an expression RDS object
            ## Returns a named list with the count data.frame (useful for duplicate filtering based on sequencing depth, see filterDuplicatesSeqDepth)
            ##                               TPM data.frame (useful for TPM based filtering, see filterGenesByTPM)
@@ -114,7 +115,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
                # source hg38 with gencode 36 from https://zwdzwd.github.io/InfiniumAnnotation
                download.file('https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz',
-                             destfile = "HM450.hg38.manifest.gencode.v36.tsv.gz")
+                             destfile = "inst/extdata/HM450.hg38.manifest.gencode.v36.tsv.gz")
 
                # unzip
                system2(command="gunzip",args=c("inst/extdata/HM450.hg38.manifest.gencode.v36.tsv.gz"))
@@ -123,8 +124,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                manifest = data.frame(fread("inst/extdata/HM450.hg38.manifest.gencode.v36.tsv",sep="\t",header=T))
 
                # remove from local storage
-               system2(command="rm",args="inst/extdata/HM450.hg38.manifest.gencode.v36.tsv.gz")
-               system2(command="rm",args="inst/extdataHM450.hg38.manifest.gencode.v36.tsv")
+               system2(command="rm",args="inst/extdata/HM450.hg38.manifest.gencode.v36.tsv")
              }
 
              if(!is.na(localManifestPath))
@@ -134,7 +134,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              }
 
              # get indices matching probes
-             smallManifest = manifest %>% filter(probeID %in% probelist)
+             smallManifest = manifest %>% dplyr::filter(probeID %in% probelist)
              rm(manifest)
              gc()
 
@@ -157,6 +157,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                {
                  genesInRegion = genes[inRegion]
                  ensemblInRegion = ensemblIDs[inRegion]
+                 tssDist = tssDist[inRegion]
                  mymap[i,] =c (x$probeID,
                                paste(genesInRegion,collapse=";"),
                                paste(ensemblInRegion,collapse=";"),

@@ -6,16 +6,14 @@ library(NetSciDataCompanion)
 # library(magrittr)
 ###detach("package:NetSciDataCompanion")
 
-
-setwd("~/Projects/TCGA_data/preprocessing/luad/")
-
+datapath = "testdata/luad/"
 
 project_name <- "LUAD"
-patient_data <- "clinical_patient_luad.csv"
-exp_data <- "tcga_luad.rds"
-mut_data <- "tcga_luad_mutations.txt"
-mut_pivot_data <- "tcga_luad_mutations_pivot.csv"
-meth_data <- "tcga_luad_methylations.txt"
+patient_data <- paste0(datapath,"clinical_patient_luad.csv")
+exp_data <- paste0(datapath,"tcga_luad.rds")
+mut_data <- paste0(datapath,"tcga_luad_mutations.txt")
+mut_pivot_data <- paste0("tcga_luad_mutations_pivot.csv")
+meth_data <- paste0(datapath, "tcga_luad_methylations.txt")
 
 
 # Create Companion Object
@@ -104,4 +102,11 @@ common_samples <- obj$mapBarcodeToBarcode(obj$extractSampleOnly(colnames(tumor_e
 tumor_exp_matchedmutations <- tumor_exp[,common_samples$is_inter1]
 mutations_exp_matchedmutations <- cbind(mutations_filtered[,c(1,2)], mutations_filtered[,-c(1,2)][,common_samples$idcs1])
 
+## test probe map generation
+## this is a test only in the sense that no
+## unrecoverable errors happen
+## it is not testing correctness of the probe mapping
+
+myProbeList = c("cg14008030","cg12045430","cg03130891")
+obj$mapProbesToGenes(myProbeList,rangeUp = 200, rangeDown = 1500,localManifestPath = NA)
 
