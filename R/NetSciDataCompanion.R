@@ -24,6 +24,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## and reordering the first experiment to match the samples of the second, you can do
            ## exp1[,is_inter1]                --- this will remove samples that are not in exp2
            ## exp2[,idcs1]                    --- this will remove samples that are not in exp1 and reorder to match exp1
+           ## 20220920 man page done
            mapBarcodeToBarcode = function(bc1, bc2){
              if(class(bc1) != "character" | class(bc2) != "character"){
                stop("Error: barcodes need to be vectors of strings")
@@ -38,6 +39,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## A convenience wrapper function for mapBarcodeToBarcode that applies the function directly to two data frames
            ## returns a list of the two argument data frames, intersected, and the second frame ordered to match the first
            ## NOTE: Ordering is done based on columns, which are expected to be named by TCGA barcodes
+           ## 20220920 man page done
            filterBarcodesIntersection = function(exp1, exp2){
              if("data.frame" %in% class(exp1) & "matrix" %in% class(exp1) ){
                stop("Error: argument 1 needs to be data.frame or matrix")
@@ -46,7 +48,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                stop("Error: argument 2 needs to be data.frame or matrix")
              }
              map <- mapBarcodeToBarcode(extractSampleOnly(colnames(exp1)), extractSampleOnly(colnames(exp2)))
-             return(list(exp1[,map$is_inter1], exp2[,map$idcs1]))
+             return(list("mappedExp1"=exp1[,map$is_inter1], "mappedExp2"=exp2[,map$idcs1]))
            },
 
 
@@ -54,6 +56,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## Returns a named list with the count data.frame (useful for duplicate filtering based on sequencing depth, see filterDuplicatesSeqDepth)
            ##                               TPM data.frame (useful for TPM based filtering, see filterGenesByTPM)
            ##                and the actual logTPM which corresponds to log(TPM + 1)
+           ## 20220920 man page done
            logTPMNormalization = function(expression_rds_obj){
              if(class(expression_rds_obj) != "RangedSummarizedExperiment"){
                stop("Error: expression matrices need to be an RSE object")
@@ -316,7 +319,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              }
              return(which(rds_gene_info$seqnames %in% chroms))
            },
-           
+
            ##gets gene information from gencode given a list of genes names or ids
            ##it is supposed to automatically infer wheter id or name
            ##it is supposed to automatically infer whether . exists in id
@@ -348,7 +351,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              }
              return(to_return)
            },
-           
+
            geneENSGToName = function(gene_ids){
              to_return <- getGeneInfo(gene_ids)
              return(to_return$gene_name)
@@ -356,7 +359,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
            # getGeneAliases(gene_names)
            # # TODO: return all alias names
-           # # 
+           # #
 
            getGeneIdcs = function(gene_names, rds_gene_info){
              if(class(rds_gene_info) != "data.frame"){
@@ -402,11 +405,11 @@ CreateNetSciDataCompanionObject <- function(clinical_patient_file, project_name)
   ## maybe we want to keep the alternative column names later? For now this is discarded
   alt_colnames <- patient_data[1:2,]
   patient_data <- patient_data[-c(1,2),]
-  
+
   fpath <- system.file("extdata", "gen_v26_mapping.csv", package="NetSciDataCompanion")
   gene_mapping <- read.csv(file = fpath, sep=",", header=TRUE, row.names = NULL)
   gene_mapping$gene_id_no_ver <- gsub("\\..*","",gene_mapping[,"gene_id"])
-  
+
 
   s <- NetSciDataCompanion$new(TCGA_purities = purities,
                                clinical_patient_data = patient_data,
