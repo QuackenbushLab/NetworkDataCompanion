@@ -12,7 +12,7 @@ project_name <- "LUAD"
 patient_data <- paste0(datapath,"clinical_patient_luad.csv")
 exp_data <- paste0(datapath,"tcga_luad.rds")
 mut_data <- paste0(datapath,"tcga_luad_mutations.txt")
-mut_pivot_data <- paste0("tcga_luad_mutations_pivot.csv")
+mut_pivot_data <- paste0(datapath, "tcga_luad_mutations_pivot.csv")
 meth_data <- paste0(datapath, "tcga_luad_methylations.txt")
 
 
