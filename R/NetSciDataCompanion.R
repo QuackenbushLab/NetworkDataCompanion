@@ -298,6 +298,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## Filter all genes which have at least *tpm_threshold* TPM scores in at least *sample_fraction* of samples
            ## expression_tpm_matrix should be TPM values (NOT log scaled)
            ## sample_fraction should be in [0,1]
+           ## 20220920 man page done
            filterGenesByTPM = function(expression_tpm_matrix, tpm_threshold, sample_fraction){
              if(class(expression_tpm_matrix) != "data.frame"){
                stop("Error: expression_tpm_matrix argument should be a data.frame")
@@ -313,6 +314,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              return(which(keep))
            },
 
+           ## 20220921 man page done
            filterChromosome = function(rds_gene_info, chroms){
              if(class(rds_gene_info) != "data.frame"){
                stop("Error: gene info argument should be a data.frame. Best \
@@ -328,6 +330,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ##gets gene information from gencode given a list of genes names or ids
            ##it is supposed to automatically infer wheter id or name
            ##it is supposed to automatically infer whether . exists in id
+           ## 20220921 man page done
            getGeneInfo = function(gene_names_or_ids){
              is_id <-  grepl("ENSG", gene_names_or_ids, fixed=TRUE)
              if(any(is_id == TRUE)){
@@ -346,6 +349,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            },
 
            ## the version corresponds to whether we want the . and number after from gene ids
+           ## 20220921 man page done
            geneNameToENSG = function(gene_names, version = FALSE){
              to_return <- getGeneInfo(gene_names)
              if(version == TRUE){
@@ -412,7 +416,7 @@ CreateNetSciDataCompanionObject <- function(clinical_patient_file, project_name)
   patient_data <- patient_data[-c(1,2),]
 
   fpath <- system.file("extdata", "gen_v26_mapping.csv", package="NetSciDataCompanion")
-  gene_mapping <- read.csv(file = fpath, sep=",", header=TRUE, row.names = NULL)
+  gene_mapping <- read.csv(file = fpath, sep=",", header=TRUE, row.names = 1)
   gene_mapping$gene_id_no_ver <- gsub("\\..*","",gene_mapping[,"gene_id"])
 
 

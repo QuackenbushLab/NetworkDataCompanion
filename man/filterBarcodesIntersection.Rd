@@ -15,12 +15,12 @@ filterBarcodesIntersection(exp1, exp2)
   \item{exp1}{A matrix or dataframe with TCGA barcodes as the \code{colnames} attribute.}
   \item{exp2}{A matrix or dataframe with TCGA barcodes as the \code{colnames} attribute.}
 }
-}
+
 \details{
 No additional details at this time.
 }
 \value{
-\item{mappedExp1}{A data frame filtered to include only columns with TCGA barcodes that are in both \code{colnames(exp1)} and \code{colnames(exp2)}.
+\item{mappedExp1}{A data frame filtered to include only columns with TCGA barcodes that are in both \code{colnames(exp1)} and \code{colnames(exp2)}.}
 \item{mappedExp2}{A data frame filtered to include only columns with TCGA barcodes that are in both \code{colnames(exp1)} and \code{colnames(exp2)}. IMPORTANT: The columns of \code{mappedExp2} are ordered to match the column ordering of \code{mappedExp1}.}
 }
 
