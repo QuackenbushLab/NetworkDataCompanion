@@ -15,7 +15,6 @@ logTPMNormalization(expression_rds_obj)
 \arguments{
   \item{expression_rds_obj}{A \code{RangedSummarizedExperiment} object.}
 }
-}
 
 \value{
 \item{counts}{A data frame of RNA sequencing counts matching the row and column ordering of \code{expression_rds_obj}.}
