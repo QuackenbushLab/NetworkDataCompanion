@@ -175,6 +175,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
            # Input to convertBetaToM is a vector of methylation betas
            # User should use this function with `apply` to convert a matrix
+           # 20220920 man page done
            convertBetaToM = function(methylation_betas){
               M = log2(methylation_betas/(1-methylation_betas))
               return(M)
@@ -182,6 +183,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
            ## Filter out all duplicates based on sequencing depth
            ## Returns indices about which samples to KEEP
+           ## 20220920 man page done
            filterDuplicatesSeqDepth = function(expression_count_matrix){
              sample_barcodes <- extractSampleOnly(colnames(expression_count_matrix))
              seq_depth <- colSums(expression_count_matrix)
@@ -204,6 +206,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
            ## Filter out all duplicates based on sequencing depth, take random one if no info on seq depth for all vials
            ## Returns indices in given tcga barcodes to KEEP
+           ## 20220920 man page done
            filterDuplicatesSeqDepthOther = function(expression_count_matrix, tcga_barcodes){
              sample_vials_ge <- extractVialOnly(colnames(expression_count_matrix))
              seq_depth <- colSums(expression_count_matrix)
@@ -241,6 +244,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
            ## Filter samples indicated by *TCGA_barcodes* based on the method *method* and threshold *threshold*
            ## Returns a list of indices indicating which samples should be kept
+           ## 20220920 Man page done
            filterPurity = function(TCGA_barcodes, method="ESTIMATE", threshold=.6){
              if(class(TCGA_barcodes) != "character"){
                stop("Error: Expected TCGA_barcodes argument to be vector of strings")
@@ -261,6 +265,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            },
 
            ## Filtering samples with a particular sample type (e.g., "Primary Tumor", "Solid Tissue Normal", "Primary Blood Derived Cancer - Peripheral Blood")
+           ## 20220920 Man page done
            filterTumorType = function(TCGA_barcodes, type_of_tumor, rds_info){
              if(class(TCGA_barcodes) != "character"){
                stop("Error: TCGA_barcodes argument needs to be a character vector")
