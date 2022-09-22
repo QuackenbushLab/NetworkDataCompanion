@@ -1,0 +1,142 @@
+---
+title: "NetSciDataCompanion Demo"
+author: "Kate"
+date: '2022-09-22'
+output: 
+  rmdformats::robobook:
+    code_folding: show
+    toc_depth: 3
+---
+
+# About NetSciDataCompanion
+
+# Loading LUAD data
+
+Begin by loading the library:
+
+```{R message=FALSE}
+library(NetSciDataCompanion)
+```
+
+To create a NetSciDataCompanion object ("Companion object"), you need to specify a project name and provide a path to a file of clinical data output by the Nextflow workflow.
+
+```{R}
+datapath = "testdata/luad/"
+
+project_name = "LUAD"
+patient_data = paste0(datapath,"clinical_patient_luad.csv")
+```
+
+We don't need to read in the `patient_data` file ourselves (the package will take care of this), but do so here to show the file format:
+
+```{R}
+patient_df = read.csv(patient_data)
+patient_df[1:5,1:5]
+names(patient_df)
+```
+
+Next, we use the `CreateNetSciDataCompanionObject` function to create a Companion object:
+
+```{R}
+obj = CreateNetSciDataCompanionObject(clinical_patient_file = patient_data,  project_name = project_name)
+```
+
+The object has a few attributes:
+
+```{R}
+ls(obj)
+```
+
+Two that will be particularly important for processing are `gene_mapping` and `TCGA_purities`. These store external information that is referenced by the member functions of the Companion object.
+
+## `gene_mapping`
+
+```{R}
+dim(obj$gene_mapping)
+names(obj$gene_mapping)
+obj$gene_mapping[1:5,]
+```
+
+## `TCGA_purities`
+
+
+```{R}
+dim(obj$TCGA_purities)
+names(obj$TCGA_purities)
+obj$TCGA_purities[1:5,]
+```
+
+# NetSciDataCompanion Functions
+
+Currently, the Nextflow retrieves four different data types: clinical data, expression, mutations, and methylation. The clinical data is used in the Companion object constructor. The other three data types are used as input to the Companion member functions. 
+
+First, we define paths to the data:
+
+```{R}
+exp_data <- paste0(datapath,"tcga_luad.rds")
+mut_data <- paste0(datapath,"tcga_luad_mutations.txt")
+mut_pivot_data <- paste0(datapath, "tcga_luad_mutations_pivot.csv")
+meth_data <- paste0(datapath, "tcga_luad_methylations.txt")
+```
+
+## Functions for working with expression
+
+```{R}
+# Read RDS expression data
+test_exp_rds <- readRDS(exp_data)
+```
+
+The function `extractSampleAndGeneInfo` provides a way to get metadata from the RangedSummarizedExperiment object that stores the expression data download.
+
+```{R}
+rds_info <- obj$extractSampleAndGeneInfo(test_exp_rds)
+rds_sample_info <- rds_info$rds_sample_info
+rds_sample_info[1:3,1:3]
+
+rds_gene_info <- rds_info$rds_gene_info
+rds_gene_info[1:3,1:3]
+```
+
+We can get information about a particular set of genes using either the names or the Ensembl IDs. 
+
+From gene names:
+
+```{R}
+rds_gene_info$gene_name[1:3]
+gene_info_from_names <- obj$getGeneInfo(rds_gene_info$gene_name)
+gene_info_from_names[1:3,]
+```
+
+From Ensembl IDs: 
+
+```{R}
+rds_gene_info$gene_id[1:3]
+genes_info_from_ids <- obj$getGeneInfo(rds_gene_info$gene_id)
+genes_info_from_ids[1:3,]
+```
+
+We can also convert between gene name and Ensembl ID and vice versa:
+
+```{R}
+genes_from_names_to_ids <- data.frame(obj$geneNameToENSG(rds_gene_info$gene_name))
+genes_from_ids_to_names <- data.frame(obj$geneENSGToName(rds_gene_info$gene_id))
+```
+
+A function for normalization takes a RangedSummarizedExperiment as input and returns three matrices: raw counts, TPM. and log(TPM + 1).
+
+```{R}
+# Normalize data
+test_exp_all <- obj$logTPMNormalization(test_exp_rds)
+test_exp_count <- test_exp_all$counts
+test_exp_tpm <- test_exp_all$TPM
+test_exp_logtpm <- test_exp_all$logTPM
+```
+
+## Functions for working with mutations
+
+## Functions for working with methylation
+
+```{R}
+myProbeList = c("cg14008030","cg12045430","cg03130891")
+obj$mapProbesToGenes(myProbeList,rangeUp = 200, rangeDown = 1500,localManifestPath = NA)
+```
