@@ -453,8 +453,20 @@ CreateNetSciDataCompanionObject <- function(clinical_patient_file, project_name)
 
   ## Load purities for purity package
   obj <- CreateTCGAPurityFilteringObject()
-  purities <- obj$get_tissue_purities(cancer_type = project_name)
-
+  
+  #this is an easy hack for not breaking, but something smarter would be great
+  #TODO skip purityfiltering completely and do it here instead
+  with_purity = c("ACC","BLCA","BRCA","CESC","COAD","GBM",
+                  "HNSC","KIRC","KIRP","KICH","LGG","LIHC",
+                  "LUAD","LUSC","OV","PRAD","READ","SKCM",
+                  "THCA","UCEC","UCS")
+  if(project_name %in%  with_purity){
+    purities <- obj$get_tissue_purities(cancer_type = project_name)
+  }
+  else{
+    purities <- NULL
+  }
+  
   ## Load patient's clinical data
   patient_data <- read.table(clinical_patient_file, header=T, sep=",")
   ## maybe we want to keep the alternative column names later? For now this is discarded
