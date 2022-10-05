@@ -78,6 +78,10 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            extractVialOnly = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 1, 16))
            },
+          
+           extractSampleType = function(TCGA_barcodes){
+              return(sapply(TCGA_barcodes, substr, 14, 15))
+           },
 
            findDuplicates = function(TCGA_barcodes){
               return(duplicated(extractVialOnly(TCGA_barcodes)))
@@ -285,6 +289,48 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              return(which(sample_type[match(sample_names, type_names)]))
            },
 
+           ## Filtering all tumor samples (e.g. barcode sample types {01,..09})
+           filterTumorSamples = function(TCGA_barcodes){
+             if(class(TCGA_barcodes) != "character"){
+               stop("Error: TCGA_barcodes argument needs to be a character vector")
+             }
+             sample_types <- extractSampleType(TCGA_barcodes)
+             ## tumor samples have codes between 01 and 09
+             tumors = c('01','02','03','04','05','06','07','08','09')
+             sample_tumor <- sample_types %in% tumors
+             sample_tumor[is.na(sample_tumor)] <- F
+
+             return(which(sample_tumor))
+           },
+
+           ## Filtering all normal samples (e.g. barcode sample types {10,..19})
+           filterNormalSamples = function(TCGA_barcodes){
+             if(class(TCGA_barcodes) != "character"){
+               stop("Error: TCGA_barcodes argument needs to be a character vector")
+             }
+             sample_types <- extractSampleType(TCGA_barcodes)
+             ## tumor samples have codes between 01 and 09
+             normals = c('10','11','12','13','14','15','16','17','18','19')
+             sample_normal <- sample_types %in% normals
+             sample_normal[is.na(sample_normal)] <- F
+
+             return(which(sample_normal))
+           },
+
+           ## Filtering all control samples (e.g. barcode sample types {20,..29})
+           filterControlSamples = function(TCGA_barcodes){
+             if(class(TCGA_barcodes) != "character"){
+               stop("Error: TCGA_barcodes argument needs to be a character vector")
+             }
+             sample_types <- extractSampleType(TCGA_barcodes)
+             ## tumor samples have codes between 01 and 09
+             controls = c('20','21','22','23','24','25','26','27','28','29')
+             sample_control <- sample_types %in% controls
+             sample_control[is.na(sample_control)] <- F
+
+             return(which(sample_control))
+           },
+
            ## Filter out protein coding genes based on rds info
            filterGenesProteins = function(rds_gene_info){
              if(class(rds_gene_info) != "data.frame"){
@@ -407,8 +453,20 @@ CreateNetSciDataCompanionObject <- function(clinical_patient_file, project_name)
 
   ## Load purities for purity package
   obj <- CreateTCGAPurityFilteringObject()
-  purities <- obj$get_tissue_purities(cancer_type = project_name)
-
+  
+  #this is an easy hack for not breaking, but something smarter would be great
+  #TODO skip purityfiltering completely and do it here instead
+  with_purity = c("ACC","BLCA","BRCA","CESC","COAD","GBM",
+                  "HNSC","KIRC","KIRP","KICH","LGG","LIHC",
+                  "LUAD","LUSC","OV","PRAD","READ","SKCM",
+                  "THCA","UCEC","UCS")
+  if(project_name %in%  with_purity){
+    purities <- obj$get_tissue_purities(cancer_type = project_name)
+  }
+  else{
+    purities <- NULL
+  }
+  
   ## Load patient's clinical data
   patient_data <- read.table(clinical_patient_file, header=T, sep=",")
   ## maybe we want to keep the alternative column names later? For now this is discarded
