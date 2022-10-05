@@ -83,11 +83,11 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
               return(duplicated(extractVialOnly(TCGA_barcodes)))
            },
 
-           mapUUIDtoTCGA = function(UUID){
+           mapUUIDtoTCGA = function(UUID, useLegacy = F){
               if(class(UUID) != "character"){
                 stop("Error: Expected UUID argument to be vector of strings")
               }
-              info = files(legacy = T) %>%
+              info = files(legacy = useLegacy) %>%
                GenomicDataCommons::filter( ~ file_id %in% UUID) %>%
                GenomicDataCommons::select('cases.samples.submitter_id') %>%
                results_all()
