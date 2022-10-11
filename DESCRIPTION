@@ -15,7 +15,8 @@ Depends:
   recount,
   recount3,
   stringr,
-  TCGAPurityFiltering
+  TCGAPurityFiltering,
+  edgeR
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1

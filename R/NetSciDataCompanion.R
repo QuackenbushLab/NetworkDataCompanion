@@ -67,6 +67,28 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                          TPM=assays(expression_rds_obj)$TPM,
                          logTPM=log(assays(expression_rds_obj)$TPM + 1)))
            },
+           
+           # Computes the log transformed CPM normalization based on an expression RDS object
+           # This is following the recipe provided by edgeR package to get TMM valyes
+           ## Returns a named list with the count data.frame (useful for duplicate filtering based on sequencing depth, see filterDuplicatesSeqDepth)
+           ##                               CPM data.frame (useful for CPM based filtering, see filterGenesByCPM)
+           ##                and the actual logCPM which corresponds to log(CPM + 1)
+           logCPMNormalization = function(expression_rds_obj){
+             if(class(expression_rds_obj) != "RangedSummarizedExperiment"){
+               stop("Error: expression matrices need to be an RSE object")
+             }
+             # get counts through recount
+             assays(expression_rds_obj)$counts <- recount3::transform_counts(expression_rds_obj)
+             # apply edgeR function to get differential gene lists
+             dge <- DGEList(assays(expression_rds_obj)$counts)
+             # get the normalizing factors from that list
+             dge <- calcNormFactors(dge)
+             # get the log tranformed cpms (aka: get TMM)
+             assays(expression_rds_obj)$CPM <- cpm(dge, log=F)
+             return(list(counts=assays(expression_rds_obj)$counts,
+                         CPM=assays(expression_rds_obj)$CPM,
+                         logCPM=log(assays(expression_rds_obj)$CPM+1)))
+           },
 
            #### more methods go here
 
@@ -341,22 +363,21 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              return(which(rds_gene_info$gene_type == "protein_coding"))
            },
 
-           ## Filter all genes which have at least *tpm_threshold* TPM scores in at least *sample_fraction* of samples
-           ## expression_tpm_matrix should be TPM values (NOT log scaled)
+           ## Filter all genes which have at least *norm_threshold* scores (of normalized gene expression) in at least *sample_fraction* of samples
+           ## expression_matrix should be TPM or CPM values (NOT log scaled)
            ## sample_fraction should be in [0,1]
-           ## 20220920 man page done
-           filterGenesByTPM = function(expression_tpm_matrix, tpm_threshold, sample_fraction){
-             if(class(expression_tpm_matrix) != "data.frame"){
-               stop("Error: expression_tpm_matrix argument should be a data.frame")
+           filterGenesByNormExpression = function(expression_matrix, norm_threshold, sample_fraction){
+             if(class(expression_matrix) != "data.frame"){
+               stop("Error: expression_matrix argument should be a data.frame")
              }
-             if(class(tpm_threshold) != "numeric" | tpm_threshold <= 0){
-               stop("Error: tpm_threshold argument should be a numeric > 0")
+             if(class(norm_threshold) != "numeric" | norm_threshold <= 0){
+               stop("Error: norm_threshold argument should be a numeric > 0")
              }
              if(class(sample_fraction) != "numeric" | sample_fraction <= 0 | sample_fraction >= 1){
                stop("Error: sample_fraction argument should be a numeric in [0,1]")
              }
-             minSamples = sample_fraction*ncol(expression_tpm_matrix)
-             keep = rowSums(expression_tpm_matrix >= tpm_threshold) >= minSamples
+             minSamples = sample_fraction*ncol(expression_matrix)
+             keep = rowSums(expression_matrix >= norm_threshold) >= minSamples
              return(which(keep))
            },
 
