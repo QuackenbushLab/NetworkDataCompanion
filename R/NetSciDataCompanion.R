@@ -1,4 +1,5 @@
 NetSciDataCompanion=setRefClass("NetSciDataCompanion",
+
          fields = list(TCGA_purities= "data.frame",
                        clinical_patient_data = "data.frame",
                        project_name = "character",
@@ -67,7 +68,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                          TPM=assays(expression_rds_obj)$TPM,
                          logTPM=log(assays(expression_rds_obj)$TPM + 1)))
            },
-           
+
            # Computes the log transformed CPM normalization based on an expression RDS object
            # This is following the recipe provided by edgeR package to get TMM valyes
            ## Returns a named list with the count data.frame (useful for duplicate filtering based on sequencing depth, see filterDuplicatesSeqDepth)
@@ -100,7 +101,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            extractVialOnly = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 1, 16))
            },
-          
+
            extractSampleType = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 14, 15))
            },
@@ -136,8 +137,14 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            # the function will convert this to negative number.
            # note this implementation ONLY looks for a TSS and not
            # for gene body or other regions.
+           # long form: returns one row per gene, so if a probe  maps
+           # to the TSS of two different genes, each of those gets a row
 
-           mapProbesToGenes = function(probelist, rangeUp, rangeDown, localManifestPath=NA){
+           mapProbesToGenes = function(probelist,
+                                       rangeUp = 200,
+                                       rangeDown = 0,
+                                       localManifestPath=NA,
+                                       longForm = F){
 
              if(is.na(localManifestPath))
              {
@@ -171,6 +178,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              # define empty map
              mymap = matrix(rep(NA,4*nrow(smallManifest)),ncol=4)
              mymap[,1] = probelist
+             mymap = as.data.frame(mymap)
 
              # iterate through map with for loop
              # please feel free to vectorize this etc
@@ -196,7 +204,39 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              }
 
              colnames(mymap) = c("probeID","geneName","ensemblID","distToTSS")
-             return(mymap)
+
+             if(!longForm)
+              return(mymap)
+             else
+             {
+               # find any probe that has more than one gene mapped to it
+               if(length(mymap[grep(";",mymap[,2])]) == 0)
+                 return(mymap)
+
+               doubleGenes = data.frame(mymap[grep(";",mymap[,2]),])
+               for(i in 1:nrow(doubleGenes))
+               {
+                 if(i %% 1000 == 0) print(i)
+                 # get every split gene
+                 theseSplitGenes = str_split(doubleGenes[i,2],";",simplify=T)[1,]
+                 theseSplitEns = str_split(doubleGenes[i,3],";",simplify=T)[1,]
+                 theseSplitTSS = str_split(doubleGenes[i,4],";",simplify=T)[1,]
+                 splitInfo = data.frame("probeID"=doubleGenes[i,1],
+                                        "geneName"=theseSplitGenes,
+                                        "ensemblID"=theseSplitEns,
+                                        "distToTSS"=theseSplitTSS)
+                 mymap = rbind.data.frame(mymap,splitInfo)
+               }
+
+               # now remove all the original entries that had > 1 gene
+               mymap_long = mymap[-grep(";",mymap$geneName),]
+               # this map will have multiple rows for a single geneName
+               # in some cases (e.g. splice isoform, different ensemblIDs)
+               # handling this is a downstream decision, as the map
+               # from this point is "long form" in the sense that every
+               # row has only one gene
+               return(mymap_long)
+             }
            },
 
            # Input to convertBetaToM is a vector of methylation betas
@@ -470,29 +510,36 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 ### the export decorator is for roxygen to know which methods to export
 
 #' @export "CreateNetSciDataCompanionObject"
-CreateNetSciDataCompanionObject <- function(clinical_patient_file, project_name){
+CreateNetSciDataCompanionObject <- function(clinical_patient_file=NULL, project_name="default_project"){
 
   ## Load purities for purity package
   obj <- CreateTCGAPurityFilteringObject()
-  
+
   #this is an easy hack for not breaking, but something smarter would be great
   #TODO skip purityfiltering completely and do it here instead
   with_purity = c("ACC","BLCA","BRCA","CESC","COAD","GBM",
                   "HNSC","KIRC","KIRP","KICH","LGG","LIHC",
                   "LUAD","LUSC","OV","PRAD","READ","SKCM",
                   "THCA","UCEC","UCS")
+  purities <- data.frame()
+
   if(project_name %in%  with_purity){
     purities <- obj$get_tissue_purities(cancer_type = project_name)
   }
-  else{
-    purities <- NULL
-  }
-  
+
   ## Load patient's clinical data
-  patient_data <- read.table(clinical_patient_file, header=T, sep=",")
-  ## maybe we want to keep the alternative column names later? For now this is discarded
-  alt_colnames <- patient_data[1:2,]
-  patient_data <- patient_data[-c(1,2),]
+  if(!is.null(clinical_patient_file))
+  {
+    patient_data <- read.table(clinical_patient_file, header=T, sep=",")
+    ## maybe we want to keep the alternative column names later? For now this is discarded
+    alt_colnames <- patient_data[1:2,]
+    patient_data <- patient_data[-c(1,2),]
+  }
+
+  else
+  {
+    patient_data = data.frame()
+  }
 
   fpath <- system.file("extdata", "gen_v26_mapping.csv", package="NetSciDataCompanion")
   gene_mapping <- read.csv(file = fpath, sep=",", header=TRUE, row.names = 1)

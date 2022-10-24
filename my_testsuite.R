@@ -20,7 +20,6 @@ meth_data <- paste0(datapath, "tcga_luad_methylations.txt")
 obj <- CreateNetSciDataCompanionObject(clinical_patient_file = patient_data,
                                        project_name = project_name)
 
-
 # Read RDS expression data
 test_exp_rds <- readRDS(exp_data)
 
@@ -118,6 +117,9 @@ mutations_exp_matchedmutations <- cbind(mutations_filtered[,c(1,2)], mutations_f
 ## unrecoverable errors happen
 ## it is not testing correctness of the probe mapping
 
+obj <- CreateNetSciDataCompanionObject()
 myProbeList = c("cg14008030","cg12045430","cg03130891")
-obj$mapProbesToGenes(myProbeList,rangeUp = 200, rangeDown = 1500,localManifestPath = NA)
+shortMap = obj$mapProbesToGenes(myProbeList,rangeUp = 1500, rangeDown = 0,localManifestPath = NA)
+longMap = obj$mapProbesToGenes(myProbeList,rangeUp = 1500, rangeDown = 0,
+                               localManifestPath = NA , longForm = T)
 
