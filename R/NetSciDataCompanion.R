@@ -125,9 +125,12 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                a[[1]][[1]][[1]]})
               # so we can later expand to a data.frame of the right size
               barcodes_per_file = sapply(id_list,length)
+              # sort to match input UUID order
+              file_id <- rep(ids(info),barcodes_per_file)
+              reord <- match(UUID, file_id)
               # And build the data.frame
-              return(data.frame(file_id = rep(ids(info),barcodes_per_file),
-                               submitter_id = unlist(id_list)))
+              return(data.frame(file_id = file_id[reord],
+                               submitter_id = unlist(id_list)[reord]))
            },
 
 
@@ -152,16 +155,16 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
                # source hg38 with gencode 36 from https://zwdzwd.github.io/InfiniumAnnotation
                download.file('https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz',
-                             destfile = "inst/extdata/HM450.hg38.manifest.gencode.v36.tsv.gz")
+                             destfile = "./HM450.hg38.manifest.gencode.v36.tsv.gz")
 
                # unzip
-               system2(command="gunzip",args=c("inst/extdata/HM450.hg38.manifest.gencode.v36.tsv.gz"))
+               system2(command="gunzip",args=c("./HM450.hg38.manifest.gencode.v36.tsv.gz"))
 
                # load into memory
-               manifest = data.frame(fread("inst/extdata/HM450.hg38.manifest.gencode.v36.tsv",sep="\t",header=T))
+               manifest = data.frame(fread("./HM450.hg38.manifest.gencode.v36.tsv",sep="\t",header=T))
 
                # remove from local storage
-               system2(command="rm",args="inst/extdata/HM450.hg38.manifest.gencode.v36.tsv")
+               system2(command="rm",args="./HM450.hg38.manifest.gencode.v36.tsv")
              }
 
              if(!is.na(localManifestPath))
