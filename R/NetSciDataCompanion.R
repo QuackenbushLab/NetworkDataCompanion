@@ -134,7 +134,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            },
 
 
-           # rangeUp and rangeDown should both be positive numbers
+           # rangeUp and rangeDown should both be non-negative numbers
            # indicating the distance to look upstream and downstream
            # from a probe for a TSS.
            # the function will convert this to negative number.
@@ -242,6 +242,33 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              }
            },
 
+           # Function to map to probes to a gene-level measurement
+           # probe_gene_map is in the format output from the mapProbesToGenes function
+           # not all tfGenes need to be in probe_gene_map, but if none are, then this is meaningless
+           probeToMeanTFMethylation = function(methylation_betas, probe_gene_map, tfGenes){
+
+             # merge probe_gene_map with beta values
+             # use a left join to keep only probes that mapped to genes of interest
+             mappedBetas = left_join(probe_gene_map, methylation_betas, by="probeID")
+
+             betaMeans = matrix(NA,nrow = length(tfGenes), ncol = ncol(methylation_betas)-1)
+             betaSDs = matrix(NA,nrow = length(tfGenes), ncol = ncol(methylation_betas)-1)
+
+             for(i in 1:length(tfGenes))
+             {
+               if(i %% 300 == 0) print(i)
+               thisGene = tfGenes[i]
+               theseProbes = probe_gene_map %>% dplyr::filter(gene == thisGene) %>% dplyr::select(probeID)
+               theseBetas = mappedBetas %>% dplyr::filter(probeID %in% theseProbes$probeID) %>% dplyr::select(-c(probeID,gene,ensemblID,distToTSS))
+               # any probe that was missed just doesn't contribute to the average
+               betaMeans[i,] = apply(theseBetas,2,mean,na.rm=T)
+             }
+
+             betaMeansDF = data.frame(t(betaMeans))
+             colnames(betaMeansDF) = tfGenes
+             row.names(betaMeansDF) = names(methylation_betas)[-1]
+             return(betaMeansDF)
+           },
            # Input to convertBetaToM is a vector of methylation betas
            # User should use this function with `apply` to convert a matrix
            # 20220920 man page done
