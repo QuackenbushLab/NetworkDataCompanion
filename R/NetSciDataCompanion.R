@@ -3,7 +3,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
          fields = list(TCGA_purities= "data.frame",
                        clinical_patient_data = "data.frame",
                        project_name = "character",
-                       gene_mapping = "data.frame"),
+                       gene_mapping = "data.frame",
+                       sample_type_mapping = "data.frame"),
          methods = list(
 
 
@@ -360,7 +361,18 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              return(cut_idcs)
            },
 
-           ## Filtering samples with a particular sample type (e.g., "Primary Tumor", "Solid Tissue Normal", "Primary Blood Derived Cancer - Peripheral Blood")
+           # return tissue type given an input barcode
+           getTissueType = function(TCGA_barcode)
+           {
+             this_sample = substr(str_split(TCGA_barcode,"-",simplify=T)[1,4],1,2)
+             print(this_sample)
+             print(as.numeric(this_sample))
+             print(sample_type_mapping$numcode)
+             print(as.numeric(sample_type_mapping$numcode))
+             return(sample_type_mapping[which(as.numeric(sample_type_mapping$numcode) == as.numeric(this_sample)),])
+           },
+
+           ## Filtering samples in an rds with a particular sample type (e.g., "Primary Tumor", "Solid Tissue Normal", "Primary Blood Derived Cancer - Peripheral Blood")
            ## 20220920 Man page done
            filterTumorType = function(TCGA_barcodes, type_of_tumor, rds_info){
              if(class(TCGA_barcodes) != "character"){
@@ -575,11 +587,15 @@ CreateNetSciDataCompanionObject <- function(clinical_patient_file=NULL, project_
   gene_mapping <- read.csv(file = fpath, sep=",", header=TRUE, row.names = 1)
   gene_mapping$gene_id_no_ver <- gsub("\\..*","",gene_mapping[,"gene_id"])
 
+  fpath_sample <- system.file("extdata", "TCGA_sample_type.csv", package="NetSciDataCompanion")
+  sample_type_mapping <- read.csv(file = fpath_sample, header=T, sep=",")
+
 
   s <- NetSciDataCompanion$new(TCGA_purities = purities,
                                clinical_patient_data = patient_data,
                                project_name = project_name,
-                               gene_mapping = gene_mapping)
+                               gene_mapping = gene_mapping,
+                               sample_type_mapping = sample_type_mapping)
 }
 
 
