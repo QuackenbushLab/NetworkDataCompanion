@@ -365,10 +365,6 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            getTissueType = function(TCGA_barcode)
            {
              this_sample = substr(str_split(TCGA_barcode,"-",simplify=T)[1,4],1,2)
-             print(this_sample)
-             print(as.numeric(this_sample))
-             print(sample_type_mapping$numcode)
-             print(as.numeric(sample_type_mapping$numcode))
              return(sample_type_mapping[which(as.numeric(sample_type_mapping$numcode) == as.numeric(this_sample)),])
            },
 
