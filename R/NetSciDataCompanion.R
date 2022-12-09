@@ -108,7 +108,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            },
 
            findDuplicates = function(TCGA_barcodes){
-              return(duplicated(extractVialOnly(TCGA_barcodes)))
+             dupPos = duplicated(extractVialOnly(TCGA_barcodes))
+             return(TCGA_barcodes[dupPos])
            },
 
            mapUUIDtoTCGA = function(UUID, useLegacy = F){
@@ -148,7 +149,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                                        rangeUp = 200,
                                        rangeDown = 0,
                                        localManifestPath=NA,
-                                       longForm = F){
+                                       longForm = F,
+                                       mapToNearest = F){
 
              if(is.na(localManifestPath))
              {
@@ -209,9 +211,36 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              colnames(mymap) = c("probeID","geneName","ensemblID","distToTSS")
 
-             if(!longForm)
+             if(!longForm & !mapToNearest)
               return(mymap)
-             else
+             if(mapToNearest)
+             {
+               processRow = function(x) # x is one row of mymap
+               {
+                 x = as.data.frame(x)
+                 genes = str_split(x$geneName,";",simplify=T)
+                 ensemblID = str_split(x$ensemblID,";",simplify=T)
+                 tssDist = as.numeric(str_split(x$distToTSS,";",simplify=T))
+                 if(length(unique(genes)) > 1)
+                 {
+                   index = which.min(abs(tssDist))
+                   thisRow = c(x$probeID,genes[index],ensemblID[index],tssDist[index])
+                   return(thisRow)
+                 }
+
+                 return(x[1,])
+               }
+
+               myNearMap = mymap
+               for(i in 1:nrow(mymap))
+               {
+                 if(i %% 10000 == 0) print(paste("probe number:",i))
+                 myNearMap[i,]=processRow(mymap[i,])
+               }
+               return(myNearMap)
+             }
+
+             if(longForm)
              {
                # find any probe that has more than one gene mapped to it
                if(length(mymap[grep(";",mymap[,2])]) == 0)
@@ -250,18 +279,25 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              # merge probe_gene_map with beta values
              # use a left join to keep only probes that mapped to genes of interest
-             mappedBetas = left_join(probe_gene_map, methylation_betas, by="probeID")
+             mappedBetas = probe_gene_map %>% dplyr::select(-c(geneName,ensemblID,distToTSS)) %>%
+               left_join(methylation_betas, by="probeID")
 
              betaMeans = matrix(NA,nrow = length(tfGenes), ncol = ncol(methylation_betas)-1)
              betaSDs = matrix(NA,nrow = length(tfGenes), ncol = ncol(methylation_betas)-1)
 
              for(i in 1:length(tfGenes))
              {
-               if(i %% 300 == 0) print(i)
+               # if(i %% 300 == 0)
+               print(i)
                thisGene = tfGenes[i]
-               theseProbes = probe_gene_map %>% dplyr::filter(gene == thisGene) %>% dplyr::select(probeID)
-               theseBetas = mappedBetas %>% dplyr::filter(probeID %in% theseProbes$probeID) %>% dplyr::select(-c(probeID,gene,ensemblID,distToTSS))
+               theseProbes = probe_gene_map %>% dplyr::filter(geneName == thisGene) %>%
+                 dplyr::select(probeID)
+               theseBetas = mappedBetas %>% dplyr::filter(probeID %in% theseProbes$probeID) %>%
+                 dplyr::select(-c(probeID))
                # any probe that was missed just doesn't contribute to the average
+               # print(apply(theseBetas,2,mean,na.rm=T))
+               print(length(apply(theseBetas,2,mean,na.rm=T)))
+               print(length(betaMeans[i,]))
                betaMeans[i,] = apply(theseBetas,2,mean,na.rm=T)
              }
 
@@ -364,8 +400,18 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            # return tissue type given an input barcode
            getTissueType = function(TCGA_barcode)
            {
-             this_sample = substr(str_split(TCGA_barcode,"-",simplify=T)[1,4],1,2)
-             return(sample_type_mapping[which(as.numeric(sample_type_mapping$numcode) == as.numeric(this_sample)),])
+             this_sample = as.numeric(substr(str_split(TCGA_barcode,"-",simplify=T)[1,4],1,2))
+             if(!this_sample%in% sample_type_mapping$numcode)
+             {
+               print(paste("[NetSciDataCompanion::getTissueType()] Error: unknown sample type:",this_sample))
+               return(NA)
+             }
+
+             this_map = data.frame("TCGA_barcode"=TCGA_barcode)
+             row.names(this_map) = TCGA_barcode
+             this_match = sample_type_mapping[which(as.numeric(sample_type_mapping$numcode) == as.numeric(this_sample)),]
+
+             return(cbind.data.frame(this_map,this_match))
            },
 
            ## Filtering samples in an rds with a particular sample type (e.g., "Primary Tumor", "Solid Tissue Normal", "Primary Blood Derived Cancer - Peripheral Blood")
