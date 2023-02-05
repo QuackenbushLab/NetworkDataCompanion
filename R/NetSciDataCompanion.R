@@ -287,8 +287,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              for(i in 1:length(tfGenes))
              {
-               # if(i %% 300 == 0)
-               print(i)
+               if(i %% 300 == 0)
+                print(i)
                thisGene = tfGenes[i]
                theseProbes = probe_gene_map %>% dplyr::filter(geneName == thisGene) %>%
                  dplyr::select(probeID)
@@ -306,12 +306,22 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              row.names(betaMeansDF) = names(methylation_betas)[-1]
              return(betaMeansDF)
            },
+
            # Input to convertBetaToM is a vector of methylation betas
            # User should use this function with `apply` to convert a matrix
            # 20220920 man page done
            convertBetaToM = function(methylation_betas){
               M = log2(methylation_betas/(1-methylation_betas))
               return(M)
+           },
+
+           ## Run EPISCORE to estimate cell counts
+           estimateCellCountsEpiSCORE = function(methylation_betas, tissue){
+             tissue_options = c("Lung")
+             if(!tissue %in% tissue_options)
+             {
+               print(paste("[NetSciDataCompanion::estimateCellCountsEpiSCORE()] EpiSCORE is not implemented for tissue:", tissue))
+             }
            },
 
            ## Filter out all duplicates based on sequencing depth
@@ -631,7 +641,6 @@ CreateNetSciDataCompanionObject <- function(clinical_patient_file=NULL, project_
 
   fpath_sample <- system.file("extdata", "TCGA_sample_type.csv", package="NetSciDataCompanion")
   sample_type_mapping <- read.csv(file = fpath_sample, header=T, sep=",")
-
 
   s <- NetSciDataCompanion$new(TCGA_purities = purities,
                                clinical_patient_data = patient_data,
