@@ -325,9 +325,9 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                                 "Kidney",
                                 "Liver",
                                 "Lung",
-                                "OE",
-                                "Pancreas_6ct",
-                                "Pancreas_9ct",
+                                "OE", # olfactory epithelial
+                                "Pancreas_6ct", # defined over 6 cell types
+                                "Pancreas_9ct", # defined over 9 cell types
                                 "Prostate",
                                 "Skin")
              if(!tissue %in% tissue_options)
@@ -350,27 +350,57 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              cellEst = NULL
 
-             if(tissue == "Bladder"){}
-             if(tissue == "Brain"){}
-             if(tissue == "Breast"){}
+             if(tissue == "Bladder"){
+               data(BladderRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefBladder.m)
+             }
+             if(tissue == "Brain"){
+               data(BrainRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefBrain.m)
+             }
+             if(tissue == "Breast"){
+               data(BreastRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefBreast.m)
+             }
              if(tissue == "Colon")
              {
                data(ColonRef)
                cellEst = wRPC(data = geneLevelMeth, ref.m = Colon_Mref.m)
              }
-             if(tissue == "Heart"){}
-             if(tissue == "Kidney"){}
-             if(tissue == "Liver"){}
+             if(tissue == "Heart"){
+               data(HeartRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefHeart.m)
+             }
+             if(tissue == "Kidney"){
+               data(KidneyRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = Kidney_Mref.m)
+             }
+             if(tissue == "Liver"){
+               data(LiverRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefLiver.m)
+             }
              if(tissue == "Lung")
              {
                data(LungRef)
                cellEst = wRPC(data = geneLevelMeth, ref.m = mrefLung.m)
              }
-             if(tissue == "OE"){}
-             if(tissue == "Pancreas_6ct"){}
-             if(tissue == "Pancreas_9ct"){}
-             if(tissue == "Prostate"){}
-             if(tissue == "Skin"){}
+             if(tissue == "OE"){
+               data(OEref)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefOE.m)
+             }
+             if(tissue == "Pancreas_6ct"){
+               data(PancreasRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefPancreas.m)
+             }
+             if(tissue == "Pancreas_9ct"){
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefPancreas9ct.m)
+             }
+             if(tissue == "Prostate"){
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefProstate.m)
+             }
+             if(tissue == "Skin"){
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefSkin.m)
+             }
 
              return(cellEst)
            },
