@@ -408,6 +408,12 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## Extract AHRR methylation at probe site cg05575921 as a proxy for smoking status
            extractAHRRMethylation = function(methylation_betas)
            {
+             ahrr = methylation_betas %>%
+                    filter(probeID == "cg05575921") %>%
+                    select(-probeID) %>%
+                    t()
+             colnames(ahrr)[1]="ahrr_cg05575921_beta"
+             return(as.data.frame(ahrr))
            },
 
            ## Filter out all duplicates based on sequencing depth
