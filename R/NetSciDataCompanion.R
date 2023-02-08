@@ -316,12 +316,68 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            },
 
            ## Run EPISCORE to estimate cell counts
-           estimateCellCountsEpiSCORE = function(methylation_betas, tissue){
-             tissue_options = c("Lung")
+           estimateCellCountsEpiSCORE = function(methylation_betas, tissue, array = "450k"){
+             tissue_options = c("Bladder",
+                                "Brain",
+                                "Breast",
+                                "Colon",
+                                "Heart",
+                                "Kidney",
+                                "Liver",
+                                "Lung",
+                                "OE",
+                                "Pancreas_6ct",
+                                "Pancreas_9ct",
+                                "Prostate",
+                                "Skin")
              if(!tissue %in% tissue_options)
              {
                print(paste("[NetSciDataCompanion::estimateCellCountsEpiSCORE()] EpiSCORE is not implemented for tissue:", tissue))
              }
+
+             # map methylation to gene level
+             # methylation betas should be samples in rows
+             # and CGs in columns
+             # luad for testing
+             # methylation_betas = fread("~/Desktop/tcga_luad_methylations.txt",data.table=F)
+             # row.names(methylation_betas) = methylation_betas$probeID
+             # array = "450k"
+
+             geneLevelMeth = methylation_betas %>%
+               select(-probeID) %>%
+               as.matrix() %>%
+               constAvBetaTSS(type = array)
+
+             cellEst = NULL
+
+             if(tissue == "Bladder"){}
+             if(tissue == "Brain"){}
+             if(tissue == "Breast"){}
+             if(tissue == "Colon")
+             {
+               data(ColonRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = Colon_Mref.m)
+             }
+             if(tissue == "Heart"){}
+             if(tissue == "Kidney"){}
+             if(tissue == "Liver"){}
+             if(tissue == "Lung")
+             {
+               data(LungRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefLung.m)
+             }
+             if(tissue == "OE"){}
+             if(tissue == "Pancreas_6ct"){}
+             if(tissue == "Pancreas_9ct"){}
+             if(tissue == "Prostate"){}
+             if(tissue == "Skin"){}
+
+             return(cellEst)
+           },
+
+           ## Extract AHRR methylation at probe site cg05575921 as a proxy for smoking status
+           extractAHRRMethylation = function(methylation_betas)
+           {
            },
 
            ## Filter out all duplicates based on sequencing depth
