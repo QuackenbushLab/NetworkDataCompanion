@@ -343,53 +343,54 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              # row.names(methylation_betas) = methylation_betas$probeID
              # array = "450k"
 
+	     row.names(methylation_betas) = methylation_betas$probeID
+	     
              geneLevelMeth = methylation_betas %>%
-               select(-probeID) %>%
+               dplyr::select(-probeID) %>%
                as.matrix() %>%
                constAvBetaTSS(type = array)
 
              cellEst = NULL
 
              if(tissue == "Bladder"){
-               data(BladderRef)
+               #data(BladderRef)
                cellEst = wRPC(data = geneLevelMeth, ref.m = mrefBladder.m)
              }
              if(tissue == "Brain"){
-               data(BrainRef)
+               #data(BrainRef)
                cellEst = wRPC(data = geneLevelMeth, ref.m = mrefBrain.m)
              }
              if(tissue == "Breast"){
-               data(BreastRef)
+               #data(BreastRef)
                cellEst = wRPC(data = geneLevelMeth, ref.m = mrefBreast.m)
              }
              if(tissue == "Colon")
              {
-               data(ColonRef)
+               #data(ColonRef)
                cellEst = wRPC(data = geneLevelMeth, ref.m = Colon_Mref.m)
              }
              if(tissue == "Heart"){
-               data(HeartRef)
+               #data(HeartRef)
                cellEst = wRPC(data = geneLevelMeth, ref.m = mrefHeart.m)
              }
              if(tissue == "Kidney"){
-               data(KidneyRef)
+               #data(KidneyRef)
                cellEst = wRPC(data = geneLevelMeth, ref.m = Kidney_Mref.m)
              }
              if(tissue == "Liver"){
-               data(LiverRef)
+               #data(LiverRef)
                cellEst = wRPC(data = geneLevelMeth, ref.m = mrefLiver.m)
              }
              if(tissue == "Lung")
              {
-               data(LungRef)
+               #data(LungRef)
                cellEst = wRPC(data = geneLevelMeth, ref.m = mrefLung.m)
              }
              if(tissue == "OE"){
-               data(OEref)
+               #data(OEref)
                cellEst = wRPC(data = geneLevelMeth, ref.m = mrefOE.m)
              }
              if(tissue == "Pancreas_6ct"){
-               data(PancreasRef)
                cellEst = wRPC(data = geneLevelMeth, ref.m = mrefPancreas.m)
              }
              if(tissue == "Pancreas_9ct"){
@@ -402,15 +403,26 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                cellEst = wRPC(data = geneLevelMeth, ref.m = mrefSkin.m)
              }
 
-             return(cellEst)
+	     # from cellEst, take estF
+	     outData = data.frame(cellEst$estF)
+	     outData$UUID = row.names(cellEst$estF)
+
+	     # get TCGA barcodes
+	     outTCGA = mapUUIDtoTCGA(outData$UUID)
+	     
+	     # merge and relabel
+	     outLabeled = outTCGA %>% inner_join(outData,by=c("file_id"="UUID")) %>%
+	            dplyr::rename("TCGAbarcode"="submitter_id","UUID"="file_id")
+			
+             return(outLabeled)
            },
 
            ## Extract AHRR methylation at probe site cg05575921 as a proxy for smoking status
            extractAHRRMethylation = function(methylation_betas)
            {
              ahrr = methylation_betas %>%
-                    filter(probeID == "cg05575921") %>%
-                    select(-probeID) %>%
+                    dplyr::filter(probeID == "cg05575921") %>%
+                    dplyr::select(-probeID) %>%
                     t()
              colnames(ahrr)[1]="ahrr_cg05575921_beta"
              return(as.data.frame(ahrr))
