@@ -128,7 +128,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
               # so we can later expand to a data.frame of the right size
               barcodes_per_file = sapply(id_list,length)
               # sort to match input UUID order
-              file_id <- rep(ids(info),barcodes_per_file)
+              file_id <- rep(GenomicDataCommons::ids(info),barcodes_per_file)
               reord <- match(UUID, file_id)
               # And build the data.frame
               return(data.frame(file_id = file_id[reord],
