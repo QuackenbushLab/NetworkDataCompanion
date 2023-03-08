@@ -10,16 +10,15 @@ Depends:
   data.table,
   dplyr,
   edgeR,
+  EpiSCORE,
   GenomicDataCommons,
   magrittr,
+  presto,
   recount,
   recount3,
   stringr,
   TCGAPurityFiltering,
   tidyr
-Imports:
-  EpiSCORE,
-  presto
 Remotes:  
   immunogenomics/presto,
   aet21/EpiSCORE

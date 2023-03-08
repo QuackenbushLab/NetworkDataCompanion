@@ -316,12 +316,116 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            },
 
            ## Run EPISCORE to estimate cell counts
-           estimateCellCountsEpiSCORE = function(methylation_betas, tissue){
-             tissue_options = c("Lung")
+           estimateCellCountsEpiSCORE = function(methylation_betas, tissue, array = "450k"){
+             tissue_options = c("Bladder",
+                                "Brain",
+                                "Breast",
+                                "Colon",
+                                "Heart",
+                                "Kidney",
+                                "Liver",
+                                "Lung",
+                                "OE", # olfactory epithelial
+                                "Pancreas_6ct", # defined over 6 cell types
+                                "Pancreas_9ct", # defined over 9 cell types
+                                "Prostate",
+                                "Skin")
              if(!tissue %in% tissue_options)
              {
                print(paste("[NetSciDataCompanion::estimateCellCountsEpiSCORE()] EpiSCORE is not implemented for tissue:", tissue))
              }
+
+             # map methylation to gene level
+             # methylation betas should be samples in rows
+             # and CGs in columns
+             # luad for testing
+             # methylation_betas = fread("~/Desktop/tcga_luad_methylations.txt",data.table=F)
+             # row.names(methylation_betas) = methylation_betas$probeID
+             # array = "450k"
+
+	     row.names(methylation_betas) = methylation_betas$probeID
+	     
+             geneLevelMeth = methylation_betas %>%
+               dplyr::select(-probeID) %>%
+               as.matrix() %>%
+               constAvBetaTSS(type = array)
+
+             cellEst = NULL
+
+             if(tissue == "Bladder"){
+               #data(BladderRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefBladder.m)
+             }
+             if(tissue == "Brain"){
+               #data(BrainRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefBrain.m)
+             }
+             if(tissue == "Breast"){
+               #data(BreastRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefBreast.m)
+             }
+             if(tissue == "Colon")
+             {
+               #data(ColonRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = Colon_Mref.m)
+             }
+             if(tissue == "Heart"){
+               #data(HeartRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefHeart.m)
+             }
+             if(tissue == "Kidney"){
+               #data(KidneyRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = Kidney_Mref.m)
+             }
+             if(tissue == "Liver"){
+               #data(LiverRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefLiver.m)
+             }
+             if(tissue == "Lung")
+             {
+               #data(LungRef)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefLung.m)
+             }
+             if(tissue == "OE"){
+               #data(OEref)
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefOE.m)
+             }
+             if(tissue == "Pancreas_6ct"){
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefPancreas.m)
+             }
+             if(tissue == "Pancreas_9ct"){
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefPancreas9ct.m)
+             }
+             if(tissue == "Prostate"){
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefProstate.m)
+             }
+             if(tissue == "Skin"){
+               cellEst = wRPC(data = geneLevelMeth, ref.m = mrefSkin.m)
+             }
+
+	     # from cellEst, take estF
+	     outData = data.frame(cellEst$estF)
+	     outData$UUID = row.names(cellEst$estF)
+
+	     # get TCGA barcodes
+	     outTCGA = mapUUIDtoTCGA(outData$UUID)
+	     
+	     # merge and relabel
+	     outLabeled = outTCGA %>% inner_join(outData,by=c("file_id"="UUID")) %>%
+	            dplyr::rename("TCGAbarcode"="submitter_id","UUID"="file_id")
+			
+             return(outLabeled)
+           },
+
+           ## Extract AHRR methylation at probe site cg05575921 as a proxy for smoking status
+           extractAHRRMethylation = function(methylation_betas)
+           {
+             ahrr = methylation_betas %>%
+                    dplyr::filter(probeID == "cg05575921") %>%
+                    dplyr::select(-probeID) %>%
+                    t()
+             colnames(ahrr)[1]="ahrr_cg05575921_beta"
+             return(as.data.frame(ahrr))
            },
 
            ## Filter out all duplicates based on sequencing depth
