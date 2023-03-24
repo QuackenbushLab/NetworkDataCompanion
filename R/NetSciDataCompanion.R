@@ -100,7 +100,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            },
            
            extractSampleAndType = function(TCGA_barcodes){
-             return(sapply(TCGA_barcodes, substr, 1, 14))
+             return(sapply(TCGA_barcodes, substr, 1, 15))
            },
 
            extractVialOnly = function(TCGA_barcodes){
