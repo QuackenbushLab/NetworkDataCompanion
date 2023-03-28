@@ -98,10 +98,15 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            extractSampleOnly = function(TCGA_barcodes){
              return(sapply(TCGA_barcodes, substr, 1, 12))
            },
+           
+           extractSampleAndType = function(TCGA_barcodes){
+             return(sapply(TCGA_barcodes, substr, 1, 15))
+           },
 
            extractVialOnly = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 1, 16))
            },
+           
 
            extractSampleType = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 14, 15))
@@ -432,7 +437,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## Returns indices about which samples to KEEP
            ## 20220920 man page done
            filterDuplicatesSeqDepth = function(expression_count_matrix){
-             sample_barcodes <- extractSampleOnly(colnames(expression_count_matrix))
+             sample_barcodes <- extractSampleAndType(colnames(expression_count_matrix))
              seq_depth <- colSums(expression_count_matrix)
              duplicate_throwout <- rep(NA, ncol(expression_count_matrix))
              for (idx in 1:ncol(expression_count_matrix))
