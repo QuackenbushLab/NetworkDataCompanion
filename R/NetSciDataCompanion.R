@@ -1,13 +1,10 @@
 NetSciDataCompanion=setRefClass("NetSciDataCompanion",
-
          fields = list(TCGA_purities= "data.frame",
                        clinical_patient_data = "data.frame",
                        project_name = "character",
                        gene_mapping = "data.frame",
                        sample_type_mapping = "data.frame"),
          methods = list(
-
-
            ## Extract experiment specific information and metadata from ranged summarized experiment object
            ## Returns a named list with rds_sample_info corresponding to meta information about the samples (columns)
            ##                       and rds_gene_info corresponding to meta information about genes (rows)
@@ -319,6 +316,32 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
               M = log2(methylation_betas/(1-methylation_betas))
               return(M)
            },
+
+
+            # Function to map to probes to a gene-level measurement
+            # probe_gene_map is in the format output from the mapProbesToGenes function
+            # Final value is the average over the geneName. 
+            probeToMeanPromoterMethylation = function(methylation_betas, probe_gene_map){
+            
+            # We map the methylation probeID to the genes (we will then average by gene name)
+            #probe_gene_map = obj$mapProbesToGenes(methylations$probeID)
+
+            # We merge the methylations data with probemap
+            meth2 = merge(methylation_betas,probe_gene_map,by="probeID",all.y=TRUE, all.x = FALSE)
+            # Rows that have multiple genes get split in multiple rows
+            # meth3 has the structure probeID, UUID1..., UUIDN, geneName, geneID, TSS
+            meth3 = as.data.frame(meth2 %>% separate_rows(geneName, sep = ";")  %>% drop_na(geneName))
+
+            # We average methylation by geneName. With colnames(meth3)[2:(ncol(meth3)-3)]
+            # we are selecting only the UUIDs (we average the betas)
+            meth4 <- as.data.frame(meth3 %>%
+              group_by(geneName) %>%
+              summarise_at(colnames(meth3)[2:(ncol(meth3)-3)], mean))
+
+            #write.table(meth4, file = 'methylation_gene_average.txt', sep = '\t', row.names = F)
+            return(meth4)
+
+           }
 
            ## Run EPISCORE to estimate cell counts
            estimateCellCountsEpiSCORE = function(methylation_betas, tissue, array = "450k"){
