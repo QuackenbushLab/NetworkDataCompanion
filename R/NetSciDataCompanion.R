@@ -154,7 +154,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                                        rangeUp = 200,
                                        rangeDown = 0,
                                        localManifestPath=NA,
-                                       longForm = F,
+                                       # longForm = F,
                                        mapToNearest = F){
 
              if(is.na(localManifestPath))
@@ -214,9 +214,9 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                }
              }
 
-             colnames(mymap) = c("probeID","geneName","ensemblID","distToTSS")
+             colnames(mymap) = c("probeID","geneNames","ensemblID","distToTSS")
 
-             if(!longForm & !mapToNearest)
+             if(!mapToNearest)
               return(mymap)
              if(mapToNearest)
              {
@@ -245,71 +245,66 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                return(myNearMap)
              }
 
-             if(longForm)
-             {
-               # find any probe that has more than one gene mapped to it
-               if(length(mymap[grep(";",mymap[,2])]) == 0)
-                 return(mymap)
-
-               doubleGenes = data.frame(mymap[grep(";",mymap[,2]),])
-               for(i in 1:nrow(doubleGenes))
-               {
-                 if(i %% 1000 == 0) print(i)
-                 # get every split gene
-                 theseSplitGenes = str_split(doubleGenes[i,2],";",simplify=T)[1,]
-                 theseSplitEns = str_split(doubleGenes[i,3],";",simplify=T)[1,]
-                 theseSplitTSS = str_split(doubleGenes[i,4],";",simplify=T)[1,]
-                 splitInfo = data.frame("probeID"=doubleGenes[i,1],
-                                        "geneName"=theseSplitGenes,
-                                        "ensemblID"=theseSplitEns,
-                                        "distToTSS"=theseSplitTSS)
-                 mymap = rbind.data.frame(mymap,splitInfo)
-               }
-
-               # now remove all the original entries that had > 1 gene
-               mymap_long = mymap[-grep(";",mymap$geneName),]
-               # this map will have multiple rows for a single geneName
-               # in some cases (e.g. splice isoform, different ensemblIDs)
-               # handling this is a downstream decision, as the map
-               # from this point is "long form" in the sense that every
-               # row has only one gene
-               return(mymap_long)
-             }
+             # 20230623
+             # removed the long form option to correspond with improvements to
+             # if(longForm)
+             # {
+             #   # find any probe that has more than one gene mapped to it
+             #   if(length(grep(";",mymap[,2])) == 0)
+             #     return(mymap)
+             #
+             #   doubleGenes = data.frame(mymap[grep(";",mymap[,2]),])
+             #   for(i in 1:nrow(doubleGenes))
+             #   {
+             #     if(i %% 1000 == 0) print(i)
+             #     # get every split gene
+             #     theseSplitGenes = str_split(doubleGenes[i,2],";",simplify=T)[1,]
+             #     theseSplitEns = str_split(doubleGenes[i,3],";",simplify=T)[1,]
+             #     theseSplitTSS = str_split(doubleGenes[i,4],";",simplify=T)[1,]
+             #     splitInfo = data.frame("probeID"=doubleGenes[i,1],
+             #                            "geneName"=theseSplitGenes,
+             #                            "ensemblID"=theseSplitEns,
+             #                            "distToTSS"=theseSplitTSS)
+             #     mymap = rbind.data.frame(mymap,splitInfo)
+             #   }
+             #
+             #   # now remove all the original entries that had > 1 gene
+             #   mymap_long = mymap[-grep(";",mymap$geneName),]
+             #   # this map will have multiple rows for a single geneName
+             #   # in some cases (e.g. splice isoform, different ensemblIDs)
+             #   # handling this is a downstream decision, as the map
+             #   # from this point is "long form" in the sense that every
+             #   # row has only one gene
+             #   return(mymap_long)
+             # }
            },
 
            # Function to map to probes to a gene-level measurement
            # probe_gene_map is in the format output from the mapProbesToGenes function
-           # not all tfGenes need to be in probe_gene_map, but if none are, then this is meaningless
-           probeToMeanTFMethylation = function(methylation_betas, probe_gene_map, tfGenes){
+           # not all genesOfInterest need to be in probe_gene_map, but if none are, then this is meaningless
+           probeToMeanPromoterMethylation = function(methylation_betas, probe_gene_map, genesOfInterest){
 
              # merge probe_gene_map with beta values
              # use a left join to keep only probes that mapped to genes of interest
-             mappedBetas = probe_gene_map %>% dplyr::select(-c(geneName,ensemblID,distToTSS)) %>%
+             print("probe map names")
+             print(names(probe_gene_map)[1:10])
+             mappedBetas = probe_gene_map %>%
+               dplyr::filter(geneNames %in% genesOfInterest) %>%
+               dplyr::select(geneNames,probeID) %>%
                left_join(methylation_betas, by="probeID")
 
-             betaMeans = matrix(NA,nrow = length(tfGenes), ncol = ncol(methylation_betas)-1)
-             betaSDs = matrix(NA,nrow = length(tfGenes), ncol = ncol(methylation_betas)-1)
+             ## split the probe map to a long form where there are multiple genes mapped to the same probe
+             mappedBetasLong = mappedBetas %>%
+               separate_rows(geneNames, sep = ";") %>%
+               drop_na(geneNames) %>%
+               data.frame(check.names = F)
 
-             for(i in 1:length(tfGenes))
-             {
-               if(i %% 300 == 0)
-                print(i)
-               thisGene = tfGenes[i]
-               theseProbes = probe_gene_map %>% dplyr::filter(geneName == thisGene) %>%
-                 dplyr::select(probeID)
-               theseBetas = mappedBetas %>% dplyr::filter(probeID %in% theseProbes$probeID) %>%
-                 dplyr::select(-c(probeID))
-               # any probe that was missed just doesn't contribute to the average
-               # print(apply(theseBetas,2,mean,na.rm=T))
-               print(length(apply(theseBetas,2,mean,na.rm=T)))
-               print(length(betaMeans[i,]))
-               betaMeans[i,] = apply(theseBetas,2,mean,na.rm=T)
-             }
-
-             betaMeansDF = data.frame(t(betaMeans))
-             colnames(betaMeansDF) = tfGenes
-             row.names(betaMeansDF) = names(methylation_betas)[-1]
-             return(betaMeansDF)
+             ## map probe-level methylation to the mean for each gene
+             betaMeans = mappedBetasLong %>%
+               group_by(geneNames) %>%
+               summarise_at(colnames(mappedBetasLong)[3:(ncol(mappedBetasLong))], mean) %>%
+               data.frame(check.names = F, row.names=1) %>% t()
+             return(betaMeans)
            },
 
            # Input to convertBetaToM is a vector of methylation betas
@@ -408,18 +403,19 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                cellEst = wRPC(data = geneLevelMeth, ref.m = mrefSkin.m)
              }
 
-	     # from cellEst, take estF
-	     outData = data.frame(cellEst$estF)
-	     outData$UUID = row.names(cellEst$estF)
 
-	     # get TCGA barcodes
-	     outTCGA = mapUUIDtoTCGA(outData$UUID)
+	          # from cellEst, take estF
+	          outData = data.frame(cellEst$estF)
+	          outData$UUID = row.names(cellEst$estF)
+
+	          # get TCGA barcodes
+	          outTCGA = mapUUIDtoTCGA(outData$UUID)
 	     
-	     # merge and relabel
-	     outLabeled = outTCGA %>% inner_join(outData,by=c("file_id"="UUID")) %>%
+	          # merge and relabel
+	          outLabeled = outTCGA %>% inner_join(outData,by=c("file_id"="UUID")) %>%
 	            dplyr::rename("TCGAbarcode"="submitter_id","UUID"="file_id")
 			
-             return(outLabeled)
+            return(outLabeled)
            },
 
            ## Extract AHRR methylation at probe site cg05575921 as a proxy for smoking status

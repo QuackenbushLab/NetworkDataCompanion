@@ -67,11 +67,10 @@ test_that("all probes that map to a gene are extracted from the map",{
   write.table(manifest,file="testdata/manifest_test.tsv",sep="\t",row.names=F,quote=F)
   my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
   my_map = my_friend$mapProbesToGenes(probelist = c("cg00000001","cg00000002"),
-                                           localManifestPath = "testdata/manifest_test.tsv",
-                                           longForm = T)
-  names(my_map)[2] = "gene" #TODO Add switch case for column names depending on manifest type
-  my_friend$probeToMeanTFMethylation(methylation_betas = my_betas,
-                                     tfGenes = c("HARRY","SEVERUS"),
+                                           localManifestPath = "testdata/manifest_test.tsv")
+  names(my_map)[2] = "geneNames" #TODO Add switch case for column names depending on manifest type
+  my_friend$probeToMeanPromoterMethylation(methylation_betas = my_betas,
+                                     genesOfInterest = c("HARRY","SEVERUS"),
                                      probe_gene_map = my_map)
 })
 
