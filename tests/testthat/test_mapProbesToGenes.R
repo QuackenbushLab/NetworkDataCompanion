@@ -38,8 +38,7 @@ test_that("probes are mapped correctly to TSS200",{
   write.table(manifest,file="testdata/manifest_test.tsv",sep="\t",row.names=F,quote=F)
   my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
   my_map_calc = my_friend$mapProbesToGenes(probelist = c("cg00000001","cg00000002"),
-                             localManifestPath = "testdata/manifest_test.tsv",
-                             longForm = T)
+                             localManifestPath = "testdata/manifest_test.tsv")
 
   # expected output
   my_map_hand = data.frame("probeID"=c("cg00000001","cg00000002"),
@@ -103,8 +102,7 @@ test_that("probes are mapped correctly to a custom region, [TSS - 10: TSS + 10]"
   my_map_calc = my_friend$mapProbesToGenes(probelist = c("cg00000001","cg00000002","cg00000003"),
                                            rangeUp=10,
                                            rangeDown=10,
-                                           localManifestPath = "testdata/manifest_test.tsv",
-                                           longForm = T)
+                                           localManifestPath = "testdata/manifest_test.tsv")
 
   # expected output
   my_map_hand = data.frame("probeID"=c("cg00000001","cg00000002","cg00000003"),
@@ -117,10 +115,3 @@ test_that("probes are mapped correctly to a custom region, [TSS - 10: TSS + 10]"
   expect_equal(my_map_hand$distToTSS, as.double(my_map_calc$distToTSS))
 })
 
-test_that("when a probe maps to multiple genes and longForm==F, the nearest gene is chosen",{
-
-})
-
-test_that("when a probe maps to multiple genes and longForm==T, all genes are chosen",{
-
-})
