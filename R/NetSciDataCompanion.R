@@ -529,25 +529,34 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              return(cbind.data.frame(this_map,this_match))
            },
 
-           ## Filtering samples in an rds with a particular sample type (e.g., "Primary Tumor", "Solid Tissue Normal", "Primary Blood Derived Cancer - Peripheral Blood")
-           ## 20220920 Man page done
-           filterTumorType = function(TCGA_barcodes, type_of_tumor, rds_info){
+           ## Filtering samples in an rds with particular sample types (e.g., "Primary Tumor", "Solid Tissue Normal", "Primary Blood Derived Cancer - Peripheral Blood")
+           filterSampleType = function(TCGA_barcodes, types_of_samples, rds_info){
              if(class(TCGA_barcodes) != "character"){
                stop("Error: TCGA_barcodes argument needs to be a character vector")
              }
-             if(class(type_of_tumor) != "character"){
-               stop("Error: type_of_tumor argument needs to be a string")
-             }
              if(class(rds_info) != "data.frame"){
-               stop("Error: expression matrices need to be an RSE object")
+               stop("Error: sample info rds_info is not a data frame")
+             }
+             if(class(types_of_samples) != "character"){
+               stop(paste0("Error: types_of_sample argument needs to be a string.\n Available types: ", as.character(unique(rds_info$tcga.cgc_sample_sample_type))))
+             }
+             
+             nonExistTypes <- which(!(types_of_samples %in% as.character(unique(rds_info$tcga.cgc_sample_sample_type))))
+             if (length(nonExistTypes) > 0) {
+               
+               if (length(nonExistTypes) == length(types_of_samples)){
+                  stop(paste0("Error: All types specified in types_of_sample argument do not exist in sample info (rds_info argument).\n Available types: ", as.character(unique(rds_info$tcga.cgc_sample_sample_type))))
+               }
+               print(paste0("Warning: ", types_of_samples[nonExistTypes], " are not present in sample info (rds_info argument)."))
              }
              sample_names <- sapply(TCGA_barcodes, substr, 1, 16)
              ## use column names of original object
              type_names <- sapply(rds_info$tcga.tcga_barcode, substr, 1, 16)
-             sample_type <- rds_info$tcga.cgc_sample_sample_type == type_of_tumor
+             sample_type <- rds_info$tcga.cgc_sample_sample_type %in% types_of_samples
              sample_type[is.na(sample_type)] <- F
 
-             return(which(sample_type[match(sample_names, type_names)]))
+             return(list(index=which(sample_type[match(sample_names, type_names)]),
+                         type=rds_info$tcga.cgc_sample_sample_type[match(sample_names, type_names)])) 
            },
 
            ## Filtering all tumor samples (e.g. barcode sample types {01,..09})
@@ -591,6 +600,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              return(which(sample_control))
            },
+	     
+	     
 
            ## Filter out protein coding genes based on rds info
            filterGenesProteins = function(rds_gene_info){
