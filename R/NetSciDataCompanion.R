@@ -633,14 +633,14 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              if(any(is_id == TRUE)){
                version <- grepl(".", gene_names_or_ids, fixed=TRUE)
                if(any(version == TRUE)){
-                 to_return <- subset(gene_mapping, gene_names_or_ids %in% gene_mapping$gene_id)
+                 to_return <- subset(gene_mapping, gene_mapping$gene_id %in% gene_names_or_ids )
                }
                else{
-                 to_return <- subset(gene_mapping,  gene_names_or_ids %in% gene_mapping$gene_id_no_ver)
+                 to_return <- subset(gene_mapping, gene_mapping$gene_id_no_ver %in% gene_names_or_ids)
                }
              }
              else{
-               to_return <- subset(gene_mapping, gene_names_or_ids %in% gene_mapping$gene_name)
+               to_return <- subset(gene_mapping, gene_mapping$gene_name %in% gene_names_or_ids)
              }
              return(to_return)
            },
