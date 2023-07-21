@@ -98,7 +98,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            extractSampleOnly = function(TCGA_barcodes){
              return(sapply(TCGA_barcodes, substr, 1, 12))
            },
-           
+
            extractSampleAndType = function(TCGA_barcodes){
              return(sapply(TCGA_barcodes, substr, 1, 15))
            },
@@ -106,7 +106,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            extractVialOnly = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 1, 16))
            },
-           
+
 
            extractSampleType = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 14, 15))
@@ -149,17 +149,18 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            # for gene body or other regions.
            # long form: returns one row per gene, so if a probe  maps
            # to the TSS of two different genes, each of those gets a row
-
-           mapProbesToGenes = function(probelist,
+           # default if probelist is NULL is to map all the probes in the manifest
+           mapProbesToGenes = function(probelist = NULL,
                                        rangeUp = 200,
                                        rangeDown = 0,
                                        localManifestPath=NA,
-                                       # longForm = F,
                                        mapToNearest = F){
 
              if(is.na(localManifestPath))
              {
-               print("[NetSciDataCompanion::mapProbesToGenes] Sourcing probe annotation from https://zwdzwd.github.io/InfiniumAnnotation ...")
+               print("[NetSciDataCompanion::mapProbesToGenes] Sourcing 450k probe annotation from https://zwdzwd.github.io/InfiniumAnnotation ...")
+               print("[NetSciDataCompanion::mapProbesToGenes] https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz")
+               print("[NetSciDataCompanion::mapProbesToGenes] HG38, Gencode v36")
 
                # source hg38 with gencode 36 from https://zwdzwd.github.io/InfiniumAnnotation
                download.file('https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz',
@@ -181,6 +182,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                manifest = read.table(localManifestPath,sep="\t",header=T)
              }
 
+             if(is.null(probelist))
+               probelist = manifest$probeID
              # get indices matching probes
              smallManifest = manifest %>% dplyr::filter(probeID %in% probelist)
              rm(manifest)
@@ -244,39 +247,6 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                }
                return(myNearMap)
              }
-
-             # 20230623
-             # removed the long form option to correspond with improvements to
-             # if(longForm)
-             # {
-             #   # find any probe that has more than one gene mapped to it
-             #   if(length(grep(";",mymap[,2])) == 0)
-             #     return(mymap)
-             #
-             #   doubleGenes = data.frame(mymap[grep(";",mymap[,2]),])
-             #   for(i in 1:nrow(doubleGenes))
-             #   {
-             #     if(i %% 1000 == 0) print(i)
-             #     # get every split gene
-             #     theseSplitGenes = str_split(doubleGenes[i,2],";",simplify=T)[1,]
-             #     theseSplitEns = str_split(doubleGenes[i,3],";",simplify=T)[1,]
-             #     theseSplitTSS = str_split(doubleGenes[i,4],";",simplify=T)[1,]
-             #     splitInfo = data.frame("probeID"=doubleGenes[i,1],
-             #                            "geneName"=theseSplitGenes,
-             #                            "ensemblID"=theseSplitEns,
-             #                            "distToTSS"=theseSplitTSS)
-             #     mymap = rbind.data.frame(mymap,splitInfo)
-             #   }
-             #
-             #   # now remove all the original entries that had > 1 gene
-             #   mymap_long = mymap[-grep(";",mymap$geneName),]
-             #   # this map will have multiple rows for a single geneName
-             #   # in some cases (e.g. splice isoform, different ensemblIDs)
-             #   # handling this is a downstream decision, as the map
-             #   # from this point is "long form" in the sense that every
-             #   # row has only one gene
-             #   return(mymap_long)
-             # }
            },
 
            # Function to map to probes to a gene-level measurement
@@ -344,7 +314,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              # array = "450k"
 
 	     row.names(methylation_betas) = methylation_betas$probeID
-	     
+
              geneLevelMeth = methylation_betas %>%
                dplyr::select(-probeID) %>%
                as.matrix() %>%
@@ -410,11 +380,11 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
 	          # get TCGA barcodes
 	          outTCGA = mapUUIDtoTCGA(outData$UUID)
-	     
+
 	          # merge and relabel
 	          outLabeled = outTCGA %>% inner_join(outData,by=c("file_id"="UUID")) %>%
 	            dplyr::rename("TCGAbarcode"="submitter_id","UUID"="file_id")
-			
+
             return(outLabeled)
            },
 
