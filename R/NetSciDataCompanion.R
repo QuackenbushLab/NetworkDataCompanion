@@ -615,8 +615,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            },
 
            ##gets gene information from gencode given a list of genes names or ids
-           ##it is supposed to automatically infer wheter id or name
-           ##it is supposed to automatically infer whether . exists in id
+           ##automatically infers whether ENS id or name
+           ##automatically infers whether version (i.e., the dot) exists in ENS id
            ## 20220921 man page done
            getGeneInfo = function(gene_names_or_ids){
              is_id <-  grepl("ENSG", gene_names_or_ids, fixed=TRUE)
@@ -652,11 +652,25 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              to_return <- getGeneInfo(gene_ids)
              return(to_return$gene_name)
            },
-
-           # getGeneAliases(gene_names)
-           # # TODO: return all alias names
-           # #
-
+	     
+    	     geneENSGToEntrez = function(gene_ids){
+    	       if(!("gene_entrez" %in% colnames(gene_mapping))
+    	       {
+    	         stop('Column gene_entrez not found in gene mapping')
+    	       }
+    	       to_return <- getGeneInfo(gene_ids)
+    	       return(to_return$gene_entrez)
+    	     },
+	     
+    	     geneNameToEntrez = function(gene_names){
+    	       if(!("gene_entrez" %in% colnames(gene_mapping))
+    	       {
+    	         stop('Column gene_entrez not found in gene mapping')
+    	       }
+    	       to_return <- getGeneInfo(gene_names)
+    	       return(to_return$gene_entrez)
+    	     },
+	     
            getGeneIdcs = function(gene_names, rds_gene_info){
              if(class(rds_gene_info) != "data.frame"){
                stop("Error: gene info argument should be a data.frame. Best \
