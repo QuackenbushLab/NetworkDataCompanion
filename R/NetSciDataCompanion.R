@@ -614,61 +614,105 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              return(which(rds_gene_info$seqnames %in% chroms))
            },
 
-           ##gets gene information from gencode given a list of genes names or ids
-           ##automatically infers whether ENS id or name
-           ##automatically infers whether version (i.e., the dot) exists in ENS id
-           ## 20220921 man page done
-           getGeneInfo = function(gene_names_or_ids){
-             is_id <-  grepl("ENSG", gene_names_or_ids, fixed=TRUE)
-             if(any(is_id == TRUE)){
-               version <- grepl(".", gene_names_or_ids, fixed=TRUE)
-               if(any(version == TRUE)){
-                 to_return <- subset(gene_mapping, gene_mapping$gene_id %in% gene_names_or_ids )
-               }
-               else{
-                 to_return <- subset(gene_mapping, gene_mapping$gene_id_no_ver %in% gene_names_or_ids)
-               }
-             }
-             else{
-               to_return <- subset(gene_mapping, gene_mapping$gene_name %in% gene_names_or_ids)
-             }
-             return(to_return)
-           },
-
-           ## the version corresponds to whether we want the . and number after from gene ids
-           ## 20220921 man page done
-           geneNameToENSG = function(gene_names, version = FALSE){
-             to_return <- getGeneInfo(gene_names)
-             if(version == TRUE){
-               to_return <- to_return$gene_id
-             }
-             else{
-               to_return <- to_return$gene_id_no_ver
-             }
-             return(to_return)
-           },
-
-           geneENSGToName = function(gene_ids){
-             to_return <- getGeneInfo(gene_ids)
-             return(to_return$gene_name)
-           },
-	     
-    	     geneENSGToEntrez = function(gene_ids){
-    	       if(!("gene_entrez" %in% colnames(gene_mapping))
-    	       {
-    	         stop('Column gene_entrez not found in gene mapping')
+    	     ##gets gene information from gencode given a list of genes names or ids from the gene mapping variable
+    	     ##automatically infers whether ensmbl ID or name or entrez
+    	     ##automatically infers whether version (i.e., the dot) exists in ensemble ID
+    	     getGeneInfo = function(gene_names_or_ids_or_entrezs){
+    	       is_id <-  any(grepl("ENSG", gene_names_or_ids_or_entrezs, fixed=TRUE))
+    	       is_entrez <- any(grepl("^\\d+$", gene_names_or_ids_or_entrezs))
+    	       
+    	       if(is_id){
+    	         version <- grepl(".", gene_names_or_ids_or_entrezs, fixed=TRUE)
+    	         if(any(version == TRUE)){
+    	           to_return <- subset(gene_mapping, gene_mapping$gene_id %in% gene_names_or_ids_or_entrezs )
+    	         }
+    	         else{
+    	           to_return <- subset(gene_mapping, gene_mapping$gene_id_no_ver %in% gene_names_or_ids_or_entrezs)
+    	         }
     	       }
-    	       to_return <- getGeneInfo(gene_ids)
-    	       return(to_return$gene_entrez)
+    	       else if (is_entrez){
+    	         to_return <- subset(gene_mapping, gene_mapping$gene_entrez %in% gene_names_or_ids_or_entrezs)
+    	       }
+    	       else{
+    	         to_return <- subset(gene_mapping, gene_mapping$gene_name %in% gene_names_or_ids_or_entrezs)
+    	       }
+    	       
+    	       if(nrow(to_return)!=length(gene_names_or_ids_or_entrezs)){
+    	         print('There was at least one one-to-many mapping (most probably from multiple ensembl IDs for to the input)')
+    	       }
+    	       return(to_return)
     	     },
-	     
-    	     geneNameToEntrez = function(gene_names){
-    	       if(!("gene_entrez" %in% colnames(gene_mapping))
+    	     
+    	     ## the version corresponds to whether we want the . and number after from gene ids
+    	     geneEntrezToENSG = function(gene_entrezs, version = FALSE){
+    	       if(!("gene_entrez" %in% colnames(gene_mapping)))
     	       {
-    	         stop('Column gene_entrez not found in gene mapping')
+    	         stop('Column gene_entrez not found in gene mapping.')
     	       }
     	       to_return <- getGeneInfo(gene_names)
-    	       return(to_return$gene_entrez)
+    	       if(version == TRUE){
+    	         to_return <- to_return$gene_id
+    	       }
+    	       else{
+    	         to_return <- to_return$gene_id_no_ver
+    	       }
+    	       return(to_return)
+    	     },
+    	     
+    	     geneENSGToName = function(gene_ids){
+    	       to_return <- getGeneInfo(gene_ids)$gene_name
+    	       if(anyNA(to_return)){
+    	         print('Not all ensembl IDs were mapped to names')
+    	       }
+    	       return(to_return)
+    	     },
+    	     
+    	     geneENSGToEntrez = function(gene_ids){
+    	       if(!("gene_entrez" %in% colnames(gene_mapping)))
+    	       {
+    	         stop('Column gene_entrez not found in gene mapping.')
+    	       }
+    	       to_return <- getGeneInfo(gene_ids)$gene_entrez
+    	       if(anyNA(to_return)){
+    	         print('Not all ensembl IDs were mapped to entrez')
+    	       }
+    	       return(to_return)
+    	     },
+    	     
+    	     geneNameToEntrez = function(gene_names){
+    	       if(!("gene_entrez" %in% colnames(gene_mapping)))
+    	       {
+    	         stop('Column gene_entrez not found in gene mapping')
+    	       }
+    	       to_return <- getGeneInfo(gene_names)$gene_entrez
+    	       if(anyNA(to_return)){
+    	         print('Not all names were mapped to entrez')
+    	       }
+    	       return(return(unique(to_return)))
+    	     },
+    	     
+    	     geneEntrezToName = function(gene_entrezs){
+    	       if(!("gene_entrez" %in% colnames(gene_mapping)))
+    	       {
+    	         stop('Column gene_entrez not found in gene mapping')
+    	       }
+    	       to_return <- getGeneInfo(gene_entrezs)$gene_name
+    	       if(anyNA(to_return)){
+    	         print('Not all entrez were mapped to names')
+    	       }
+    	       return(return(unique(to_return)))
+    	     },
+    	     
+    	     ## the version corresponds to whether we want the . and number after from gene ids
+    	     geneNameToENSG = function(gene_names, version = FALSE){
+    	       to_return <- getGeneInfo(gene_names)
+    	       if(version == TRUE){
+    	         to_return <- to_return$gene_id
+    	       }
+    	       else{
+    	         to_return <- to_return$gene_id_no_ver
+    	       }
+    	       return(to_return)
     	     },
 	     
            getGeneIdcs = function(gene_names, rds_gene_info){
@@ -735,7 +779,7 @@ CreateNetSciDataCompanionObject <- function(clinical_patient_file=NULL, project_
     patient_data = data.frame()
   }
 
-  fpath <- system.file("extdata", "gen_v26_mapping.csv", package="NetSciDataCompanion")
+  fpath <- system.file("extdata", "gen_v26_mapping_w_entrez.csv", package="NetSciDataCompanion")
   gene_mapping <- read.csv(file = fpath, sep=",", header=TRUE, row.names = 1)
   gene_mapping$gene_id_no_ver <- gsub("\\..*","",gene_mapping[,"gene_id"])
 
