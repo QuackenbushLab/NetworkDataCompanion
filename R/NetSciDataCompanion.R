@@ -43,10 +43,10 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## NOTE: Ordering is done based on columns, which are expected to be named by TCGA barcodes
            ## 20220920 man page done
            filterBarcodesIntersection = function(exp1, exp2){
-             if("data.frame" %in% class(exp1) & "matrix" %in% class(exp1) ){
+             if(!("data.frame" %in% class(exp1) | "matrix" %in% class(exp1)) ){
                stop("Error: argument 1 needs to be data.frame or matrix")
              }
-             if("data.frame" %in% class(exp2) & "matrix" %in% class(exp2) ){
+             if(!("data.frame" %in% class(exp2) | "matrix" %in% class(exp2)) ){
                stop("Error: argument 2 needs to be data.frame or matrix")
              }
              map <- mapBarcodeToBarcode(extractSampleOnly(colnames(exp1)), extractSampleOnly(colnames(exp2)))
