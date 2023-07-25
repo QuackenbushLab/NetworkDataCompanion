@@ -638,7 +638,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       }
     	       
     	       if(nrow(to_return)!=length(gene_names_or_ids_or_entrezs)){
-    	         print('There was at least one one-to-many mapping (most probably from multiple ensembl IDs for to the input)')
+    	         print('There was at least one one-to-many mapping (most probably from multiple ensembl IDs for the input)')
     	       }
     	       return(to_return)
     	     },
@@ -651,20 +651,20 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       }
     	       to_return <- getGeneInfo(gene_names)
     	       if(version == TRUE){
-    	         to_return <- to_return$gene_id
+    	         to_return <- to_return[c('gene_entrez','gene_id')]
     	       }
     	       else{
-    	         to_return <- to_return$gene_id_no_ver
+    	         to_return <- to_return[c('gene_entrez','gene_id_no_ver')]
     	       }
     	       return(to_return)
     	     },
     	     
     	     geneENSGToName = function(gene_ids){
-    	       to_return <- getGeneInfo(gene_ids)$gene_name
-    	       if(anyNA(to_return)){
+    	       to_return <- getGeneInfo(gene_ids)
+    	       if(anyNA(to_return$gene_name)){
     	         print('Not all ensembl IDs were mapped to names')
     	       }
-    	       return(to_return)
+    	       return(to_return[c('gene_id_no_ver','gene_name')])
     	     },
     	     
     	     geneENSGToEntrez = function(gene_ids){
@@ -672,11 +672,11 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       {
     	         stop('Column gene_entrez not found in gene mapping.')
     	       }
-    	       to_return <- getGeneInfo(gene_ids)$gene_entrez
-    	       if(anyNA(to_return)){
+    	       to_return <- getGeneInfo(gene_ids)
+    	       if(anyNA(to_return$gene_entrez)){
     	         print('Not all ensembl IDs were mapped to entrez')
     	       }
-    	       return(to_return)
+    	       return(to_return[c('gene_id_no_ver','gene_entrez')])
     	     },
     	     
     	     geneNameToEntrez = function(gene_names){
@@ -684,11 +684,13 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       {
     	         stop('Column gene_entrez not found in gene mapping')
     	       }
-    	       to_return <- getGeneInfo(gene_names)$gene_entrez
-    	       if(anyNA(to_return)){
+    	       to_return <- getGeneInfo(gene_names)
+    	       if(anyNA(to_return$gene_entrez)){
     	         print('Not all names were mapped to entrez')
     	       }
-    	       return(return(unique(to_return)))
+    	       to_return <- to_return[c('gene_name','gene_entrez')]
+    	       to_return <- to_return[!duplicated(to_return),]
+    	       return(to_return)
     	     },
     	     
     	     geneEntrezToName = function(gene_entrezs){
@@ -696,21 +698,23 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       {
     	         stop('Column gene_entrez not found in gene mapping')
     	       }
-    	       to_return <- getGeneInfo(gene_entrezs)$gene_name
-    	       if(anyNA(to_return)){
+    	       to_return <- getGeneInfo(gene_entrezs)
+    	       if(anyNA(to_return$gene_name)){
     	         print('Not all entrez were mapped to names')
     	       }
-    	       return(return(unique(to_return)))
+    	       to_return <- to_return[c('gene_entrez','gene_name')]
+    	       to_return <- to_return[!duplicated(to_return),]
+    	       return(to_return)
     	     },
     	     
     	     ## the version corresponds to whether we want the . and number after from gene ids
     	     geneNameToENSG = function(gene_names, version = FALSE){
     	       to_return <- getGeneInfo(gene_names)
     	       if(version == TRUE){
-    	         to_return <- to_return$gene_id
+    	         to_return <- to_return[c('gene_name','gene_id')]
     	       }
     	       else{
-    	         to_return <- to_return$gene_id_no_ver
+    	         to_return <- to_return[c('gene_name','gene_id_no_ver')]
     	       }
     	       return(to_return)
     	     },
