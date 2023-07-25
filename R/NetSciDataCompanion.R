@@ -13,7 +13,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ##                       and rds_gene_info corresponding to meta information about genes (rows)
            ## 20220913 man page done
            extractSampleAndGeneInfo = function(expression_rds_obj){
-             return(list(rds_sample_info=as.data.frame(colData(test_exp_rds)), rds_gene_info=as.data.frame(rowRanges(test_exp_rds))))
+             return(list(rds_sample_info=as.data.frame(colData(expression_rds_obj)),
+                         rds_gene_info=as.data.frame(rowRanges(expression_rds_obj))))
            },
 
 
