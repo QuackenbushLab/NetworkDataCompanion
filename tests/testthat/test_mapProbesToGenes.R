@@ -1,10 +1,5 @@
 context("[NetSciDataCompanion] Testing mapProbesToGenes function ... ")
 
-test_that("unit tests are running",{
-  print("Hello, world!")
-  expect_equal(2, sqrt(4))
-})
-
 test_that("probes are mapped correctly to TSS200",{
   # make a toy manifest
   manifest_line_1 = data.frame("CpG_chrm"="chr42",
@@ -115,3 +110,20 @@ test_that("probes are mapped correctly to a custom region, [TSS - 10: TSS + 10]"
   expect_equal(my_map_hand$distToTSS, as.double(my_map_calc$distToTSS))
 })
 
+# test download, gunzip, and load of manifest
+test_that("Illumina manifest is correctly downloaded and gunzipped...",
+{
+  my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
+  nsdc_map = my_friend$mapProbesToGenes(probelist="cg05575921", rangeUp = 0, rangeDown = 51000)
+  # true location hard-coded from the manifest located at
+  # https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz
+  #  probeID geneNames                            ensemblID
+  #1 cg05575921 AHRR;AHRR ENST00000316418.10;ENST00000510400.5
+  #distToTSS
+  #1 50676;50693
+  true_map = data.frame("probeID"="cg05575921",
+                        "geneNames"="AHRR;AHRR",
+                        "ensemblID"="ENST00000316418.10;ENST00000510400.5",
+                        "distToTSS"="50676;50693")
+  expect_equal(nsdc_map,true_map)
+})

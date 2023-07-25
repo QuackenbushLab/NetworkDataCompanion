@@ -167,7 +167,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                              destfile = "./HM450.hg38.manifest.gencode.v36.tsv.gz")
 
                # unzip
-               system2(command="gunzip",args=c("./HM450.hg38.manifest.gencode.v36.tsv.gz"))
+               # system2(command="gunzip",args=c("./HM450.hg38.manifest.gencode.v36.tsv.gz"))
+               R.utils::gunzip("./HM450.hg38.manifest.gencode.v36.tsv.gz", overwrite=T)
 
                # load into memory
                manifest = data.frame(fread("./HM450.hg38.manifest.gencode.v36.tsv",sep="\t",header=T))
