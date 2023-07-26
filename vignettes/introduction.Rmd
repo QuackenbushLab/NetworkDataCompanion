@@ -154,6 +154,7 @@ rownames(betas) <- betas$probeID
 colnames(betas)[-1] <- colnames(betas)[-1] %>%
   str_replace("X","") %>%
   str_replace_all("\\.","-")
+betas_uuided <- betas
 colnames(betas)[-1] <- obj$mapUUIDtoTCGA(colnames(betas)[-1])[,2]
 
 ## Remove duplicates from beta value matrix (for simplicity, remove duplicates 'at random')
@@ -182,8 +183,8 @@ smoking_ind <- obj$extractAHRRMethylation(betas)
 print(head(smoking_ind))
 
 ## Estimate cell proportions from methylation values through EpiSCORE
-episcores <- obj$estimateCellCountsEpiSCORE(methylation_betas = betas, tissue = 'Lung')
-print(episcores)
+episcores <- obj$estimateCellCountsEpiSCORE(methylation_betas = betas_uuided, tissue = 'Lung')
+print(head(episcores))
 ```
 
 
