@@ -1,0 +1,190 @@
+---
+title: "Introduction to the NetSciDataCompanion"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction to the NetSciDataCompanion
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(NetSciDataCompanion)
+library(recount)
+library(recount3)
+library(GenomicDataCommons)
+```
+
+
+### Overview
+
+The **NetSciDataCompanion** supports preprocessing of **TCGA** bulk RNA-seq and DNA-methylation data.
+There are currently functions for *filtering* samples as well as genes, *normalizing* the data, and convenience functions that allow to easily map between different sample and gene identifiers.
+For methylation data, there are interfaces to EpiScore cell estimates, the methylation-based smoking marker AHRR, and epigenetic age prediction through cAge.
+
+
+### Setting up the data with recount
+
+For the remainder of this script we will use re-mapped RNA-seq TCGA data of lung adenocarcinoma through [recount](https://rna.recount.bio).
+
+```{r data-setup}
+## Obtain expression data from recount
+TCGA_lung <- recount3::create_rse_manual(
+  project = "LUAD",
+  project_home = "data_sources/tcga",
+  organism = "human",
+  annotation = "gencode_v26",
+  type = "gene"
+)
+## Generate NetSciDataCompanion instance
+obj <- CreateNetSciDataCompanionObject(project_name = "LUAD")
+
+## Extract metadata from recount object
+rds_info <- obj$extractSampleAndGeneInfo(TCGA_lung)
+rds_sample_info <- rds_info$rds_sample_info
+rds_gene_info <- rds_info$rds_gene_info
+```
+
+
+### Transforming counts and identifiers
+
+```{r identifiers}
+## Map column names (UUIDs by default) to TCGA barcodes
+# TODO: this does not work! Legacy!
+#TCGA_barcodes <- obj$mapUUIDtoTCGA(colnames(exp_TCGA_lung$counts))
+TCGA_barcodes <- rds_sample_info$tcga.tcga_barcode
+
+## Get original counts and TPM transformed values
+exp_TCGA_lung <- obj$logTPMNormalization(TCGA_lung)
+
+## For the remainder we will work with the expression count matrix
+exp_count_mat <- exp_TCGA_lung$counts
+colnames(exp_count_mat) <- TCGA_barcodes
+
+
+## Get CPM normalized data
+exp_cpm_mat <- obj$logCPMNormalization(exp_TCGA_lung$counts)
+
+## To understand our gene dimension better, we will translate it from ENSG (the default) to other common IDs
+## Cut of the version number from ENSG gene IDs in the data matrix
+gene_ensg_nover <- sapply(rownames(exp_count_mat), function(x){strsplit(x, '.', fixed=T)[[1]][1]})
+gene_names <- obj$geneENSGToName(rownames(exp_count_mat))
+## Get the gene names in same order as the expression matrix
+gene_names <- gene_names$gene_name[match(gene_ensg_nover, gene_names$gene_id_no_ver)]
+gene_entrez <- obj$geneENSGToEntrez(rownames(exp_count_mat))
+gene_entrez <- gene_entrez$gene_entrez[match(gene_ensg_nover, gene_entrez$gene_id_no_ver)]
+
+print(tail(rownames(exp_count_mat)))
+print(tail(gene_names))
+print(tail(gene_entrez))
+```
+
+### Filtering of samples based on sample type and purity and remove duplicates
+
+```{r sample filtering}
+# Get indices of samples that are primary tumor and adjacent normal
+idcs_tumor_normal <- obj$filterSampleType(colnames(exp_count_mat), c("Solid Tissue Normal", "Primary Tumor"), rds_sample_info)
+idcs_tumor <- idcs_tumor_normal$index[idcs_tumor_normal$type == "Primary Tumor"]
+idcs_normal <- idcs_tumor_normal$index[idcs_tumor_normal$type == "Solid Tissue Normal"]
+# Get indices of samples passing purity filtering
+idcs_purity_tumor <- obj$filterPurity(colnames(exp_count_mat[,idcs_tumor]))
+# Get indices of nonduplicates
+idcs_nonduplicate_tumor <- obj$filterDuplicatesSeqDepth(expression_count_matrix = exp_count_mat[,idcs_tumor])
+idcs_nonduplicate_normal <- obj$filterDuplicatesSeqDepth(expression_count_matrix = exp_count_mat[,idcs_normal])
+
+## apply filters
+exp_filtered_tumor <- exp_count_mat[,idcs_tumor][, intersect(intersect(idcs_nonduplicate_tumor, idcs_purity_tumor), idcs_nonduplicate_tumor)]
+print(dim(exp_count_mat))
+print(dim(exp_filtered_tumor))
+```
+
+
+### Filtering of genes to protein-coding, X-chromosome based genes with minimum coverage
+
+```{r gene filtering}
+## Get indices of genes in Primary Tumor data that have a minimum TPM of 1 in at least half the samples
+exp_tpm_mat <- exp_TCGA_lung$TPM
+colnames(exp_tpm_mat) <- TCGA_barcodes
+idcs_genes_mintpm <- obj$filterGenesByNormExpression(exp_tpm_mat, 1, 0.5)
+
+idcs_prot <- obj$filterGenesProteins(rds_gene_info)
+
+idcs_chromX <- obj$filterChromosome(rds_gene_info, c('chrX'))
+
+## apply filters
+exp_tpm_filtered <- exp_tpm_mat[intersect(intersect(idcs_prot, idcs_genes_mintpm), idcs_chromX),]
+print(dim(exp_tpm_mat))
+print(dim(exp_tpm_filtered))
+```
+
+
+### Intersecting samples to find matching samples across data
+
+```{r sample matching}
+## Retrieve the samples for which we have matched tumor and adjacent normal data
+matched_exps <- obj$filterBarcodesIntersection(exp_count_mat[,idcs_tumor], exp_count_mat[,idcs_normal])
+exp_count_tumor_matched <- matched_exps[[1]]
+exp_count_normal_matched <- matched_exps[[2]]
+
+print(head(colnames(exp_count_tumor_matched), n=3))
+print(head(colnames(exp_count_normal_matched), n=3))
+
+```
+
+
+### Working with methylation beta values
+
+For the sake of time, we will use a preloaded matrix of methylation beta values obtained from GDC DataCommons. The values are for TCGA lung adenocarcinoma measured by a 450k Illumina array.
+
+Here, we will show how to aggregate methylation values to get gene-level information, such as average methylation within promoter regions.
+
+```{r methylation operations}
+## Load methylation data
+load('~/Projects/TCGA_data/LUAD/luad_methylation_betas.Rdata')
+## transform column names to original UUIDs and mapt to TCGA barcodes
+rownames(betas) <- betas$probeID
+colnames(betas)[-1] <- colnames(betas)[-1] %>%
+  str_replace("X","") %>%
+  str_replace_all("\\.","-")
+colnames(betas)[-1] <- obj$mapUUIDtoTCGA(colnames(betas)[-1])[,2]
+
+## Remove duplicates from beta value matrix (for simplicity, remove duplicates 'at random')
+betas <- betas[,!duplicated(colnames(betas))]
+
+## Map probes to promoter regions (500 bp upstream to TSS)
+probemap <- obj$mapProbesToGenes(probelist = betas$probeID,
+                                 rangeUp = 500,
+                                 rangeDown = 0)
+gene_prom_meth <- obj$probeToMeanPromoterMethylation(methylation_betas = betas,
+                                                     genesOfInterest = gene_names[intersect(idcs_prot, idcs_genes_mintpm)],
+                                                     probe_gene_map = probemap)
+
+print(gene_prom_meth[1:5,1:5])
+
+```
+
+
+## Methylation-based estimators of non-genomic features
+
+Here we will show additional features such as methylation-based cell proportion estimates and smoking indicator.
+
+```{r meth features}
+## Get smoking status of individuals through AHRR methylation marker
+smoking_ind <- obj$extractAHRRMethylation(betas)
+print(head(smoking_ind))
+
+## Estimate cell proportions from methylation values through EpiSCORE
+episcores <- obj$estimateCellCountsEpiSCORE(methylation_betas = betas, tissue = 'Lung')
+print(episcores)
+```
+
+
+
