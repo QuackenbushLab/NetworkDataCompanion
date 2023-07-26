@@ -12,6 +12,7 @@ Depends:
   edgeR,
   EpiSCORE,
   GenomicDataCommons,
+  huge,
   magrittr,
   presto,
   recount,
