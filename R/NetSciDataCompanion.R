@@ -57,7 +57,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
            ## Computes the log TPM normalization based on an expression RDS object
            ## Returns a named list with the count data.frame (useful for duplicate filtering based on sequencing depth, see filterDuplicatesSeqDepth)
-           ##                               TPM data.frame (useful for TPM based filtering, see filterGenesByTPM)
+           ##                               TPM data.frame (useful for TPM based filtering, see filterGenesByNormExpression)
            ##                and the actual logTPM which corresponds to log(TPM + 1)
            ## 20220920 man page done
            logTPMNormalization = function(expression_rds_obj){
@@ -71,26 +71,24 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                          logTPM=log(assays(expression_rds_obj)$TPM + 1)))
            },
 
-           # Computes the log transformed CPM normalization based on an expression RDS object
+           # Computes the log transformed CPM normalization based on raw expression (count) data
            # This is following the recipe provided by edgeR package to get TMM valyes
            ## Returns a named list with the count data.frame (useful for duplicate filtering based on sequencing depth, see filterDuplicatesSeqDepth)
            ##                               CPM data.frame (useful for CPM based filtering, see filterGenesByCPM)
            ##                and the actual logCPM which corresponds to log(CPM + 1)
-           logCPMNormalization = function(expression_rds_obj){
-             if(class(expression_rds_obj) != "RangedSummarizedExperiment"){
+           logCPMNormalization = function(exp_count_mat){
+             if(sum(class(exp_count_mat) %in% c("data.frame", "matrix")) == 0){
                stop("Error: expression matrices need to be an RSE object")
              }
-             # get counts through recount
-             assays(expression_rds_obj)$counts <- recount3::transform_counts(expression_rds_obj)
              # apply edgeR function to get differential gene lists
-             dge <- DGEList(assays(expression_rds_obj)$counts)
+             dge <- DGEList(exp_count_mat)
              # get the normalizing factors from that list
              dge <- calcNormFactors(dge)
              # get the log tranformed cpms (aka: get TMM)
-             assays(expression_rds_obj)$CPM <- cpm(dge, log=F)
-             return(list(counts=assays(expression_rds_obj)$counts,
-                         CPM=assays(expression_rds_obj)$CPM,
-                         logCPM=log(assays(expression_rds_obj)$CPM+1)))
+             cpm_vals <- cpm(dge, log=F)
+             return(list(counts=exp_count_mat,
+                         CPM=cpm_vals,
+                         logCPM=log(cpm_vals+1)))
            },
 
            #### more methods go here
@@ -589,7 +587,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## expression_matrix should be TPM or CPM values (NOT log scaled)
            ## sample_fraction should be in [0,1]
            filterGenesByNormExpression = function(expression_matrix, norm_threshold, sample_fraction){
-             if(class(expression_matrix) != "data.frame"){
+             if(sum(class(expression_matrix) %in% c("data.frame","matrix")) == 0) {
                stop("Error: expression_matrix argument should be a data.frame")
              }
              if(class(norm_threshold) != "numeric" | norm_threshold <= 0){
