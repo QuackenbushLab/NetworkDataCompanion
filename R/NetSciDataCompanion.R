@@ -528,7 +528,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              sample_type[is.na(sample_type)] <- F
 
              return(list(index=which(sample_type[match(sample_names, type_names)]),
-                         type=rds_info$tcga.cgc_sample_sample_type[match(sample_names, type_names)])) 
+                         type=rds_info$tcga.cgc_sample_sample_type[sample_type[match(sample_names, type_names)]])) 
            },
 
            ## Filtering all tumor samples (e.g. barcode sample types {01,..09})
