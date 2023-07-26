@@ -6,8 +6,6 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                        gene_mapping = "data.frame",
                        sample_type_mapping = "data.frame"),
          methods = list(
-
-
            ## Extract experiment specific information and metadata from ranged summarized experiment object
            ## Returns a named list with rds_sample_info corresponding to meta information about the samples (columns)
            ##                       and rds_gene_info corresponding to meta information about genes (rows)
@@ -510,10 +508,10 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              if(class(types_of_samples) != "character"){
                stop(paste0("Error: types_of_sample argument needs to be a string.\n Available types: ", as.character(unique(rds_info$tcga.cgc_sample_sample_type))))
              }
-             
+
              nonExistTypes <- which(!(types_of_samples %in% as.character(unique(rds_info$tcga.cgc_sample_sample_type))))
              if (length(nonExistTypes) > 0) {
-               
+
                if (length(nonExistTypes) == length(types_of_samples)){
                   stop(paste0("Error: All types specified in types_of_sample argument do not exist in sample info (rds_info argument).\n Available types: ", as.character(unique(rds_info$tcga.cgc_sample_sample_type))))
                }
@@ -526,7 +524,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              sample_type[is.na(sample_type)] <- F
 
              return(list(index=which(sample_type[match(sample_names, type_names)]),
-                         type=rds_info$tcga.cgc_sample_sample_type[sample_type[match(sample_names, type_names)]])) 
+                         type=rds_info$tcga.cgc_sample_sample_type[sample_type[match(sample_names, type_names)]]))
            },
 
            ## Filtering all tumor samples (e.g. barcode sample types {01,..09})
@@ -570,8 +568,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              return(which(sample_control))
            },
-	     
-	     
+
+
 
            ## Filter out protein coding genes based on rds info
            filterGenesProteins = function(rds_gene_info){
@@ -620,7 +618,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	     getGeneInfo = function(gene_names_or_ids_or_entrezs){
     	       is_id <-  any(grepl("ENSG", gene_names_or_ids_or_entrezs, fixed=TRUE))
     	       is_entrez <- any(grepl("^\\d+$", gene_names_or_ids_or_entrezs))
-    	       
+
     	       if(is_id){
     	         version <- grepl(".", gene_names_or_ids_or_entrezs, fixed=TRUE)
     	         if(any(version == TRUE)){
@@ -636,13 +634,13 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       else{
     	         to_return <- subset(gene_mapping, gene_mapping$gene_name %in% gene_names_or_ids_or_entrezs)
     	       }
-    	       
+
     	       if(nrow(to_return)!=length(gene_names_or_ids_or_entrezs)){
     	         print('There was at least one one-to-many mapping (most probably from multiple ensembl IDs for the input)')
     	       }
     	       return(to_return)
     	     },
-    	     
+
     	     ## the version corresponds to whether we want the . and number after from gene ids
     	     geneEntrezToENSG = function(gene_entrezs, version = FALSE){
     	       if(!("gene_entrez" %in% colnames(gene_mapping)))
@@ -658,7 +656,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       }
     	       return(to_return)
     	     },
-    	     
+
     	     geneENSGToName = function(gene_ids){
     	       to_return <- getGeneInfo(gene_ids)
     	       if(anyNA(to_return$gene_name)){
@@ -666,7 +664,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       }
     	       return(to_return[c('gene_id_no_ver','gene_name')])
     	     },
-    	     
+
     	     geneENSGToEntrez = function(gene_ids){
     	       if(!("gene_entrez" %in% colnames(gene_mapping)))
     	       {
@@ -678,7 +676,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       }
     	       return(to_return[c('gene_id_no_ver','gene_entrez')])
     	     },
-    	     
+
     	     geneNameToEntrez = function(gene_names){
     	       if(!("gene_entrez" %in% colnames(gene_mapping)))
     	       {
@@ -692,7 +690,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       to_return <- to_return[!duplicated(to_return),]
     	       return(to_return)
     	     },
-    	     
+
     	     geneEntrezToName = function(gene_entrezs){
     	       if(!("gene_entrez" %in% colnames(gene_mapping)))
     	       {
@@ -706,7 +704,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       to_return <- to_return[!duplicated(to_return),]
     	       return(to_return)
     	     },
-    	     
+
     	     ## the version corresponds to whether we want the . and number after from gene ids
     	     geneNameToENSG = function(gene_names, version = FALSE){
     	       to_return <- getGeneInfo(gene_names)
@@ -718,7 +716,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       }
     	       return(to_return)
     	     },
-	     
+
            getGeneIdcs = function(gene_names, rds_gene_info){
              if(class(rds_gene_info) != "data.frame"){
                stop("Error: gene info argument should be a data.frame. Best \
