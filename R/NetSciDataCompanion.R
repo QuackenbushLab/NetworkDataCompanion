@@ -137,7 +137,6 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                                submitter_id = unlist(id_list)[reord]))
            },
 
-
            # rangeUp and rangeDown should both be non-negative numbers
            # indicating the distance to look upstream and downstream
            # from a probe for a TSS.
@@ -189,6 +188,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              # define empty map
              mymap = matrix(rep(NA,4*nrow(smallManifest)),ncol=4)
+             colnames(mymap) = c("probeID","geneNames","ensemblID","distToTSS")
+
              mymap[,1] = probelist
              mymap = as.data.frame(mymap)
 
@@ -215,7 +216,6 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                }
              }
 
-             colnames(mymap) = c("probeID","geneNames","ensemblID","distToTSS")
 
              if(!mapToNearest)
               return(mymap)
@@ -254,8 +254,6 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              # merge probe_gene_map with beta values
              # use a left join to keep only probes that mapped to genes of interest
-             print("probe map names")
-             print(names(probe_gene_map)[1:10])
              mappedBetas = probe_gene_map %>%
                dplyr::filter(geneNames %in% genesOfInterest) %>%
                dplyr::select(geneNames,probeID) %>%
