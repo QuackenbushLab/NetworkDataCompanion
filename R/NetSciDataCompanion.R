@@ -114,14 +114,19 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              return(TCGA_barcodes[dupPos])
            },
 
-           mapUUIDtoTCGA = function(UUID, useLegacy = F){
+           mapUUIDtoTCGA = function(UUID){
               if(class(UUID) != "character"){
                 stop("Error: Expected UUID argument to be vector of strings")
               }
-              info = files(legacy = useLegacy) %>%
+              info = files() %>%
                GenomicDataCommons::filter( ~ file_id %in% UUID) %>%
                GenomicDataCommons::select('cases.samples.submitter_id') %>%
                results_all()
+              if(length(info)==0)
+              {
+                stop("Error: No UUIDs were matched by TCGA ids. Perhaps you have input legacy UUIDs?")
+
+              }
               # The mess of code below is to extract TCGA barcodes
               # id_list will contain a list (one item for each file_id)
               # of TCGA barcodes of the form 'TCGA-XX-YYYY-ZZZ'
