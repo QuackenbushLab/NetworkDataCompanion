@@ -254,8 +254,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              # merge probe_gene_map with beta values
              # use a left join to keep only probes that mapped to genes of interest
-             print("probe map names")
-             print(names(probe_gene_map)[1:10])
+
              mappedBetas = probe_gene_map %>%
                dplyr::filter(geneNames %in% genesOfInterest) %>%
                dplyr::select(geneNames,probeID) %>%
@@ -498,33 +497,26 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            },
 
            ## Filtering samples in an rds with particular sample types (e.g., "Primary Tumor", "Solid Tissue Normal", "Primary Blood Derived Cancer - Peripheral Blood")
-           filterSampleType = function(TCGA_barcodes, types_of_samples, rds_info){
+           filterSampleType = function(TCGA_barcodes, types_of_samples){
              if(class(TCGA_barcodes) != "character"){
                stop("Error: TCGA_barcodes argument needs to be a character vector")
-             }
-             if(class(rds_info) != "data.frame"){
-               stop("Error: sample info rds_info is not a data frame")
              }
              if(class(types_of_samples) != "character"){
                stop(paste0("Error: types_of_sample argument needs to be a string.\n Available types: ", as.character(unique(rds_info$tcga.cgc_sample_sample_type))))
              }
 
-             nonExistTypes <- which(!(types_of_samples %in% as.character(unique(rds_info$tcga.cgc_sample_sample_type))))
+             observed_sample_types = extractSampleType(TCGA_barcodes)
+             nonExistTypes <- which(!(types_of_samples %in% observed_sample_types))
              if (length(nonExistTypes) > 0) {
 
                if (length(nonExistTypes) == length(types_of_samples)){
-                  stop(paste0("Error: All types specified in types_of_sample argument do not exist in sample info (rds_info argument).\n Available types: ", as.character(unique(rds_info$tcga.cgc_sample_sample_type))))
+                  stop(paste0("Error: All types specified in types_of_sample argument do not exist in sample info.\n Available types: ", as.character(unique(observed_sample_types))))
                }
-               print(paste0("Warning: ", types_of_samples[nonExistTypes], " are not present in sample info (rds_info argument)."))
+               print(paste0("Warning: ", types_of_samples[nonExistTypes], " are not present in sample info."))
              }
-             sample_names <- sapply(TCGA_barcodes, substr, 1, 16)
-             ## use column names of original object
-             type_names <- sapply(rds_info$tcga.tcga_barcode, substr, 1, 16)
-             sample_type <- rds_info$tcga.cgc_sample_sample_type %in% types_of_samples
-             sample_type[is.na(sample_type)] <- F
 
-             return(list(index=which(sample_type[match(sample_names, type_names)]),
-                         type=rds_info$tcga.cgc_sample_sample_type[sample_type[match(sample_names, type_names)]]))
+             return(which(observed_sample_types %in% types_of_samples))
+
            },
 
            ## Filtering all tumor samples (e.g. barcode sample types {01,..09})
@@ -547,7 +539,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                stop("Error: TCGA_barcodes argument needs to be a character vector")
              }
              sample_types <- extractSampleType(TCGA_barcodes)
-             ## tumor samples have codes between 01 and 09
+             ## normal samples have codes between 10 and 19
              normals = c('10','11','12','13','14','15','16','17','18','19')
              sample_normal <- sample_types %in% normals
              sample_normal[is.na(sample_normal)] <- F
@@ -561,7 +553,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                stop("Error: TCGA_barcodes argument needs to be a character vector")
              }
              sample_types <- extractSampleType(TCGA_barcodes)
-             ## tumor samples have codes between 01 and 09
+             ## control samples have codes between 20 and 29
              controls = c('20','21','22','23','24','25','26','27','28','29')
              sample_control <- sample_types %in% controls
              sample_control[is.na(sample_control)] <- F

@@ -47,9 +47,6 @@ test_that("probes are mapped correctly to TSS200",{
 
 })
 
-# TODO: Implement more flexible slicing
-# (i.e. slicing that allows user to find probes in intervals that don't contain the TSS)
-
 test_that("probes are mapped correctly to a custom region, [TSS - 10: TSS + 10]",{
   # make a toy manifest
   manifest_line_1 = data.frame("CpG_chrm"="chr42",
