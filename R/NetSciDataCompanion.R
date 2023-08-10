@@ -523,7 +523,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                print(paste0("Warning: sample types ", types_of_samples[nonExistTypes], " are not present in sample info."))
              }
 
-             return(which(observed_sample_types %in% types_of_samples))
+             return(data.frame("sample_type"=observed_sample_types[which(observed_sample_types %in% types_of_samples)],
+                               "index"=which(observed_sample_types %in% types_of_samples)))
 
            },
 

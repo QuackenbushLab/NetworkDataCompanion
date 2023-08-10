@@ -91,9 +91,9 @@ print(tail(gene_entrez))
 
 ```{r sample filtering}
 # Get indices of samples that are primary tumor and adjacent normal
-idcs_tumor_normal <- obj$filterSampleType(colnames(exp_count_mat), c("Solid Tissue Normal", "Primary Tumor"), rds_sample_info)
-idcs_tumor <- idcs_tumor_normal$index[idcs_tumor_normal$type == "Primary Tumor"]
-idcs_normal <- idcs_tumor_normal$index[idcs_tumor_normal$type == "Solid Tissue Normal"]
+idcs_tumor_normal <- obj$filterSampleType(colnames(exp_count_mat), c("11", "01"))
+idcs_tumor <- idcs_tumor_normal$index[idcs_tumor_normal$type == "01"]
+idcs_normal <- idcs_tumor_normal$index[idcs_tumor_normal$type == "11"]
 # Get indices of samples passing purity filtering
 idcs_purity_tumor <- obj$filterPurity(colnames(exp_count_mat[,idcs_tumor]))
 # Get indices of nonduplicates

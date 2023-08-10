@@ -83,6 +83,7 @@ test_that("all probes that map to a gene are extracted from the map",{
   meanMeth = my_friend$probeToMeanPromoterMethylation(methylation_betas = my_betas,
                                      genesOfInterest = c("HARRY","SEVERUS"),
                                      probe_gene_map = my_map_200_0)
+})
 
 test_that("mean calculation is correct",{
 
