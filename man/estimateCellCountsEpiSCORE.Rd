@@ -13,7 +13,6 @@ estimateCellCountsEpiSCORE(methylation_betas, tissue, array = "450k")
   \item{methylation_betas}{A data frame of methylation beta values, with CGs in rows and samples in columns. The first column must be "probeID" and contain the Illumina probeIDs matching the specified array or a subset thereof.}
   \item{tissue}{Tissue type. Must be one of the tissues with a reference available in EpiSCORE. Acceptable values are "Bladder","Brain","Breast","Colon","Heart","Kidney","Liver","Lung","OE", "Pancreas_6ct","Pancreas_9ct","Prostate","Skin".}
   \item{array}{Methylation array identifier. Acceptable values are "450k" or "850k" (EPIC).}
-  }
 }
 
 \value{A data frame containing samples in rows and estimated cell type proportions in columns. The first two columns are the TCGA barcode and the TCGA UUID.
@@ -21,6 +20,8 @@ estimateCellCountsEpiSCORE(methylation_betas, tissue, array = "450k")
 
 \references{
 Teschendorff, A.E., Zhu, T., Breeze, C.E. et al. EPISCORE: cell type deconvolution of bulk tissue DNA methylomes from single-cell RNA-Seq data. Genome Biol 21, 221 (2020). \url{https://doi.org/10.1186/s13059-020-02126-9}
+}
+
 \author{
 Kate Hoff Shutta (kshutta@hsph.harvard.edu)
 }

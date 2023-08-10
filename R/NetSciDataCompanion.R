@@ -495,14 +495,17 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              return(cbind.data.frame(this_map,this_match))
            },
-
+           ## access sample type map
+	         getSampleTypeMap = function(){
+	           return(sample_type_mapping)
+	         },
            ## Filtering samples in an rds with particular sample types (e.g., "Primary Tumor", "Solid Tissue Normal", "Primary Blood Derived Cancer - Peripheral Blood")
            filterSampleType = function(TCGA_barcodes, types_of_samples){
              if(class(TCGA_barcodes) != "character"){
                stop("Error: TCGA_barcodes argument needs to be a character vector")
              }
              if(class(types_of_samples) != "character"){
-               stop(paste0("Error: types_of_sample argument needs to be a string.\n Available types: ", as.character(unique(rds_info$tcga.cgc_sample_sample_type))))
+               stop("Error: types_of_sample argument needs to be a character vector. Use NetSciDataCompanion::getSampleTypeMap() to see available types.")
              }
 
              observed_sample_types = extractSampleType(TCGA_barcodes)
@@ -510,9 +513,9 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              if (length(nonExistTypes) > 0) {
 
                if (length(nonExistTypes) == length(types_of_samples)){
-                  stop(paste0("Error: All types specified in types_of_sample argument do not exist in sample info.\n Available types: ", as.character(unique(observed_sample_types))))
+                  stop("Error: No specified types in types_of_sample argument exist in sample info.\n Use NetSciDataCompanion::getSampleTypeMap() to see available types.")
                }
-               print(paste0("Warning: ", types_of_samples[nonExistTypes], " are not present in sample info."))
+               print(paste0("Warning: sample types ", types_of_samples[nonExistTypes], " are not present in sample info."))
              }
 
              return(which(observed_sample_types %in% types_of_samples))
@@ -778,7 +781,8 @@ CreateNetSciDataCompanionObject <- function(clinical_patient_file=NULL, project_
   gene_mapping$gene_id_no_ver <- gsub("\\..*","",gene_mapping[,"gene_id"])
 
   fpath_sample <- system.file("extdata", "TCGA_sample_type.csv", package="NetSciDataCompanion")
-  sample_type_mapping <- read.csv(file = fpath_sample, header=T, sep=",")
+  sample_type_mapping <- read.csv(file = fpath_sample, header=T, sep=",",
+                                  colClasses = "character") # read codes as characters so that 01, 02, etc. are read properly
 
   s <- NetSciDataCompanion$new(TCGA_purities = purities,
                                clinical_patient_data = patient_data,
