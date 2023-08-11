@@ -1,13 +1,13 @@
-﻿numcode,description,alphacode
-1,Primary Solid Tumor,TP
-2,Recurrent Solid Tumor,TR
-3,Primary Blood Derived Cancer - Peripheral Blood,TB
-4,Recurrent Blood Derived Cancer - Bone Marrow,TRBM
-5,Additional - New Primary,TAP
-6,Metastatic,TM
-7,Additional Metastatic,TAM
-8,Human Tumor Original Cells,THOC
-9,Primary Blood Derived Cancer - Bone Marrow,TBM
+numcode,description,alphacode
+01,Primary Solid Tumor,TP
+02,Recurrent Solid Tumor,TR
+03,Primary Blood Derived Cancer - Peripheral Blood,TB
+04,Recurrent Blood Derived Cancer - Bone Marrow,TRBM
+05,Additional - New Primary,TAP
+06,Metastatic,TM
+07,Additional Metastatic,TAM
+08,Human Tumor Original Cells,THOC
+09,Primary Blood Derived Cancer - Bone Marrow,TBM
 10,Blood Derived Normal,NB
 11,Solid Tissue Normal,NT
 12,Buccal Cell Normal,NBC

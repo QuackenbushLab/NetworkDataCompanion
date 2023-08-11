@@ -20,8 +20,7 @@ filterGenesProteins(rds_gene_info)
 \value{
  Array of indices that correspond to the protein coding genes in the rds gene info table.
 }
-\details{
-}
+
 \author{
 Jonas Fischer (jfischer@hsph.harvard.edu)
 }

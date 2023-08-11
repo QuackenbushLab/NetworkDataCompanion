@@ -8,6 +8,8 @@
 \references{Placeholder}
 
 \author{
+Viola Fanfani (vfanfani@hsph.harvard.edu)
+
 Jonas Fischer (jfischer@hsph.harvard.edu)
 
 Panagiotis Mandros (pmandros@hsph.harvard.edu)

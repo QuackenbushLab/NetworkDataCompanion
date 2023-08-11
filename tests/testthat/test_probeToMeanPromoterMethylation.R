@@ -66,14 +66,23 @@ test_that("all probes that map to a gene are extracted from the map",{
 
   write.table(manifest,file="testdata/manifest_test.tsv",sep="\t",row.names=F,quote=F)
   my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
-  my_map = my_friend$mapProbesToGenes(probelist = c("cg00000001","cg00000002","cg00000003","cg00000004"),
+
+  my_map_200_0 = my_friend$mapProbesToGenes(probelist = NULL, # NULL probelist maps everything
                                       rangeUp = 200,
-                                      rangeDown = 200,
+                                      rangeDown = 0,
                                       localManifestPath = "testdata/manifest_test.tsv")
-  names(my_map)[2] = "geneNames" #TODO Add switch case for column names depending on manifest type
-  my_friend$probeToMeanPromoterMethylation(methylation_betas = my_betas,
+
+  my_map_200_101 = my_friend$mapProbesToGenes(probelist = NULL, # NULL probelist maps everything
+                                      rangeUp = 200,
+                                      rangeDown = 101,
+                                      localManifestPath = "testdata/manifest_test.tsv")
+
+  # test that all probes mapped to the right genes
+
+  names(my_map_200_0)[2] = "geneNames"
+  meanMeth = my_friend$probeToMeanPromoterMethylation(methylation_betas = my_betas,
                                      genesOfInterest = c("HARRY","SEVERUS"),
-                                     probe_gene_map = my_map)
+                                     probe_gene_map = my_map_200_0)
 })
 
 test_that("mean calculation is correct",{
@@ -109,5 +118,6 @@ test_that("mean calculation is correct",{
   colnames(manual_mean)=c("HARRY","SEVERUS")
 
   expect_equal(mean_meth, manual_mean)
+
 })
 
