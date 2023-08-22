@@ -1,4 +1,4 @@
-context("[NetSciDataCompanion] Testing logNormalization functions ... ")
+context("[NetSciDataCompanion] Testing filterChromosome function ... ")
 
 test_that("Testing filterChromosome",{
   
