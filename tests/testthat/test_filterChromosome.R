@@ -1,6 +1,6 @@
 context("[NetSciDataCompanion] Testing logNormalization functions ... ")
 
-test_that("Testing logTPMNormalization format",{
+test_that("Testing filterChromosome",{
   
   my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
   human_projects <- available_projects()
