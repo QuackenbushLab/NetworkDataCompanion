@@ -21,7 +21,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## is_inter1 is an indicator (boolean) vector of the same length as bc1 that indicates which elements of bc1 are present in bc2
            ## idcs1 indicate where to find each barcode of bc1 in bc2, NA if missing. That is, bc1[i] == bc2[idcs1[i]] (if idcs1[i] != NA)
            ## The same information is provided for bc2
-           ## For example, if you want to map experiment 1 on experiment to, keeping only the information for samples that are present in both,
+           ## For example, if you want to map experiment 1 on experiment two, keeping only the information for samples that are present in both,
            ## and reordering the first experiment to match the samples of the second, you can do
            ## exp1[,is_inter1]                --- this will remove samples that are not in exp2
            ## exp2[,idcs1]                    --- this will remove samples that are not in exp1 and reorder to match exp1
