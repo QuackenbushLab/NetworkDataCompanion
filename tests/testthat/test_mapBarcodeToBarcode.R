@@ -31,7 +31,6 @@ test_that("mapBarcodeToBarcode function correctly extract information for a pair
   # Test superset
   bc1 <- c("aa", "a", "a1", "b")
   bc2 <- c("a", "b")
-  print(my_friend$mapBarcodeToBarcode(bc1, bc2)$idcs1)
   expect_equal(my_friend$mapBarcodeToBarcode(bc1, bc2)$is_inter1,c(FALSE, TRUE, FALSE, TRUE))
   expect_equal(my_friend$mapBarcodeToBarcode(bc1, bc2)$idcs1,c(NA, 1, NA, 2))
   expect_equal(my_friend$mapBarcodeToBarcode(bc1, bc2)$is_inter2,c(TRUE, TRUE))
