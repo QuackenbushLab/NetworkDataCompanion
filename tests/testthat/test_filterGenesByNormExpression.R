@@ -1,4 +1,4 @@
-context("[NetSciDataCompanion] Testing filterGenesByNormExpression functions ... ")
+context("[NetSciDataCompanion] Testing filterGenesByNormExpression function ... ")
 
 test_that("Testing filterGenesByNormExpression",{
   
