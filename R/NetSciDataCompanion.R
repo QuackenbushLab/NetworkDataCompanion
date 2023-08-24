@@ -487,7 +487,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            # return tissue type given an input barcode
            getTissueType = function(TCGA_barcode)
            {
-             this_sample = as.numeric(substr(str_split(TCGA_barcode,"-",simplify=T)[1,4],1,2))
+             this_sample = substr(str_split(TCGA_barcode,"-",simplify=T)[1,4],1,2)
              if(!this_sample%in% sample_type_mapping$numcode)
              {
                print(paste("[NetSciDataCompanion::getTissueType()] Error: unknown sample type:",this_sample))
