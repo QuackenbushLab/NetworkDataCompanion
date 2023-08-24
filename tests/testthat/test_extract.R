@@ -15,8 +15,11 @@ test_that("extract functions correctly extract identifiers from barcode",{
   samples_and_type <- my_friend$extractSampleAndType(barcodes)
   expect_equal(as.character(samples_and_type), gsub('.{1}$', '', barcodes))
   
-  vial <- my_friend$extractVialOnly(barcodes)
+  vial <- my_friend$extractSampleAndTypeAndVial(barcodes)
   expect_equal(as.character(vial), barcodes)
+  
+  vial <- my_friend$extractVialOnly(barcodes)
+  expect_equal(as.character(vial), rep("A", 4))
   
   sample_type <- my_friend$extractSampleType(barcodes)
   expect_equal(as.character(sample_type), c("01", "11", "21", "01"))

@@ -100,7 +100,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              return(sapply(TCGA_barcodes, substr, 1, 15))
            },
 
-           extractVialOnly = function(TCGA_barcodes){
+           extractSampleAndTypeAndVial = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 1, 16))
            },
 
@@ -108,9 +108,13 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            extractSampleType = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 14, 15))
            },
+           
+           extractVialOnly = function(TCGA_barcodes){
+             return(sapply(TCGA_barcodes, substr, 16, 16))
+           },
 
            findDuplicates = function(TCGA_barcodes){
-             dupPos = duplicated(extractVialOnly(TCGA_barcodes))
+             dupPos = duplicated(extractSampleAndTypeAndVial(TCGA_barcodes))
              return(TCGA_barcodes[dupPos])
            },
 
@@ -428,7 +432,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## Returns indices in given tcga barcodes to KEEP
            ## 20220920 man page done
            filterDuplicatesSeqDepthOther = function(expression_count_matrix, tcga_barcodes){
-             sample_vials_ge <- extractVialOnly(colnames(expression_count_matrix))
+             sample_vials_ge <- extractSampleAndTypeAndVial(colnames(expression_count_matrix))
              seq_depth <- colSums(expression_count_matrix)
              duplicate_throwout <- rep(NA, length(tcga_barcodes))
              for (idx in 1:length(tcga_barcodes))
@@ -437,7 +441,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                {
                  ## find all vials and replicates of current barcode
                  rep_idcs <- which(extractSampleOnly(tcga_barcodes[idx]) == extractSampleOnly(tcga_barcodes))
-                 rep_vials <- extractVialOnly(tcga_barcodes[rep_idcs])
+                 rep_vials <- extractSampleAndTypeAndVial(tcga_barcodes[rep_idcs])
                  ## match with vials in expression matrix
                  mIdx <- match(rep_vials, sample_vials_ge)
                  ## get matched vial with highest seqdepth, just take first one if no match at all
@@ -474,8 +478,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              {
                stop("Error: Expected method name should be ESTIMATE, ABSOLUTE, LUMP, IHC, CPE")
              }
-             sample_names <- extractVialOnly(TCGA_barcodes)
-             purity_names <- extractVialOnly(rownames(TCGA_purities))
+             sample_names <- extractSampleAndTypeAndVial(TCGA_barcodes)
+             purity_names <- extractSampleAndTypeAndVial(rownames(TCGA_purities))
              name_matching <- match(purity_names, sample_names)
              cut <- TCGA_purities[,method] > threshold
              cut[is.na(cut)] <- F
