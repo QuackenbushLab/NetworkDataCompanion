@@ -55,4 +55,5 @@ test_that("Testing getTissueType",{
   for(numcode in numcodes){
    expect_equal(as.character(my_friend$getTissueType(paste0(barcode, numcode))['description']), descriptions[numcodes == numcode]) 
   }
+  expect_true(is.na(as.character(my_friend$getTissueType(paste0(barcode, "53"))['description'])))
 })
