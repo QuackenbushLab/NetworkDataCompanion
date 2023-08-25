@@ -108,7 +108,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            extractSampleType = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 14, 15))
            },
-           
+
            extractVialOnly = function(TCGA_barcodes){
              return(sapply(TCGA_barcodes, substr, 16, 16))
            },
@@ -652,7 +652,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       {
     	         stop('Column gene_entrez not found in gene mapping.')
     	       }
-    	       to_return <- getGeneInfo(gene_names)
+    	       to_return <- getGeneInfo(gene_entrezs)
     	       if(version == TRUE){
     	         to_return <- to_return[c('gene_entrez','gene_id')]
     	       }
