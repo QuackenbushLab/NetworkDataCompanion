@@ -31,9 +31,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                stop("Error: barcodes need to be vectors of strings")
              }
              m1 <- match(bc1, bc2)
-             m1 <- m1[!is.na(m1)]
              m2 <- match(bc2, bc1)
-             m2 <- m2[!is.na(m2)]
              return(list(is_inter1=(bc1 %in% bc2), idcs1=m1, is_inter2=(bc2 %in% bc1), idcs2=m2))
            },
 
