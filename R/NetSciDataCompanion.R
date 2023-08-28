@@ -23,8 +23,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## The same information is provided for bc2
            ## For example, if you want to map experiment 1 on experiment two, keeping only the information for samples that are present in both,
            ## and reordering the first experiment to match the samples of the second, you can do
-           ## exp1[,is_inter1]                --- this will remove samples that are not in exp2
-           ## exp2[,idcs1]                    --- this will remove samples that are not in exp1 and reorder to match exp1
+           ## exp1[,is_inter1]                           --- this will remove samples that are not in exp2
+           ## exp2[,idcs1[is_inter1]]                    --- this will remove samples that are not in exp1 and reorder to match exp1
            ## 20220920 man page done
            mapBarcodeToBarcode = function(bc1, bc2){
              if(class(bc1) != "character" | class(bc2) != "character"){
