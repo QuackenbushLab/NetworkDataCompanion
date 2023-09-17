@@ -74,7 +74,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ##                and the actual logCPM which corresponds to log(CPM + 1)
            logCPMNormalization = function(exp_count_mat){
              if(sum(class(exp_count_mat) %in% c("data.frame", "matrix")) == 0){
-               stop("Error: expression matrices need to be an RSE object")
+               stop("Error: expression must be a matrix")
              }
              # apply edgeR function to get differential gene lists
              dge <- DGEList(exp_count_mat)

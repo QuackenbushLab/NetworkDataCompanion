@@ -5,7 +5,7 @@ test_that("Testing logCPMNormalization format",{
   my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
   nrow <- 300
   ncol <- 20
-  expr <- matrix(rpois(36,5),nrow=nrow, ncol = ncol)
+  expr <- matrix(rpois(nrow*ncol,5),nrow=nrow, ncol = ncol)
   normalized <- my_friend$logCPMNormalization(expr)
   
   # Test dimensionality
