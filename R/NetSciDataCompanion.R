@@ -188,7 +188,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              if(is.null(probelist))
                probelist = manifest$probeID
-             # get indices matching probes
+             # get manifest rows matching probes
              smallManifest = manifest %>% dplyr::filter(probeID %in% probelist)
              rm(manifest)
              gc()
@@ -197,7 +197,6 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              mymap = matrix(rep(NA,4*nrow(smallManifest)),ncol=4)
              colnames(mymap) = c("probeID","geneNames","ensemblID","distToTSS")
 
-             mymap[,1] = probelist
              mymap = as.data.frame(mymap)
 
              # iterate through map with for loop
@@ -220,6 +219,11 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                                paste(genesInRegion,collapse=";"),
                                paste(ensemblInRegion,collapse=";"),
                                paste(tssDist,collapse=";"))
+               }
+
+               else # in this case, length(inRegion = 0) and no genes map
+               {
+                 mymap[i,] =c(x$probeID,NA,NA,NA)
                }
              }
 
