@@ -4,6 +4,8 @@ An R library for preprocessing data at the Network Science Lab.
 
 # Installing
 
+The package requires the "GenomicDataCommons", "edgeR", "recount", "recount3" bioconductor packages to be installed prior to the main installation.
+
 To install and use the library:
 - first install.packages("devtools")
 - then install the library with devtools::install() (provided you are at the project folder)
