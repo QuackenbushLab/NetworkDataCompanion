@@ -130,11 +130,11 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
            # UUIDs is a character vector (can be of length 1)
            mapUUIDtoTCGA = function(UUIDs){
-              if(class(UUID) != "character"){
+              if(class(UUIDs) != "character"){
                 stop("Error: Expected UUID argument to be a character vector")
               }
               info = files() %>%
-               GenomicDataCommons::filter( ~ file_id %in% UUID) %>%
+               GenomicDataCommons::filter( ~ file_id %in% UUIDs) %>%
                GenomicDataCommons::select('cases.samples.submitter_id') %>%
                results_all()
               if(length(info)==0)
@@ -151,7 +151,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
               barcodes_per_file = sapply(id_list,length)
               # sort to match input UUID order
               file_id <- rep(GenomicDataCommons::ids(info),barcodes_per_file)
-              reord <- match(UUID, file_id)
+              reord <- match(UUIDs, file_id)
               # And build the data.frame
               return(data.frame(file_id = file_id[reord],
                                submitter_id = unlist(id_list)[reord]))
