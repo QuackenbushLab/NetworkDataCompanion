@@ -40,6 +40,6 @@ Jonas Fischer (jfischer@hsph.harvard.edu)
 
 \code{exp1[,is_inter1] # this will remove samples that are not in experiment 2)}
 
-\code{exp2[,idcs1] # this will remove samples that are not in exp1 and reorder to match exp1}
+\code{exp2[,idcs1[is_inter1]] # this will remove samples that are not in exp1 and reorder to match exp1}
 }
 

@@ -1,0 +1,12 @@
+bcr_patient_barcode,gender,ajcc_pathologic_tumor_stage
+,,
+,,
+TCGA-A1-1234,M,3
+TCGA-A1-1236,F,1
+TCGA-A1-1237,F,1
+TCGA-A1-1242,F,2
+TCGA-A1-1243,M,4
+TCGA-A1-1246,F,1
+TCGA-A1-1247,F,1
+TCGA-A1-1251,M,2
+TCGA-A1-1253,F,1

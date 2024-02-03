@@ -23,6 +23,7 @@ Depends:
   TCGAutils,
   tidyr
 Remotes:
+  pmandros/TCGAPurityFiltering,
   immunogenomics/presto,
   aet21/EpiSCORE
 Encoding: UTF-8

@@ -21,19 +21,17 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## is_inter1 is an indicator (boolean) vector of the same length as bc1 that indicates which elements of bc1 are present in bc2
            ## idcs1 indicate where to find each barcode of bc1 in bc2, NA if missing. That is, bc1[i] == bc2[idcs1[i]] (if idcs1[i] != NA)
            ## The same information is provided for bc2
-           ## For example, if you want to map experiment 1 on experiment to, keeping only the information for samples that are present in both,
+           ## For example, if you want to map experiment 1 on experiment two, keeping only the information for samples that are present in both,
            ## and reordering the first experiment to match the samples of the second, you can do
-           ## exp1[,is_inter1]                --- this will remove samples that are not in exp2
-           ## exp2[,idcs1]                    --- this will remove samples that are not in exp1 and reorder to match exp1
+           ## exp1[,is_inter1]                           --- this will remove samples that are not in exp2
+           ## exp2[,idcs1[is_inter1]]                    --- this will remove samples that are not in exp1 and reorder to match exp1
            ## 20220920 man page done
            mapBarcodeToBarcode = function(bc1, bc2){
              if(class(bc1) != "character" | class(bc2) != "character"){
                stop("Error: barcodes need to be vectors of strings")
              }
              m1 <- match(bc1, bc2)
-             m1 <- m1[!is.na(m1)]
              m2 <- match(bc2, bc1)
-             m2 <- m2[!is.na(m2)]
              return(list(is_inter1=(bc1 %in% bc2), idcs1=m1, is_inter2=(bc2 %in% bc1), idcs2=m2))
            },
 
@@ -76,7 +74,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ##                and the actual logCPM which corresponds to log(CPM + 1)
            logCPMNormalization = function(exp_count_mat){
              if(sum(class(exp_count_mat) %in% c("data.frame", "matrix")) == 0){
-               stop("Error: expression matrices need to be an RSE object")
+               stop("Error: expression must be a matrix")
              }
              # apply edgeR function to get differential gene lists
              dge <- DGEList(exp_count_mat)
@@ -100,7 +98,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              return(sapply(TCGA_barcodes, substr, 1, 15))
            },
 
-           extractVialOnly = function(TCGA_barcodes){
+           extractSampleAndTypeAndVial = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 1, 16))
            },
 
@@ -109,8 +107,12 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
               return(sapply(TCGA_barcodes, substr, 14, 15))
            },
 
+           extractVialOnly = function(TCGA_barcodes){
+             return(sapply(TCGA_barcodes, substr, 16, 16))
+           },
+
            findDuplicates = function(TCGA_barcodes){
-             dupPos = duplicated(extractVialOnly(TCGA_barcodes))
+             dupPos = duplicated(extractSampleAndTypeAndVial(TCGA_barcodes))
              return(TCGA_barcodes[dupPos])
            },
 
@@ -447,7 +449,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            ## Returns indices in given tcga barcodes to KEEP
            ## 20220920 man page done
            filterDuplicatesSeqDepthOther = function(expression_count_matrix, tcga_barcodes){
-             sample_vials_ge <- extractVialOnly(colnames(expression_count_matrix))
+             sample_vials_ge <- extractSampleAndTypeAndVial(colnames(expression_count_matrix))
              seq_depth <- colSums(expression_count_matrix)
              duplicate_throwout <- rep(NA, length(tcga_barcodes))
              for (idx in 1:length(tcga_barcodes))
@@ -456,7 +458,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                {
                  ## find all vials and replicates of current barcode
                  rep_idcs <- which(extractSampleOnly(tcga_barcodes[idx]) == extractSampleOnly(tcga_barcodes))
-                 rep_vials <- extractVialOnly(tcga_barcodes[rep_idcs])
+                 rep_vials <- extractSampleAndTypeAndVial(tcga_barcodes[rep_idcs])
                  ## match with vials in expression matrix
                  mIdx <- match(rep_vials, sample_vials_ge)
                  ## get matched vial with highest seqdepth, just take first one if no match at all
@@ -493,8 +495,8 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              {
                stop("Error: Expected method name should be ESTIMATE, ABSOLUTE, LUMP, IHC, CPE")
              }
-             sample_names <- extractVialOnly(TCGA_barcodes)
-             purity_names <- extractVialOnly(rownames(TCGA_purities))
+             sample_names <- extractSampleAndTypeAndVial(TCGA_barcodes)
+             purity_names <- extractSampleAndTypeAndVial(rownames(TCGA_purities))
              name_matching <- match(purity_names, sample_names)
              cut <- TCGA_purities[,method] > threshold
              cut[is.na(cut)] <- F
@@ -506,7 +508,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            # return tissue type given an input barcode
            getTissueType = function(TCGA_barcode)
            {
-             this_sample = as.numeric(substr(str_split(TCGA_barcode,"-",simplify=T)[1,4],1,2))
+             this_sample = substr(str_split(TCGA_barcode,"-",simplify=T)[1,4],1,2)
              if(!this_sample%in% sample_type_mapping$numcode)
              {
                print(paste("[NetSciDataCompanion::getTissueType()] Error: unknown sample type:",this_sample))
@@ -667,7 +669,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
     	       {
     	         stop('Column gene_entrez not found in gene mapping.')
     	       }
-    	       to_return <- getGeneInfo(gene_names)
+    	       to_return <- getGeneInfo(gene_entrezs)
     	       if(version == TRUE){
     	         to_return <- to_return[c('gene_entrez','gene_id')]
     	       }
