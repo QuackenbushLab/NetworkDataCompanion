@@ -114,9 +114,24 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              return(TCGA_barcodes[dupPos])
            },
 
-           mapUUIDtoTCGA = function(UUID){
+           # UUIDs is a character vector
+           mapNewUUIDVersion = function(UUIDs)
+           {
+             updateUUIDVersion = function(x){
+               newUUID = TCGAutils::UUIDhistory(x) %>% dplyr::filter(file_change != "superseded") %>%
+                 dplyr::pull(uuid)
+               return(newUUID)
+             }
+
+             uuid_update = data.frame("oldUUID"=UUIDs,
+                                      "newUUID"=sapply(UUIDs,updateUUIDVersion))
+             return(uuid_update)
+           },
+
+           # UUIDs is a character vector (can be of length 1)
+           mapUUIDtoTCGA = function(UUIDs){
               if(class(UUID) != "character"){
-                stop("Error: Expected UUID argument to be vector of strings")
+                stop("Error: Expected UUID argument to be a character vector")
               }
               info = files() %>%
                GenomicDataCommons::filter( ~ file_id %in% UUID) %>%
@@ -124,12 +139,12 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                results_all()
               if(length(info)==0)
               {
-                stop("Error: No UUIDs were matched by TCGA ids. Perhaps you have input legacy UUIDs?")
-
+                stop("Error: No UUIDs were matched by TCGA ids.
+                       Perhaps you have input legacy UUIDs or your UUIDs
+                       have been superceded by a new version. Try running updateUUIDVersion().")
               }
-              # The mess of code below is to extract TCGA barcodes
-              # id_list will contain a list (one item for each file_id)
-              # of TCGA barcodes of the form 'TCGA-XX-YYYY-ZZZ'
+
+              # Code for extracting barcodes from https://seandavi.github.io/post/2017-12-29-genomicdatacommons-id-mapping/
               id_list = lapply(info$cases,function(a) {
                a[[1]][[1]][[1]]})
               # so we can later expand to a data.frame of the right size
