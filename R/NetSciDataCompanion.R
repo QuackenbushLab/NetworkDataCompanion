@@ -116,29 +116,44 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              return(TCGA_barcodes[dupPos])
            },
 
-           mapUUIDtoTCGA = function(UUID){
-              if(class(UUID) != "character"){
-                stop("Error: Expected UUID argument to be vector of strings")
+           # UUIDs is a character vector
+           mapNewUUIDVersion = function(UUIDs)
+           {
+             updateUUIDVersion = function(x){
+               newUUID = TCGAutils::UUIDhistory(x) %>% dplyr::filter(file_change != "superseded") %>%
+                 dplyr::pull(uuid)
+               return(newUUID)
+             }
+
+             uuid_update = data.frame("oldUUID"=UUIDs,
+                                      "newUUID"=sapply(UUIDs,updateUUIDVersion))
+             return(uuid_update)
+           },
+
+           # UUIDs is a character vector (can be of length 1)
+           mapUUIDtoTCGA = function(UUIDs){
+              if(class(UUIDs) != "character"){
+                stop("Error: Expected UUID argument to be a character vector")
               }
               info = files() %>%
-               GenomicDataCommons::filter( ~ file_id %in% UUID) %>%
+               GenomicDataCommons::filter( ~ file_id %in% UUIDs) %>%
                GenomicDataCommons::select('cases.samples.submitter_id') %>%
                results_all()
               if(length(info)==0)
               {
-                stop("Error: No UUIDs were matched by TCGA ids. Perhaps you have input legacy UUIDs?")
-
+                stop("Error: No UUIDs were matched by TCGA ids.
+                       Perhaps you have input legacy UUIDs or your UUIDs
+                       have been superceded by a new version. Try running updateUUIDVersion().")
               }
-              # The mess of code below is to extract TCGA barcodes
-              # id_list will contain a list (one item for each file_id)
-              # of TCGA barcodes of the form 'TCGA-XX-YYYY-ZZZ'
+
+              # Code for extracting barcodes from https://seandavi.github.io/post/2017-12-29-genomicdatacommons-id-mapping/
               id_list = lapply(info$cases,function(a) {
                a[[1]][[1]][[1]]})
               # so we can later expand to a data.frame of the right size
               barcodes_per_file = sapply(id_list,length)
               # sort to match input UUID order
               file_id <- rep(GenomicDataCommons::ids(info),barcodes_per_file)
-              reord <- match(UUID, file_id)
+              reord <- match(UUIDs, file_id)
               # And build the data.frame
               return(data.frame(file_id = file_id[reord],
                                submitter_id = unlist(id_list)[reord]))
