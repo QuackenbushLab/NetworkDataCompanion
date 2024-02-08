@@ -279,18 +279,22 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            probeToMeanPromoterMethylation = function(methylation_betas, probe_gene_map, genesOfInterest){
 
              # merge probe_gene_map with beta values
+             # split the probe map to a long form where there are multiple genes mapped to the same probe
              # use a left join to keep only probes that mapped to genes of interest
 
-             mappedBetas = probe_gene_map %>%
-               dplyr::filter(geneNames %in% genesOfInterest) %>%
-               dplyr::select(geneNames,probeID) %>%
-               left_join(methylation_betas, by="probeID")
-
-             ## split the probe map to a long form where there are multiple genes mapped to the same probe
-             mappedBetasLong = mappedBetas %>%
+             mappedBetasLong = probe_gene_map %>%
                separate_rows(geneNames, sep = ";") %>%
                drop_na(geneNames) %>%
-               data.frame(check.names = F)
+               dplyr::filter(geneNames %in% genesOfInterest) %>%
+               dplyr::select(geneNames,probeID) %>%
+               left_join(methylation_betas, by="probeID") %>%
+               data.frame(check.names=F)
+
+             # ## split the probe map to a long form where there are multiple genes mapped to the same probe
+             # mappedBetasLong = mappedBetas %>%
+             #   separate_rows(geneNames, sep = ";") %>%
+             #   drop_na(geneNames) %>%
+             #   data.frame(check.names = F)
 
              ## map probe-level methylation to the mean for each gene
              betaMeans = mappedBetasLong %>%
