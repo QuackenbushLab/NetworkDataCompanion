@@ -1,110 +1,138 @@
 context("[NetSciDataCompanion] Testing mapProbesToGenes function ... ")
 
-test_that("probes are mapped correctly to TSS200",{
-  # make a toy manifest
-  manifest_line_1 = data.frame("CpG_chrm"="chr42",
-                               "CpG_beg"=3141,
-                               "CpG_end"=3142,
-                               "probe_strand"="+",
-                               "probeID"="cg00000001",
-                               "genesUniq"="HARRY",
-                               "geneNames"="HARRY",
-                               "transcriptTypes"=NA,
-                               "transcriptIDs"=NA,
-                               "distToTSS"=1,
-                               "CGI"=NA,
-                               "CGIposition"=NA)
-  manifest_line_2 = data.frame("CpG_chrm"="chr42",
-                               "CpG_beg"=5926,
-                               "CpG_end"=5927,
-                               "probe_strand"="+",
-                               "probeID"="cg00000002",
-                               "genesUniq"="RON",
-                               "geneNames"="RON",
-                               "transcriptTypes"=NA,
-                               "transcriptIDs"=NA,
-                               "distToTSS"=-150,
-                               "CGI"=NA,
-                               "CGIposition"=NA)
+# begin by making a toy manifest, outside of the test_that functions
+# the manifest includes the following special cases:
+# 1. A probe that maps to two different genes within 200BP downstream (cg00000004)
+# 2. A probe that maps to two different isoforms of the same gene within 200BP downstream
+# and a different gene within 200BP upstream (cg00000005)
+manifest_line_1 = data.frame("CpG_chrm"="chr42",
+                             "CpG_beg"=3141,
+                             "CpG_end"=3142,
+                             "probe_strand"="+",
+                             "probeID"="cg00000001",
+                             "genesUniq"="HARRY",
+                             "geneNames"="HARRY",
+                             "transcriptTypes"=NA,
+                             "transcriptIDs"=NA,
+                             "distToTSS"=-124,
+                             "CGI"=NA,
+                             "CGIposition"=NA)
+manifest_line_2 = data.frame("CpG_chrm"="chr42",
+                             "CpG_beg"=3143,
+                             "CpG_end"=3144,
+                             "probe_strand"="+",
+                             "probeID"="cg00000002",
+                             "genesUniq"="HARRY",
+                             "geneNames"="HARRY",
+                             "transcriptTypes"=NA,
+                             "transcriptIDs"=NA,
+                             "distToTSS"=-122,
+                             "CGI"=NA,
+                             "CGIposition"=NA)
+manifest_line_3 = data.frame("CpG_chrm"="chr42",
+                             "CpG_beg"=3145,
+                             "CpG_end"=3146,
+                             "probe_strand"="+",
+                             "probeID"="cg00000003",
+                             "genesUniq"="HARRY",
+                             "geneNames"="HARRY",
+                             "transcriptTypes"=NA,
+                             "transcriptIDs"=NA,
+                             "distToTSS"=-120,
+                             "CGI"=NA,
+                             "CGIposition"=NA)
+manifest_line_4 = data.frame("CpG_chrm"="chr42",
+                             "CpG_beg"=3245,
+                             "CpG_end"=3246,
+                             "probe_strand"="+",
+                             "probeID"="cg00000004",
+                             "genesUniq"="HARRY;SEVERUS",
+                             "geneNames"="HARRY;SEVERUS",
+                             "transcriptTypes"=NA,
+                             "transcriptIDs"=NA,
+                             "distToTSS"="-20;-200",
+                             "CGI"=NA,
+                             "CGIposition"=NA)
+manifest_line_5 = data.frame("CpG_chrm"="chr42",
+                             "CpG_beg"=3440,
+                             "CpG_end"=3441,
+                             "probe_strand"="+",
+                             "probeID"="cg00000005",
+                             "genesUniq"="HARRY;SEVERUS;SEVERUS",
+                             "geneNames"="HARRY;SEVERUS;SEVERUS",
+                             "transcriptTypes"=NA,
+                             "transcriptIDs"=NA,
+                             "distToTSS"="195;-5;-25",
+                             "CGI"=NA,
+                             "CGIposition"=NA)
+manifest = rbind.data.frame(manifest_line_1, manifest_line_2, manifest_line_3,manifest_line_4,manifest_line_5)
+write.table(manifest,file="testdata/manifest_test.tsv",sep="\t",row.names=F,quote=F)
 
-  # @Jonas: is this right that distToTSS is already calculated
-  # based on stranding?
-  manifest = rbind.data.frame(manifest_line_1,manifest_line_2)
-  write.table(manifest,file="testdata/manifest_test.tsv",sep="\t",row.names=F,quote=F)
+test_that("probes are mapped correctly to TSS200 if no other bound is specified",{
   my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
-  my_map_calc = my_friend$mapProbesToGenes(probelist = c("cg00000001","cg00000002"),
+  my_map_calc = my_friend$mapProbesToGenes(probelist = c("cg00000001",
+                                                         "cg00000002",
+                                                         "cg00000003",
+                                                         "cg00000004",
+                                                         "cg00000005"),
                              localManifestPath = "testdata/manifest_test.tsv")
 
   # expected output
-  my_map_hand = data.frame("probeID"=c("cg00000001","cg00000002"),
-                           "geneName"=c(NA,"RON"),
+  my_map_hand = data.frame("probeID"=c("cg00000001",
+                                       "cg00000002",
+                                       "cg00000003",
+                                       "cg00000004",
+                                       "cg00000005"),
+                           "geneName"=c("HARRY",
+                                        "HARRY",
+                                        "HARRY",
+                                        "HARRY", # will not get SEVERUS until TSS201
+                                        "SEVERUS;SEVERUS"),
                            "ensemblID"=NA,
-                           "distToTSS"=c(NA,-150))
+                           "distToTSS"=c("-124",
+                                         "-122",
+                                         "-120",
+                                         "-20",
+                                         "-5;-25")) # TSS for HARRY is 3265; TSS for SEVERUS.1 is 3445; TSS for SEVERUS.2 is 3465
+
   expect_equal(my_map_hand$probeID, my_map_calc$probeID)
   expect_equal(my_map_hand$geneName, my_map_calc$geneName)
   expect_equal(my_map_hand$ensemblID, as.logical(my_map_calc$ensemblID))
-  expect_equal(my_map_hand$distToTSS, as.double(my_map_calc$distToTSS))
+  expect_equal(my_map_hand$distToTSS, my_map_calc$distToTSS)
 
 })
 
-test_that("probes are mapped correctly to a custom region, [TSS - 10: TSS + 10]",{
-  # make a toy manifest
-  manifest_line_1 = data.frame("CpG_chrm"="chr42",
-                               "CpG_beg"=3141,
-                               "CpG_end"=3142,
-                               "probe_strand"="+",
-                               "probeID"="cg00000001",
-                               "genesUniq"="HARRY",
-                               "geneNames"="HARRY",
-                               "transcriptTypes"=NA,
-                               "transcriptIDs"=NA,
-                               "distToTSS"=1,
-                               "CGI"=NA,
-                               "CGIposition"=NA)
-  manifest_line_2 = data.frame("CpG_chrm"="chr42",
-                               "CpG_beg"=5926,
-                               "CpG_end"=5927,
-                               "probe_strand"="+",
-                               "probeID"="cg00000002",
-                               "genesUniq"="RON",
-                               "geneNames"="RON",
-                               "transcriptTypes"=NA,
-                               "transcriptIDs"=NA,
-                               "distToTSS"=-150,
-                               "CGI"=NA,
-                               "CGIposition"=NA)
-  manifest_line_3 = data.frame("CpG_chrm"="chr42",
-                               "CpG_beg"=535,
-                               "CpG_end"=536,
-                               "probe_strand"="+",
-                               "probeID"="cg00000003",
-                               "genesUniq"="HERMIONE",
-                               "geneNames"="HERMIONE",
-                               "transcriptTypes"=NA,
-                               "transcriptIDs"=NA,
-                               "distToTSS"=-9,
-                               "CGI"=NA,
-                               "CGIposition"=NA)
-
-  # @Jonas: is this right that distToTSS is already calculated
-  # based on stranding?
-  manifest = rbind.data.frame(manifest_line_1,manifest_line_2,manifest_line_3)
-  write.table(manifest,file="testdata/manifest_test.tsv",sep="\t",row.names=F,quote=F)
+test_that("probes are mapped correctly to a custom region, [TSS - 201: TSS + 200]",{
   my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
-  my_map_calc = my_friend$mapProbesToGenes(probelist = c("cg00000001","cg00000002","cg00000003"),
-                                           rangeUp=10,
-                                           rangeDown=10,
+  my_map_calc = my_friend$mapProbesToGenes(probelist = c("cg00000001",
+                                                         "cg00000002",
+                                                         "cg00000003",
+                                                         "cg00000004",
+                                                         "cg00000005"),
+                                           rangeUp = 201,
+                                           rangeDown = 200,
                                            localManifestPath = "testdata/manifest_test.tsv")
-
   # expected output
-  my_map_hand = data.frame("probeID"=c("cg00000001","cg00000002","cg00000003"),
-                           "geneName"=c("HARRY",NA,"HERMIONE"),
+  my_map_hand = data.frame("probeID"=c("cg00000001",
+                                       "cg00000002",
+                                       "cg00000003",
+                                       "cg00000004",
+                                       "cg00000005"),
+                           "geneName"=c("HARRY",
+                                        "HARRY",
+                                        "HARRY",
+                                        "HARRY;SEVERUS", # will not get SEVERUS until TSS201
+                                        "HARRY;SEVERUS;SEVERUS"), # gets HARRY upstream
                            "ensemblID"=NA,
-                           "distToTSS"=c(1,NA,-9))
+                           "distToTSS"=c("-124",
+                                         "-122",
+                                         "-120",
+                                         "-20;-200",
+                                         "195;-5;-25")) # TSS for HARRY is 3265; TSS for SEVERUS.1 is 3445; TSS for SEVERUS.2 is 3465
   expect_equal(my_map_hand$probeID, my_map_calc$probeID)
   expect_equal(my_map_hand$geneName, my_map_calc$geneName)
   expect_equal(my_map_hand$ensemblID, as.logical(my_map_calc$ensemblID))
-  expect_equal(my_map_hand$distToTSS, as.double(my_map_calc$distToTSS))
+  expect_equal(my_map_hand$distToTSS, my_map_calc$distToTSS)
 })
 
 # test download, gunzip, and load of manifest

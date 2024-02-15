@@ -4,7 +4,7 @@
 \title{
   Filter samples based on sample type.
 }
-\description{This function filters samples based on TCGA sample types.}
+\description{This function filters samples based on TCGA sample types.
 }
 \usage{
   filterSampleType(TCGA_barcodes, types_of_samples)

@@ -1,115 +1,31 @@
 # Test probeToMeanTFMethylation
 context("[NetSciDataCompanion] Testing probeToMeanTFMethylation function ... ")
 
-test_that("all probes that map to a gene are extracted from the map",{
-  # make a toy manifest with three probes that map to the same gene
-  # and one that does not
-  manifest_line_1 = data.frame("CpG_chrm"="chr42",
-                               "CpG_beg"=3141,
-                               "CpG_end"=3142,
-                               "probe_strand"="+",
-                               "probeID"="cg00000001",
-                               "genesUniq"="HARRY",
-                               "geneNames"="HARRY",
-                               "transcriptTypes"=NA,
-                               "transcriptIDs"=NA,
-                               "distToTSS"=-150,
-                               "CGI"=NA,
-                               "CGIposition"=NA)
-  manifest_line_2 = data.frame("CpG_chrm"="chr42",
-                               "CpG_beg"=3143,
-                               "CpG_end"=3144,
-                               "probe_strand"="+",
-                               "probeID"="cg00000002",
-                               "genesUniq"="HARRY",
-                               "geneNames"="HARRY",
-                               "transcriptTypes"=NA,
-                               "transcriptIDs"=NA,
-                               "distToTSS"=-125,
-                               "CGI"=NA,
-                               "CGIposition"=NA)
-  manifest_line_3 = data.frame("CpG_chrm"="chr42",
-                               "CpG_beg"=3145,
-                               "CpG_end"=3146,
-                               "probe_strand"="+",
-                               "probeID"="cg00000003",
-                               "genesUniq"="HARRY",
-                               "geneNames"="HARRY",
-                               "transcriptTypes"=NA,
-                               "transcriptIDs"=NA,
-                               "distToTSS"=-120,
-                               "CGI"=NA,
-                               "CGIposition"=NA)
-  manifest_line_4 = data.frame("CpG_chrm"="chr42",
-                               "CpG_beg"=3245,
-                               "CpG_end"=3246,
-                               "probe_strand"="+",
-                               "probeID"="cg00000004",
-                               "genesUniq"="SEVERUS",
-                               "geneNames"="SEVERUS",
-                               "transcriptTypes"=NA,
-                               "transcriptIDs"=NA,
-                               "distToTSS"=100,
-                               "CGI"=NA,
-                               "CGIposition"=NA)
-  manifest = rbind.data.frame(manifest_line_1, manifest_line_2, manifest_line_3,manifest_line_4)
+# make toy beta values
+my_betas = data.frame("probeID"=c("cg00000001",
+                                  "cg00000002",
+                                  "cg00000003",
+                                  "cg00000004",
+                                  "cg00000005"))
 
-  # make toy beta values
-  my_betas = data.frame("probeID"=c("cg00000001",
-                                    "cg00000002",
-                                    "cg00000003",
-                                    "cg00000004"))
+my_betas$minerva = c(0.1,0.2,0.3,0.4,0.5)
+my_betas$albus = c(0.9,0.8,0.7,0.6,0.5)
 
-  set.seed(42)
-  my_betas$minerva = runif(4)
-  my_betas$albus = runif(4)
+test_that("Mean calculation is correct with default mapToNearest = F, including probes mapping to multiple genes and/or isoforms.",{
 
-  write.table(manifest,file="testdata/manifest_test.tsv",sep="\t",row.names=F,quote=F)
   my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
-
-  my_map_200_0 = my_friend$mapProbesToGenes(probelist = NULL, # NULL probelist maps everything
-                                      rangeUp = 200,
+  my_map = my_friend$mapProbesToGenes(probelist = c("cg00000001","cg00000002","cg00000003","cg00000004","cg00000005"),
+                                      rangeUp = 201,
                                       rangeDown = 0,
-                                      localManifestPath = "testdata/manifest_test.tsv")
-
-  my_map_200_101 = my_friend$mapProbesToGenes(probelist = NULL, # NULL probelist maps everything
-                                      rangeUp = 200,
-                                      rangeDown = 101,
-                                      localManifestPath = "testdata/manifest_test.tsv")
-
-  # test that all probes mapped to the right genes
-
-  names(my_map_200_0)[2] = "geneNames"
-  meanMeth = my_friend$probeToMeanPromoterMethylation(methylation_betas = my_betas,
-                                     genesOfInterest = c("HARRY","SEVERUS"),
-                                     probe_gene_map = my_map_200_0)
-})
-
-test_that("mean calculation is correct",{
-
-  # make toy beta values
-  my_betas = data.frame("probeID"=c("cg00000001",
-                                    "cg00000002",
-                                    "cg00000003",
-                                    "cg00000004"))
-
-  set.seed(42)
-  my_betas$minerva = runif(4)
-  my_betas$albus = runif(4)
-
-  my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
-  my_map = my_friend$mapProbesToGenes(probelist = c("cg00000001","cg00000002","cg00000003","cg00000004"),
-                                      rangeUp = 200,
-                                      rangeDown = 200,
                                       localManifestPath = "testdata/manifest_test.tsv")
   names(my_map)[2] = "geneNames"
   mean_meth = my_friend$probeToMeanPromoterMethylation(methylation_betas = my_betas,
                                            genesOfInterest = c("HARRY","SEVERUS"),
                                            probe_gene_map = my_map)
-  minerva_mean_harry = mean(my_betas$minerva[1:3])
-  minerva_mean_severus = my_betas$minerva[4]
-  albus_mean_harry = mean(my_betas$albus[1:3])
-  albus_mean_severus = my_betas$albus[4]
+  minerva_mean_harry = mean(my_betas$minerva[1:4])
+  minerva_mean_severus = 1/3*(my_betas$minerva[4] + 2*my_betas$minerva[5])
+  albus_mean_harry = mean(my_betas$albus[1:4])
+  albus_mean_severus = 1/3*(my_betas$albus[4] + 2*my_betas$albus[5])
 
   manual_mean = matrix(c(minerva_mean_harry, minerva_mean_severus,
                         albus_mean_harry, albus_mean_severus),
@@ -121,3 +37,10 @@ test_that("mean calculation is correct",{
 
 })
 
+# Add test for mapToNearest option
+
+# Add test for NA option once developed
+# test_that("if there are NA values for some probes mapping to genes, \n
+#          but not NA values for others, those probes with NAs are excluded \n
+#          from the calculation of the mean if the excludeNA option is set in \n
+#          the function call.",{})
