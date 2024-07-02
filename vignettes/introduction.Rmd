@@ -92,8 +92,8 @@ print(tail(gene_entrez))
 ```{r sample filtering}
 # Get indices of samples that are primary tumor and adjacent normal
 idcs_tumor_normal <- obj$filterSampleType(colnames(exp_count_mat), c("11", "01"))
-idcs_tumor <- idcs_tumor_normal$index[idcs_tumor_normal$type == "01"]
-idcs_normal <- idcs_tumor_normal$index[idcs_tumor_normal$type == "11"]
+idcs_tumor <- idcs_tumor_normal$index[idcs_tumor_normal$sample_type == "01"]
+idcs_normal <- idcs_tumor_normal$index[idcs_tumor_normal$sample_type == "11"]
 # Get indices of samples passing purity filtering
 idcs_purity_tumor <- obj$filterPurity(colnames(exp_count_mat[,idcs_tumor]))
 # Get indices of nonduplicates
@@ -148,27 +148,30 @@ Here, we will show how to aggregate methylation values to get gene-level informa
 
 ```{r methylation operations}
 ## Load methylation data
-load('~/Projects/TCGA_data/LUAD/luad_methylation_betas.Rdata')
-## transform column names to original UUIDs and mapt to TCGA barcodes
-rownames(betas) <- betas$probeID
-colnames(betas)[-1] <- colnames(betas)[-1] %>%
-  str_replace("X","") %>%
-  str_replace_all("\\.","-")
-betas_uuided <- betas
-colnames(betas)[-1] <- obj$mapUUIDtoTCGA(colnames(betas)[-1])[,2]
+## This dataset needs to be available in the specified path in order to build the project
+## I am commenting this out because it is not available in the package
 
-## Remove duplicates from beta value matrix (for simplicity, remove duplicates 'at random')
-betas <- betas[,!duplicated(colnames(betas))]
+# load('~/Projects/TCGA_data/LUAD/luad_methylation_betas.Rdata')
+# ## transform column names to original UUIDs and mapt to TCGA barcodes
+# rownames(betas) <- betas$probeID
+# colnames(betas)[-1] <- colnames(betas)[-1] %>%
+#   str_replace("X","") %>%
+#   str_replace_all("\\.","-")
+# betas_uuided <- betas
+# colnames(betas)[-1] <- obj$mapUUIDtoTCGA(colnames(betas)[-1])[,2]
 
-## Map probes to promoter regions (500 bp upstream to TSS)
-probemap <- obj$mapProbesToGenes(probelist = betas$probeID,
-                                 rangeUp = 500,
-                                 rangeDown = 0)
-gene_prom_meth <- obj$probeToMeanPromoterMethylation(methylation_betas = betas,
-                                                     genesOfInterest = gene_names[intersect(idcs_prot, idcs_genes_mintpm)],
-                                                     probe_gene_map = probemap)
+# ## Remove duplicates from beta value matrix (for simplicity, remove duplicates 'at random')
+# betas <- betas[,!duplicated(colnames(betas))]
 
-print(gene_prom_meth[1:5,1:5])
+# ## Map probes to promoter regions (500 bp upstream to TSS)
+# probemap <- obj$mapProbesToGenes(probelist = betas$probeID,
+#                                  rangeUp = 500,
+#                                  rangeDown = 0)
+# gene_prom_meth <- obj$probeToMeanPromoterMethylation(methylation_betas = betas,
+#                                                      genesOfInterest = gene_names[intersect(idcs_prot, idcs_genes_mintpm)],
+#                                                      probe_gene_map = probemap)
+
+# print(gene_prom_meth[1:5,1:5])
 
 ```
 
@@ -178,13 +181,13 @@ print(gene_prom_meth[1:5,1:5])
 Here we will show additional features such as methylation-based cell proportion estimates and smoking indicator.
 
 ```{r meth features}
-## Get smoking status of individuals through AHRR methylation marker
-smoking_ind <- obj$extractAHRRMethylation(betas)
-print(head(smoking_ind))
+# ## Get smoking status of individuals through AHRR methylation marker
+# smoking_ind <- obj$extractAHRRMethylation(betas)
+# print(head(smoking_ind))
 
-## Estimate cell proportions from methylation values through EpiSCORE
-episcores <- obj$estimateCellCountsEpiSCORE(methylation_betas = betas_uuided, tissue = 'Lung')
-print(head(episcores))
+# ## Estimate cell proportions from methylation values through EpiSCORE
+# episcores <- obj$estimateCellCountsEpiSCORE(methylation_betas = betas_uuided, tissue = 'Lung')
+# print(head(episcores))
 ```
 
 
