@@ -1,6 +1,6 @@
 # NetSciDataCompanion
 
-An R library for preprocessing data at the Network Science Lab.
+An R library for preprocessing data at the Network Science Lab..
 
 # Installing
 
