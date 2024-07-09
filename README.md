@@ -1,6 +1,6 @@
-# NetSciDataCompanion
+# NetZooDataCompanion
 
-An R library for preprocessing data at the Network Science Lab..
+An R library of utilities for performing analyses on TCGA and GTEx data using the Network Zoo (https://netzoo.github.io). 
 
 # Installing
 
@@ -9,7 +9,7 @@ The package requires the "GenomicDataCommons", "edgeR", "recount", "recount3" bi
 To install and use the library:
 - first install.packages("devtools")
 - then install the library with devtools::install() (provided you are at the project folder)
-- load the library in your code with library(NetSciDataCompanion)
+- load the library in your code with library(NetZooDataCompanion)
 
 An example is provided that explores the functionality of the library.
 
