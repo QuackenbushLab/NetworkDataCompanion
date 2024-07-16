@@ -1,9 +1,9 @@
-context("[NetSciDataCompanion] Testing mapUUIDtoTCGA function ... ")
+context("[NetZooDataCompanion] Testing mapUUIDtoTCGA function ... ")
 
 test_that("Testing mapUUIDtoTCGA",{
-  
-  my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
-  # Example from 
+
+  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  # Example from
   # https://www.bioconductor.org/packages/devel/bioc/vignettes/TCGAutils/inst/doc/TCGAutils.html#uuid-history-lookup
   # Visited 08/24/23
   expect_equal(

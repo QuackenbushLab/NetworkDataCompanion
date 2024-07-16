@@ -1,13 +1,14 @@
-Package: NetSciDataCompanion
+Package: NetZooDataCompanion
 Title: Tools for Analyzing TCGA and GTEx Data
 Version: 0.0.0.9000
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Description: An R library of utilities for performing analyses on TCGA and GTEx data using the Network Zoo (https://netzoo.github.io).
 License: `use_mit_license()`
 biocViews:
 Depends:
+  AnnotationDbi,
   data.table,
   dplyr,
   edgeR,
@@ -15,6 +16,7 @@ Depends:
   GenomicDataCommons,
   huge,
   magrittr,
+  org.Hs.eg.db, 
   presto,
   recount,
   recount3,

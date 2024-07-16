@@ -1,5 +1,5 @@
-\name{NetSciDataCompanion}
-\alias{NetSciDataCompanion}
+\name{NetZooDataCompanion}
+\alias{NetZooDataCompanion}
 
 \title{A package for easy and reproducible wrangling of TCGA and GTEx data.}
 

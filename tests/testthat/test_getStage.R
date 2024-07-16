@@ -1,8 +1,8 @@
-context("[NetSciDataCompanion] Testing getStage function ... ")
+context("[NetZooDataCompanion] Testing getStage function ... ")
 
 test_that("Testing getStage",{
 
-  my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject("testdata/clinical_patient.csv")
+  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject("testdata/clinical_patient.csv")
   barcode1 = "TCGA-A1-1234"
   barcode2 = "TCGA-A1-1236"
   barcodes = c(barcode1, barcode2)

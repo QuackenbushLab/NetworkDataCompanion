@@ -1,36 +1,36 @@
-context("[NetSciDataCompanion] Testing getTissueType function ... ")
+context("[NetZooDataCompanion] Testing getTissueType function ... ")
 
 test_that("Testing getTissueType",{
-  
-  my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
+
+  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
   numcodes <- c(
-                "01", 
-                "02", 
-                "03", 
-                "04", 
-                "05", 
-                "06", 
-                "07", 
-                "08", 
-                "09", 
-                "10", 
-                "11", 
-                "12", 
-                "13", 
-                "14", 
-                "15", 
-                "16", 
-                "20", 
-                "40", 
-                "50", 
-                "60", 
-                "61", 
+                "01",
+                "02",
+                "03",
+                "04",
+                "05",
+                "06",
+                "07",
+                "08",
+                "09",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15",
+                "16",
+                "20",
+                "40",
+                "50",
+                "60",
+                "61",
                 "99"
               )
   descriptions <- c(
-                  "Primary Solid Tumor", 
+                  "Primary Solid Tumor",
                   "Recurrent Solid Tumor",
-                  "Primary Blood Derived Cancer - Peripheral Blood", 
+                  "Primary Blood Derived Cancer - Peripheral Blood",
                   "Recurrent Blood Derived Cancer - Bone Marrow",
                   "Additional - New Primary",
                   "Metastatic",
@@ -53,7 +53,7 @@ test_that("Testing getTissueType",{
                 )
   barcode = "TCGA-A1-1234-"
   for(numcode in numcodes){
-   expect_equal(as.character(my_friend$getTissueType(paste0(barcode, numcode))['description']), descriptions[numcodes == numcode]) 
+   expect_equal(as.character(my_friend$getTissueType(paste0(barcode, numcode))['description']), descriptions[numcodes == numcode])
   }
   expect_true(is.na(as.character(my_friend$getTissueType(paste0(barcode, "53"))['description'])))
 })

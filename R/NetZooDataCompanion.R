@@ -1,4 +1,4 @@
-NetSciDataCompanion=setRefClass("NetSciDataCompanion",
+NetZooDataCompanion=setRefClass("NetZooDataCompanion",
 
          fields = list(TCGA_purities= "data.frame",
                        clinical_patient_data = "data.frame",
@@ -176,9 +176,9 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              if(is.na(localManifestPath))
              {
-               print("[NetSciDataCompanion::mapProbesToGenes] Sourcing 450k probe annotation from https://zwdzwd.github.io/InfiniumAnnotation ...")
-               print("[NetSciDataCompanion::mapProbesToGenes] https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz")
-               print("[NetSciDataCompanion::mapProbesToGenes] HG38, Gencode v36")
+               print("[NetZooDataCompanion::mapProbesToGenes] Sourcing 450k probe annotation from https://zwdzwd.github.io/InfiniumAnnotation ...")
+               print("[NetZooDataCompanion::mapProbesToGenes] https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz")
+               print("[NetZooDataCompanion::mapProbesToGenes] HG38, Gencode v36")
 
                # source hg38 with gencode 36 from https://zwdzwd.github.io/InfiniumAnnotation
                download.file('https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz',
@@ -197,7 +197,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
 
              if(!is.na(localManifestPath))
              {
-               print(paste("[NetSciDataCompanion::mapProbesToGenes] Loading probe file from:",localManifestPath))
+               print(paste("[NetZooDataCompanion::mapProbesToGenes] Loading probe file from:",localManifestPath))
                manifest = read.table(localManifestPath,sep="\t",header=T)
              }
 
@@ -218,7 +218,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              # please feel free to vectorize this etc
              for(i in 1:nrow(smallManifest))
              {
-               if(i %% 10000 == 0) print(paste("[NetSciDataCompanion::mapProbesToGenes] Processing probe number:",i))
+               if(i %% 10000 == 0) print(paste("[NetZooDataCompanion::mapProbesToGenes] Processing probe number:",i))
 
                x = smallManifest[i,]
                genes = str_split(x$geneNames,";",simplify=T)
@@ -276,19 +276,33 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
            # Function to map to probes to a gene-level measurement
            # probe_gene_map is in the format output from the mapProbesToGenes function
            # not all genesOfInterest need to be in probe_gene_map, but if none are, then this is meaningless
-           probeToMeanPromoterMethylation = function(methylation_betas, probe_gene_map, genesOfInterest){
+           probeToMeanPromoterMethylation = function(methylation_betas,
+                                                     probe_gene_map,
+                                                     genesOfInterest = NULL){
 
              # merge probe_gene_map with beta values
              # split the probe map to a long form where there are multiple genes mapped to the same probe
              # use a left join to keep only probes that mapped to genes of interest
+             if(is.null(genesOfInterest))
+             {
+               mappedBetasLong = probe_gene_map %>%
+                 separate_rows(geneNames, sep = ";") %>%
+                 drop_na(geneNames) %>%
+                 dplyr::select(geneNames,probeID) %>%
+                 left_join(methylation_betas, by="probeID") %>%
+                 data.frame(check.names=F)
+             }
 
-             mappedBetasLong = probe_gene_map %>%
-               separate_rows(geneNames, sep = ";") %>%
-               drop_na(geneNames) %>%
-               dplyr::filter(geneNames %in% genesOfInterest) %>%
-               dplyr::select(geneNames,probeID) %>%
-               left_join(methylation_betas, by="probeID") %>%
-               data.frame(check.names=F)
+             if(!is.null(genesOfInterest))
+             {
+               mappedBetasLong = probe_gene_map %>%
+                 separate_rows(geneNames, sep = ";") %>%
+                 drop_na(geneNames) %>%
+                 dplyr::filter(geneNames %in% genesOfInterest) %>% # this line is added for selecting subset of genes
+                 dplyr::select(geneNames,probeID) %>%
+                 left_join(methylation_betas, by="probeID") %>%
+                 data.frame(check.names=F)
+             }
 
              # ## split the probe map to a long form where there are multiple genes mapped to the same probe
              # mappedBetasLong = mappedBetas %>%
@@ -329,7 +343,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                                 "Skin")
              if(!tissue %in% tissue_options)
              {
-               print(paste("[NetSciDataCompanion::estimateCellCountsEpiSCORE()] EpiSCORE is not implemented for tissue:", tissue))
+               print(paste("[NetZooDataCompanion::estimateCellCountsEpiSCORE()] EpiSCORE is not implemented for tissue:", tissue))
              }
 
              # map methylation to gene level
@@ -515,7 +529,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              this_sample = substr(str_split(TCGA_barcode,"-",simplify=T)[1,4],1,2)
              if(!this_sample%in% sample_type_mapping$numcode)
              {
-               print(paste("[NetSciDataCompanion::getTissueType()] Error: unknown sample type:",this_sample))
+               print(paste("[NetZooDataCompanion::getTissueType()] Error: unknown sample type:",this_sample))
                return(NA)
              }
 
@@ -535,7 +549,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
                stop("Error: TCGA_barcodes argument needs to be a character vector")
              }
              if(class(types_of_samples) != "character"){
-               stop("Error: types_of_sample argument needs to be a character vector. Use NetSciDataCompanion::getSampleTypeMap() to see available types.")
+               stop("Error: types_of_sample argument needs to be a character vector. Use NetZooDataCompanion::getSampleTypeMap() to see available types.")
              }
 
              observed_sample_types = extractSampleType(TCGA_barcodes)
@@ -543,7 +557,7 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
              if (length(nonExistTypes) > 0) {
 
                if (length(nonExistTypes) == length(types_of_samples)){
-                  stop("Error: No specified types in types_of_sample argument exist in sample info.\n Use NetSciDataCompanion::getSampleTypeMap() to see available types.")
+                  stop("Error: No specified types in types_of_sample argument exist in sample info.\n Use NetZooDataCompanion::getSampleTypeMap() to see available types.")
                }
                print(paste0("Warning: sample types ", types_of_samples[nonExistTypes], " are not present in sample info."))
              }
@@ -771,12 +785,12 @@ NetSciDataCompanion=setRefClass("NetSciDataCompanion",
          )
 )
 
-### constructors for NetSciDataCompanion class
+### constructors for NetZooDataCompanion class
 ### like preparing and creating your object before you can use the methods above
 ### the export decorator is for roxygen to know which methods to export
 
-#' @export "CreateNetSciDataCompanionObject"
-CreateNetSciDataCompanionObject <- function(clinical_patient_file=NULL, project_name="default_project"){
+#' @export "CreateNetZooDataCompanionObject"
+CreateNetZooDataCompanionObject <- function(clinical_patient_file=NULL, project_name="default_project"){
 
   ## Load purities for purity package
   obj <- CreateTCGAPurityFilteringObject()
@@ -807,15 +821,15 @@ CreateNetSciDataCompanionObject <- function(clinical_patient_file=NULL, project_
     patient_data = data.frame()
   }
 
-  fpath <- system.file("extdata", "gen_v26_mapping_w_entrez.csv", package="NetSciDataCompanion")
+  fpath <- system.file("extdata", "gen_v26_mapping_w_entrez.csv", package="NetZooDataCompanion")
   gene_mapping <- read.csv(file = fpath, sep=",", header=TRUE, row.names = 1)
   gene_mapping$gene_id_no_ver <- gsub("\\..*","",gene_mapping[,"gene_id"])
 
-  fpath_sample <- system.file("extdata", "TCGA_sample_type.csv", package="NetSciDataCompanion")
+  fpath_sample <- system.file("extdata", "TCGA_sample_type.csv", package="NetZooDataCompanion")
   sample_type_mapping <- read.csv(file = fpath_sample, header=T, sep=",",
                                   colClasses = "character") # read codes as characters so that 01, 02, etc. are read properly
 
-  s <- NetSciDataCompanion$new(TCGA_purities = purities,
+  s <- NetZooDataCompanion$new(TCGA_purities = purities,
                                clinical_patient_data = patient_data,
                                project_name = project_name,
                                gene_mapping = gene_mapping,
