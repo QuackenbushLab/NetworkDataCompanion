@@ -1,5 +1,5 @@
 ---
-title: "Introduction to the NetSciDataCompanion"
+title: "Introduction to the NetZooDataCompanion"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{introduction}
@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-# Introduction to the NetSciDataCompanion
+# Introduction to the NetZooDataCompanion
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(NetSciDataCompanion)
+library(NetZooDataCompanion)
 library(recount)
 library(recount3)
 library(GenomicDataCommons)
@@ -26,7 +26,7 @@ library(GenomicDataCommons)
 
 ### Overview
 
-The **NetSciDataCompanion** supports preprocessing of **TCGA** bulk RNA-seq and DNA-methylation data.
+The **NetZooDataCompanion** supports preprocessing of **TCGA** bulk RNA-seq and DNA-methylation data.
 There are currently functions for *filtering* samples as well as genes, *normalizing* the data, and convenience functions that allow to easily map between different sample and gene identifiers.
 For methylation data, there are interfaces to EpiScore cell estimates, the methylation-based smoking marker AHRR, and epigenetic age prediction through cAge.
 
@@ -44,8 +44,8 @@ TCGA_lung <- recount3::create_rse_manual(
   annotation = "gencode_v26",
   type = "gene"
 )
-## Generate NetSciDataCompanion instance
-obj <- CreateNetSciDataCompanionObject(project_name = "LUAD")
+## Generate NetZooDataCompanion instance
+obj <- CreateNetZooDataCompanionObject(project_name = "LUAD")
 
 ## Extract metadata from recount object
 rds_info <- obj$extractSampleAndGeneInfo(TCGA_lung)

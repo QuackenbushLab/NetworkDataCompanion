@@ -1,4 +1,4 @@
-context("[NetSciDataCompanion] Testing mapProbesToGenes function ... ")
+context("[NetZooDataCompanion] Testing mapProbesToGenes function ... ")
 
 # begin by making a toy manifest, outside of the test_that functions
 # the manifest includes the following special cases:
@@ -69,7 +69,7 @@ manifest = rbind.data.frame(manifest_line_1, manifest_line_2, manifest_line_3,ma
 write.table(manifest,file="testdata/manifest_test.tsv",sep="\t",row.names=F,quote=F)
 
 test_that("probes are mapped correctly to TSS200 if no other bound is specified",{
-  my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
+  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
   my_map_calc = my_friend$mapProbesToGenes(probelist = c("cg00000001",
                                                          "cg00000002",
                                                          "cg00000003",
@@ -103,7 +103,7 @@ test_that("probes are mapped correctly to TSS200 if no other bound is specified"
 })
 
 test_that("probes are mapped correctly to a custom region, [TSS - 201: TSS + 200]",{
-  my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
+  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
   my_map_calc = my_friend$mapProbesToGenes(probelist = c("cg00000001",
                                                          "cg00000002",
                                                          "cg00000003",
@@ -138,7 +138,7 @@ test_that("probes are mapped correctly to a custom region, [TSS - 201: TSS + 200
 # test download, gunzip, and load of manifest
 test_that("Illumina manifest is correctly downloaded and gunzipped...",
 {
-  my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
+  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
   nsdc_map = my_friend$mapProbesToGenes(probelist="cg05575921", rangeUp = 0, rangeDown = 51000)
   # true location hard-coded from the manifest located at
   # https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz

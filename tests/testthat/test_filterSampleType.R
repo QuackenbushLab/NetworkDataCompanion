@@ -1,8 +1,8 @@
-context("[NetSciDataCompanion] Testing filterSampleType function ... ")
+context("[NetZooDataCompanion] Testing filterSampleType function ... ")
 
 test_that("filterSampleType correctly selects samples matching input types",{
 
-  my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
+  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
   barcode1 = "TCGA-A1-1234-01A"
   barcode2 = "TCGA-A1-1234-11A"
   barcode3 = "TCGA-A1-1234-21A"
@@ -28,7 +28,7 @@ test_that("filterSampleType correctly selects samples matching input types",{
 
 test_that("filterNormalSamples, filterTumorSamples, filterControlSamples correctly select samples",
 {
-  my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
+  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
   barcode1 = "TCGA-A1-1234-11A"
   barcode2 = "TCGA-A1-1234-21A"
   barcode3 = "TCGA-A1-1234-11B"
