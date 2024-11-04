@@ -9,7 +9,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## Extract experiment specific information and metadata from ranged summarized experiment object
            ## Returns a named list with rds_sample_info corresponding to meta information about the samples (columns)
            ##                       and rds_gene_info corresponding to meta information about genes (rows)
-           ## 20220913 man page done
+           ## 20220913: man page done
            extractSampleAndGeneInfo = function(expression_rds_obj){
              return(list(rds_sample_info=as.data.frame(colData(expression_rds_obj)),
                          rds_gene_info=as.data.frame(rowRanges(expression_rds_obj))))
