@@ -1,8 +1,8 @@
-context("[NetZooDataCompanion] Testing getGeneIdcs function ... ")
+context("[NetworkDataCompanion] Testing getGeneIdcs function ... ")
 
 test_that("Testing getGeneIdcs",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
   human_projects <- available_projects()
   proj_info <- subset(
     human_projects,

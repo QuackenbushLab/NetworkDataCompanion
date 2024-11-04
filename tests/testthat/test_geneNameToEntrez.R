@@ -1,8 +1,8 @@
-context("[NetZooDataCompanion] Testing geneNameToEntrez functions ... ")
+context("[NetworkDataCompanion] Testing geneNameToEntrez functions ... ")
 
 test_that("geneNameToEntrez functions correctly converts Name to Entrez",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
 
   ## test genes:
   ## MIF has two ids, TP53 has one id, and WNT3 has three ids.

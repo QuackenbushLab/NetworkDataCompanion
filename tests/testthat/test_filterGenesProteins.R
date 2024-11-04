@@ -1,8 +1,8 @@
-context("[NetZooDataCompanion] Testing filterGenesProteins function ... ")
+context("[NetworkDataCompanion] Testing filterGenesProteins function ... ")
 
 test_that("Testing filterGenesProteins",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
   human_projects <- available_projects()
   proj_info <- subset(
     human_projects,

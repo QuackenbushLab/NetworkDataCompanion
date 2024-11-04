@@ -1,8 +1,8 @@
-context("[NetZooDataCompanion] Testing filterGenesByNormExpression function ... ")
+context("[NetworkDataCompanion] Testing filterGenesByNormExpression function ... ")
 
 test_that("Testing filterGenesByNormExpression",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
   expr <- rbind(c(1, 2, 3, 4), c(0, 0, 1, 1), c(0, 1, 2, 1), c(0, 0, 10, 10))
 
   # Test illegal inputs

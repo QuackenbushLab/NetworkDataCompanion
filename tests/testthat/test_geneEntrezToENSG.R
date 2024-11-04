@@ -1,8 +1,8 @@
-context("[NetZooDataCompanion] Testing geneEntrezToENSG functions ... ")
+context("[NetworkDataCompanion] Testing geneEntrezToENSG functions ... ")
 
 test_that("geneEntrezToENSG functions correctly converts Entrez to ENSG",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
 
   ## test genes: MIF has two ids, TP53 has one id, and WNT3 has three ids.
   gene_name = c("MIF","TP53","WNT3")

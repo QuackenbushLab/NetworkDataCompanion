@@ -1,8 +1,8 @@
-context("[NetZooDataCompanion] Testing mapBarcodeToBarcode function ... ")
+context("[NetworkDataCompanion] Testing mapBarcodeToBarcode function ... ")
 
 test_that("mapBarcodeToBarcode function correctly extract information for a pair of barcodes",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
 
   # Basic test
   bc1 <- c("a", "b", "c")

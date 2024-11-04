@@ -1,8 +1,8 @@
-context("[NetZooDataCompanion] Testing extract functions ... ")
+context("[NetworkDataCompanion] Testing extract functions ... ")
 
 test_that("extract functions correctly extract identifiers from barcode",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
   barcode1 = "TCGA-A1-1234-01A"
   barcode2 = "TCGA-A1-1234-11A"
   barcode3 = "TCGA-A1-1234-21A"
