@@ -1,4 +1,4 @@
-\name{CreateNetSciDataCompanionObject}
+\name{CreateNetworkDataCompanionObject}
 \alias{CreateNetworkDataCompanionObject}
 
 \title{

@@ -1,8 +1,8 @@
-context("[NetSciDataCompanion] Testing geneENSGToName functions ... ")
+context("[NetworkDataCompanion] Testing geneENSGToName functions ... ")
 
 test_that("geneENSGToName functions correctly converts ENSG to Name",{
 
-  my_friend = NetSciDataCompanion::CreateNetSciDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
 
   ## test genes: MIF has two ids, TP53 has one id, and WNT3 has three ids.
   gene_name = c("MIF","TP53","WNT3")

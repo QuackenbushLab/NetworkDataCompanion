@@ -16,7 +16,7 @@
 }
 
 \details{
-  Candidate values for \code{types_of_samples} are characters of the form "01","02", etc. that correspond to TCGA sample type codes. Valid arguments for \code{types_of_samples} can be found on the GDC website: \url{https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/sample-type-codes} and a table mapping sample types to values can be found by using \code{NetSciDataCompanion::getSampleTypeMap()}.
+  Candidate values for \code{types_of_samples} are characters of the form "01","02", etc. that correspond to TCGA sample type codes. Valid arguments for \code{types_of_samples} can be found on the GDC website: \url{https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/sample-type-codes} and a table mapping sample types to values can be found by using \code{NetworkDataCompanion::getSampleTypeMap()}.
 }
 
 \value{Named list of containing "index", an integer vector of indices in \code{TCGA_barcodes} to keep, and "type", a character vector of sample type corresponding to each index.

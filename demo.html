@@ -9,7 +9,7 @@
     
         <meta name="date" content="2022-09-22" />
     
-    <title>NetSciDataCompanion Demo</title>
+    <title>NetworkDataCompanion Demo</title>
 
         <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1594,19 +1594,19 @@ src: url(data:application/font-sfnt;base64,AAEAAAARAQAABAAQR0RFRgs+Cz8AAjwQAAAAQ
    <div class="book with-summary">
       <div class="book-summary">
         <ul>
-          <li class="title">NetSciDataCompanion Demo</li>
+          <li class="title">NetworkDataCompanion Demo</li>
           <li class="divider"></li>
         </ul>
         <nav role="navigation" id="toc">
           <ul>
-          <li><a href="#about-netscidatacompanion">About
-          NetSciDataCompanion</a></li>
+          <li><a href="#about-NetworkDataCompanion">About
+          NetworkDataCompanion</a></li>
           <li><a href="#loading-luad-data">Loading LUAD data</a>
           <ul>
           <li><a href="#gene_mapping"><code>gene_mapping</code></a></li>
           <li><a href="#tcga_purities"><code>TCGA_purities</code></a></li>
           </ul></li>
-          <li><a href="#netscidatacompanion-functions">NetSciDataCompanion
+          <li><a href="#NetworkDataCompanion-functions">NetworkDataCompanion
           Functions</a>
           <ul>
           <li><a href="#functions-for-working-with-expression">Functions
@@ -1641,7 +1641,7 @@ src: url(data:application/font-sfnt;base64,AAEAAAARAQAABAAQR0RFRgs+Cz8AAjwQAAAAQ
    </div>
    
         
-      <h1 class="title">NetSciDataCompanion Demo</h1>
+      <h1 class="title">NetworkDataCompanion Demo</h1>
       
         
 
@@ -1649,14 +1649,14 @@ src: url(data:application/font-sfnt;base64,AAEAAAARAQAABAAQR0RFRgs+Cz8AAjwQAAAAQ
       
    
 <!-- Don't indent these lines or it will mess pre blocks indentation --> 
-<div id="about-netscidatacompanion" class="section level1">
-<h1>About NetSciDataCompanion</h1>
+<div id="about-NetworkDataCompanion" class="section level1">
+<h1>About NetworkDataCompanion</h1>
 </div>
 <div id="loading-luad-data" class="section level1">
 <h1>Loading LUAD data</h1>
 <p>Begin by loading the library:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(NetSciDataCompanion)</span></code></pre></div>
-<p>To create a NetSciDataCompanion object (“Companion object”), you need
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(NetworkDataCompanion)</span></code></pre></div>
+<p>To create a NetworkDataCompanion object (“Companion object”), you need
 to specify a project name and provide a path to a file of clinical data
 output by the Nextflow workflow.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>datapath <span class="ot">=</span> <span class="st">&quot;testdata/luad/&quot;</span></span>
@@ -1804,9 +1804,9 @@ format:</p>
 ## [121] &quot;stage_other&quot;                                
 ## [122] &quot;stem_cell_transplantation&quot;                  
 ## [123] &quot;tissue_source_site&quot;</code></pre>
-<p>Next, we use the <code>CreateNetSciDataCompanionObject</code>
+<p>Next, we use the <code>CreateNetworkDataCompanionObject</code>
 function to create a Companion object:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>obj <span class="ot">=</span> <span class="fu">CreateNetSciDataCompanionObject</span>(<span class="at">clinical_patient_file =</span> patient_data,  <span class="at">project_name =</span> project_name)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>obj <span class="ot">=</span> <span class="fu">CreateNetworkDataCompanionObject</span>(<span class="at">clinical_patient_file =</span> patient_data,  <span class="at">project_name =</span> project_name)</span></code></pre></div>
 <p>The object has a few attributes:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span>(obj)</span></code></pre></div>
 <pre><code>## [1] &quot;clinical_patient_data&quot; &quot;gene_mapping&quot;          &quot;project_name&quot;         
@@ -1853,8 +1853,8 @@ Companion object.</p>
 ## TCGA-05-4382-01A        LUAD   0.5209     0.23   NA 0.70 0.3810</code></pre>
 </div>
 </div>
-<div id="netscidatacompanion-functions" class="section level1">
-<h1>NetSciDataCompanion Functions</h1>
+<div id="NetworkDataCompanion-functions" class="section level1">
+<h1>NetworkDataCompanion Functions</h1>
 <p>Currently, the Nextflow retrieves four different data types: clinical
 data, expression, mutations, and methylation. The clinical data is used
 in the Companion object constructor. The other three data types are used
@@ -1935,7 +1935,7 @@ input and returns three matrices: raw counts, TPM. and log(TPM + 1).</p>
 <h2>Functions for working with methylation</h2>
 <div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>myProbeList <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;cg14008030&quot;</span>,<span class="st">&quot;cg12045430&quot;</span>,<span class="st">&quot;cg03130891&quot;</span>)</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>obj<span class="sc">$</span><span class="fu">mapProbesToGenes</span>(myProbeList,<span class="at">rangeUp =</span> <span class="dv">200</span>, <span class="at">rangeDown =</span> <span class="dv">1500</span>,<span class="at">localManifestPath =</span> <span class="cn">NA</span>)</span></code></pre></div>
-<pre><code>## [1] &quot;[NetSciDataCompanion::mapProbesToGenes] Sourcing probe annotation from https://zwdzwd.github.io/InfiniumAnnotation ...&quot;</code></pre>
+<pre><code>## [1] &quot;[NetworkDataCompanion::mapProbesToGenes] Sourcing probe annotation from https://zwdzwd.github.io/InfiniumAnnotation ...&quot;</code></pre>
 <pre><code>##      probeID      geneName             ensemblID                            
 ## [1,] &quot;cg14008030&quot; NA                   NA                                   
 ## [2,] &quot;cg12045430&quot; &quot;MIR1302-2HG;WASH7P&quot; &quot;ENST00000473358.1;ENST00000488147.1&quot;

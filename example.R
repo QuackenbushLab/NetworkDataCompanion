@@ -1,8 +1,8 @@
-library(NetSciDataCompanion)
+library(NetworkDataCompanion)
 
 
-#create object from NetSciDataCompanion class
-obj <- CreateNetSciDataCompanionObject(argument_one = "hehehe")
+#create object from NetworkDataCompanion class
+obj <- CreateNetworkDataCompanionObject(argument_one = "hehehe")
 
 
 obj$convertBetaToM

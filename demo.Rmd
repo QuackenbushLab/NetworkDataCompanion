@@ -1,5 +1,5 @@
 ---
-title: "NetSciDataCompanion Demo"
+title: "NetworkDataCompanion Demo"
 author: "Kate"
 date: '2022-09-22'
 output: 
@@ -8,17 +8,17 @@ output:
     toc_depth: 3
 ---
 
-# About NetSciDataCompanion
+# About NetworkDataCompanion
 
 # Loading LUAD data
 
 Begin by loading the library:
 
 ```{R message=FALSE}
-library(NetSciDataCompanion)
+library(NetworkDataCompanion)
 ```
 
-To create a NetSciDataCompanion object ("Companion object"), you need to specify a project name and provide a path to a file of clinical data output by the Nextflow workflow.
+To create a NetworkDataCompanion object ("Companion object"), you need to specify a project name and provide a path to a file of clinical data output by the Nextflow workflow.
 
 ```{R}
 datapath = "testdata/luad/"
@@ -35,10 +35,10 @@ patient_df[1:5,1:5]
 names(patient_df)
 ```
 
-Next, we use the `CreateNetSciDataCompanionObject` function to create a Companion object:
+Next, we use the `CreateNetworkDataCompanionObject` function to create a Companion object:
 
 ```{R}
-obj = CreateNetSciDataCompanionObject(clinical_patient_file = patient_data,  project_name = project_name)
+obj = CreateNetworkDataCompanionObject(clinical_patient_file = patient_data,  project_name = project_name)
 ```
 
 The object has a few attributes:
@@ -66,7 +66,7 @@ names(obj$TCGA_purities)
 obj$TCGA_purities[1:5,]
 ```
 
-# NetSciDataCompanion Functions
+# NetworkDataCompanion Functions
 
 Currently, the Nextflow retrieves four different data types: clinical data, expression, mutations, and methylation. The clinical data is used in the Companion object constructor. The other three data types are used as input to the Companion member functions. 
 
