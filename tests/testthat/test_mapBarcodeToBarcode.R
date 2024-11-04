@@ -16,9 +16,9 @@ test_that("mapBarcodeToBarcode function correctly extract information for a pair
   bc1 <- c("a")
   bc2 <- c("")
   expect_equal(my_friend$mapBarcodeToBarcode(bc1, bc2)$is_inter1,c(FALSE))
-  expect_equal(my_friend$mapBarcodeToBarcode(bc1, bc2)$idcs1,c(NA))
+  expect_equal(my_friend$mapBarcodeToBarcode(bc1, bc2)$idcs1,c(NA_integer_))
   expect_equal(my_friend$mapBarcodeToBarcode(bc1, bc2)$is_inter2,c(FALSE))
-  expect_equal(my_friend$mapBarcodeToBarcode(bc1, bc2)$idcs2,c(NA))
+  expect_equal(my_friend$mapBarcodeToBarcode(bc1, bc2)$idcs2,c(NA_integer_))
 
   # Test subset
   bc1 <- c("a", "b")
