@@ -4,11 +4,11 @@ on:
     pull_request:
       branches: [main, master]
   
-  name: main.yaml
+name: main.yaml
   
-  permissions: read-all
+permissions: read-all
   
-  jobs:
+jobs:
     R-CMD-check:
       runs-on: ubuntu-latest
       env:
