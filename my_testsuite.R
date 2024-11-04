@@ -1,10 +1,10 @@
-library(NetSciDataCompanion)
+library(NetworkDataCompanion)
 # library(TCGAPurityFiltering)
 # library(recount)
 # library(recount3)
 # library(GenomicDataCommons)
 # library(magrittr)
-###detach("package:NetSciDataCompanion")
+###detach("package:NetworkDataCompanion")
 
 datapath = "testdata/luad/"
 
@@ -17,7 +17,7 @@ meth_data <- paste0(datapath, "tcga_luad_methylations.txt")
 
 
 # Create Companion Object
-obj <- CreateNetSciDataCompanionObject(clinical_patient_file = patient_data,
+obj <- CreateNetworkDataCompanionObject(clinical_patient_file = patient_data,
                                        project_name = project_name)
 
 # Read RDS expression data
@@ -117,7 +117,7 @@ mutations_exp_matchedmutations <- cbind(mutations_filtered[,c(1,2)], mutations_f
 ## unrecoverable errors happen
 ## it is not testing correctness of the probe mapping
 
-obj <- CreateNetSciDataCompanionObject()
+obj <- CreateNetworkDataCompanionObject()
 myProbeList = c("cg14008030","cg12045430","cg03130891")
 shortMap = obj$mapProbesToGenes(myProbeList,rangeUp = 1500, rangeDown = 0,localManifestPath = NA)
 longMap = obj$mapProbesToGenes(myProbeList,rangeUp = 1500, rangeDown = 0,
