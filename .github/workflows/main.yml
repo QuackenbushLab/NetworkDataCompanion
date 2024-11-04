@@ -4,7 +4,7 @@ on:
     pull_request:
       branches: [main, master]
   
-  name: R-CMD-check.yaml
+  name: main.yaml
   
   permissions: read-all
   
