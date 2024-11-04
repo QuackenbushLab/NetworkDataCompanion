@@ -1,4 +1,4 @@
-Package: NetZooDataCompanion
+Package: NetworkDataCompanion
 Title: Tools for Analyzing TCGA and GTEx Data
 Version: 0.0.0.9000
 Authors@R: 

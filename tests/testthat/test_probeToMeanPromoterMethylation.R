@@ -1,5 +1,5 @@
 # Test probeToMeanTFMethylation
-context("[NetZooDataCompanion] Testing probeToMeanTFMethylation function ... ")
+context("[NetworkDataCompanion] Testing probeToMeanTFMethylation function ... ")
 
 # make toy beta values
 my_betas = data.frame("probeID"=c("cg00000001",
@@ -13,7 +13,7 @@ my_betas$albus = c(0.9,0.8,0.7,0.6,0.5)
 
 test_that("Mean calculation is correct with default mapToNearest = F, including probes mapping to multiple genes and/or isoforms.",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
   my_map = my_friend$mapProbesToGenes(probelist = c("cg00000001","cg00000002","cg00000003","cg00000004","cg00000005"),
                                       rangeUp = 201,
                                       rangeDown = 0,

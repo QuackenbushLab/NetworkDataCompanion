@@ -1,4 +1,4 @@
-NetZooDataCompanion=setRefClass("NetZooDataCompanion",
+NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 
          fields = list(TCGA_purities= "data.frame",
                        clinical_patient_data = "data.frame",
@@ -176,9 +176,9 @@ NetZooDataCompanion=setRefClass("NetZooDataCompanion",
 
              if(is.na(localManifestPath))
              {
-               print("[NetZooDataCompanion::mapProbesToGenes] Sourcing 450k probe annotation from https://zwdzwd.github.io/InfiniumAnnotation ...")
-               print("[NetZooDataCompanion::mapProbesToGenes] https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz")
-               print("[NetZooDataCompanion::mapProbesToGenes] HG38, Gencode v36")
+               print("[NetworkDataCompanion::mapProbesToGenes] Sourcing 450k probe annotation from https://zwdzwd.github.io/InfiniumAnnotation ...")
+               print("[NetworkDataCompanion::mapProbesToGenes] https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz")
+               print("[NetworkDataCompanion::mapProbesToGenes] HG38, Gencode v36")
 
                # source hg38 with gencode 36 from https://zwdzwd.github.io/InfiniumAnnotation
                download.file('https://zhouserver.research.chop.edu/InfiniumAnnotation/20210615/HM450/HM450.hg38.manifest.gencode.v36.tsv.gz',
@@ -197,7 +197,7 @@ NetZooDataCompanion=setRefClass("NetZooDataCompanion",
 
              if(!is.na(localManifestPath))
              {
-               print(paste("[NetZooDataCompanion::mapProbesToGenes] Loading probe file from:",localManifestPath))
+               print(paste("[NetworkDataCompanion::mapProbesToGenes] Loading probe file from:",localManifestPath))
                manifest = read.table(localManifestPath,sep="\t",header=T)
              }
 
@@ -218,7 +218,7 @@ NetZooDataCompanion=setRefClass("NetZooDataCompanion",
              # please feel free to vectorize this etc
              for(i in 1:nrow(smallManifest))
              {
-               if(i %% 10000 == 0) print(paste("[NetZooDataCompanion::mapProbesToGenes] Processing probe number:",i))
+               if(i %% 10000 == 0) print(paste("[NetworkDataCompanion::mapProbesToGenes] Processing probe number:",i))
 
                x = smallManifest[i,]
                genes = str_split(x$geneNames,";",simplify=T)
@@ -343,7 +343,7 @@ NetZooDataCompanion=setRefClass("NetZooDataCompanion",
                                 "Skin")
              if(!tissue %in% tissue_options)
              {
-               print(paste("[NetZooDataCompanion::estimateCellCountsEpiSCORE()] EpiSCORE is not implemented for tissue:", tissue))
+               print(paste("[NetworkDataCompanion::estimateCellCountsEpiSCORE()] EpiSCORE is not implemented for tissue:", tissue))
              }
 
              # map methylation to gene level
@@ -529,7 +529,7 @@ NetZooDataCompanion=setRefClass("NetZooDataCompanion",
              this_sample = substr(str_split(TCGA_barcode,"-",simplify=T)[1,4],1,2)
              if(!this_sample%in% sample_type_mapping$numcode)
              {
-               print(paste("[NetZooDataCompanion::getTissueType()] Error: unknown sample type:",this_sample))
+               print(paste("[NetworkDataCompanion::getTissueType()] Error: unknown sample type:",this_sample))
                return(NA)
              }
 
@@ -549,7 +549,7 @@ NetZooDataCompanion=setRefClass("NetZooDataCompanion",
                stop("Error: TCGA_barcodes argument needs to be a character vector")
              }
              if(class(types_of_samples) != "character"){
-               stop("Error: types_of_sample argument needs to be a character vector. Use NetZooDataCompanion::getSampleTypeMap() to see available types.")
+               stop("Error: types_of_sample argument needs to be a character vector. Use NetworkDataCompanion::getSampleTypeMap() to see available types.")
              }
 
              observed_sample_types = extractSampleType(TCGA_barcodes)
@@ -557,7 +557,7 @@ NetZooDataCompanion=setRefClass("NetZooDataCompanion",
              if (length(nonExistTypes) > 0) {
 
                if (length(nonExistTypes) == length(types_of_samples)){
-                  stop("Error: No specified types in types_of_sample argument exist in sample info.\n Use NetZooDataCompanion::getSampleTypeMap() to see available types.")
+                  stop("Error: No specified types in types_of_sample argument exist in sample info.\n Use NetworkDataCompanion::getSampleTypeMap() to see available types.")
                }
                print(paste0("Warning: sample types ", types_of_samples[nonExistTypes], " are not present in sample info."))
              }
@@ -785,12 +785,12 @@ NetZooDataCompanion=setRefClass("NetZooDataCompanion",
          )
 )
 
-### constructors for NetZooDataCompanion class
+### constructors for NetworkDataCompanion class
 ### like preparing and creating your object before you can use the methods above
 ### the export decorator is for roxygen to know which methods to export
 
-#' @export "CreateNetZooDataCompanionObject"
-CreateNetZooDataCompanionObject <- function(clinical_patient_file=NULL, project_name="default_project"){
+#' @export "CreateNetworkDataCompanionObject"
+CreateNetworkDataCompanionObject <- function(clinical_patient_file=NULL, project_name="default_project"){
 
   ## Load purities for purity package
   obj <- CreateTCGAPurityFilteringObject()
@@ -821,15 +821,15 @@ CreateNetZooDataCompanionObject <- function(clinical_patient_file=NULL, project_
     patient_data = data.frame()
   }
 
-  fpath <- system.file("extdata", "gen_v26_mapping_w_entrez.csv", package="NetZooDataCompanion")
+  fpath <- system.file("extdata", "gen_v26_mapping_w_entrez.csv", package="NetworkDataCompanion")
   gene_mapping <- read.csv(file = fpath, sep=",", header=TRUE, row.names = 1)
   gene_mapping$gene_id_no_ver <- gsub("\\..*","",gene_mapping[,"gene_id"])
 
-  fpath_sample <- system.file("extdata", "TCGA_sample_type.csv", package="NetZooDataCompanion")
+  fpath_sample <- system.file("extdata", "TCGA_sample_type.csv", package="NetworkDataCompanion")
   sample_type_mapping <- read.csv(file = fpath_sample, header=T, sep=",",
                                   colClasses = "character") # read codes as characters so that 01, 02, etc. are read properly
 
-  s <- NetZooDataCompanion$new(TCGA_purities = purities,
+  s <- NetworkDataCompanion$new(TCGA_purities = purities,
                                clinical_patient_data = patient_data,
                                project_name = project_name,
                                gene_mapping = gene_mapping,

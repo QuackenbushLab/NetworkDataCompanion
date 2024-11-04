@@ -1,8 +1,8 @@
-context("[NetZooDataCompanion] Testing getGeneInfo functions ... ")
+context("[NetworkDataCompanion] Testing getGeneInfo functions ... ")
 
 test_that("getGeneInfo functions correctly gets gene info from genecode V26",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
 
   ## test genes: MIF has two ids, TP53 has one id, and WNT3 has three ids.
   gene_name = c("MIF","TP53","WNT3")

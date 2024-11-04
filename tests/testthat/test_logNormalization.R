@@ -1,8 +1,8 @@
-context("[NetZooDataCompanion] Testing logNormalization functions ... ")
+context("[NetworkDataCompanion] Testing logNormalization functions ... ")
 
 test_that("Testing logCPMNormalization format",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
   nrow <- 300
   ncol <- 20
   expr <- matrix(rpois(nrow*ncol,5),nrow=nrow, ncol = ncol)
@@ -22,7 +22,7 @@ test_that("Testing logCPMNormalization format",{
 
 test_that("Testing logTPMNormalization format",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
   human_projects <- available_projects()
   proj_info <- subset(
     human_projects,

@@ -1,8 +1,8 @@
-context("[NetZooDataCompanion] Testing getTissueType function ... ")
+context("[NetworkDataCompanion] Testing getTissueType function ... ")
 
 test_that("Testing getTissueType",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
   numcodes <- c(
                 "01",
                 "02",

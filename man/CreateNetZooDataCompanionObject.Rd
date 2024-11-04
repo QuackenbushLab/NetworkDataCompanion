@@ -1,14 +1,14 @@
 \name{CreateNetSciDataCompanionObject}
-\alias{CreateNetZooDataCompanionObject}
+\alias{CreateNetworkDataCompanionObject}
 
 \title{
-Constructor for the \code{NetZooDataCompanion} object.
+Constructor for the \code{NetworkDataCompanion} object.
 }
 \description{
-This function is used to construct a \code{NetZooDataCompanion} object. The member functions of this object are the functions of this package.
+This function is used to construct a \code{NetworkDataCompanion} object. The member functions of this object are the functions of this package.
 }
 \usage{
-CreateNetZooDataCompanionObject(clinical_patient_file, project_name)
+CreateNetworkDataCompanionObject(clinical_patient_file, project_name)
 }
 
 \arguments{
@@ -16,7 +16,7 @@ CreateNetZooDataCompanionObject(clinical_patient_file, project_name)
   \item{project_name}{A character string that identifies the project.}
 }
 
-\value{A \code{NetZooDataCompanion} object.
+\value{A \code{NetworkDataCompanion} object.
 }
 
 \author{

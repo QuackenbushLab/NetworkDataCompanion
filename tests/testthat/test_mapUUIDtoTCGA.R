@@ -1,8 +1,8 @@
-context("[NetZooDataCompanion] Testing mapUUIDtoTCGA function ... ")
+context("[NetworkDataCompanion] Testing mapUUIDtoTCGA function ... ")
 
 test_that("Testing mapUUIDtoTCGA",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
   # Example from
   # https://www.bioconductor.org/packages/devel/bioc/vignettes/TCGAutils/inst/doc/TCGAutils.html#uuid-history-lookup
   # Visited 08/24/23

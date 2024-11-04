@@ -1,8 +1,8 @@
-context("[NetZooDataCompanion] Testing findDuplicates function ... ")
+context("[NetworkDataCompanion] Testing findDuplicates function ... ")
 
 test_that("Testing findDuplicates",{
 
-  my_friend = NetZooDataCompanion::CreateNetZooDataCompanionObject()
+  my_friend = NetworkDataCompanion::CreateNetworkDataCompanionObject()
   barcode1 = "TCGA-A1-1234-01A"
   barcode2 = "TCGA-A1-1234-11A"
   barcodes = c(barcode1, barcode2)
