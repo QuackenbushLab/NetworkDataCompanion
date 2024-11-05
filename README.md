@@ -1,6 +1,6 @@
 # NetworkDataCompanion
 
-An R library of utilities for performing analyses on TCGA and GTEx data using the Network Zoo (https://netzoo.github.io). 
+An R library of utilities for performing analyses on TCGA and GTEx data using the Network Zoo (https://netzoo.github.io). This is the engine behind the workflow [here](https://github.com/QuackenbushLab/tcga-data-nf/tree/main).
 
 # Installing
 
