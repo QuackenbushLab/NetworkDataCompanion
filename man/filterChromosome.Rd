@@ -8,7 +8,7 @@ Filter for genes in a particular chromosome or chromosomes.
 This function filters for genes in a particular chromosome or chromosomes.
 }
 \usage{
-filterTumorType(rds_gene_info, chroms)
+filterChromosome(rds_gene_info, chroms)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
