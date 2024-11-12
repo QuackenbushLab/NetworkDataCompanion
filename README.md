@@ -3,6 +3,8 @@
 
 An R library of utilities for performing analyses on TCGA and GTEx data using the Network Zoo (https://netzoo.github.io). This is the engine behind [this Nextflow workflow](https://github.com/QuackenbushLab/tcga-data-nf/tree/main).
 
+<img align="center" width="90%" src="overview.png">
+
 # Installing
 
 The package requires the "GenomicDataCommons", "edgeR", "recount", "recount3" bioconductor packages to be installed prior to the main installation.
