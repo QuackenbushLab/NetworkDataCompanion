@@ -1,5 +1,5 @@
 \name{getGeneInfo}
-\alias{getGeneInfo}
+\alias{\S4method{getGeneInfo}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Retrieve a variety of gene information based on gene name or Ensemble stable ID.
@@ -7,7 +7,7 @@ Retrieve a variety of gene information based on gene name or Ensemble stable ID.
 \description{ This function uses the \code{gene_mapping} attribute of the NetworkDataCompanion object to provide information on \code{seqid}, \code{source},\code{start},\code{end},\code{strand}, \code{gene_id}, \code{gene_name}, \code{gene_type}, and \code{gene_id_no_ver}.
 }
 \usage{
-getGeneInfo(gene_names_or_ids)
+\S4method{getGeneInfo}{NetworkDataCompanion}(gene_names_or_ids)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

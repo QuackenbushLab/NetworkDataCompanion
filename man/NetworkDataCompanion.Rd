@@ -1,5 +1,5 @@
 \name{NetworkDataCompanion}
-\alias{NetworkDataCompanion}
+\alias{\S4method{NetworkDataCompanion}}
 
 \title{A package for easy and reproducible wrangling of TCGA and GTEx data.}
 

@@ -1,5 +1,5 @@
 \name{filterTumorType}
-\alias{filterTumorType}
+\alias{\S4method{filterTumorType}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Filter samples based on tumor type.
@@ -7,7 +7,7 @@ Filter samples based on tumor type.
 \description{This function filters samples based on tumor type. Some examples are: "Primary Tumor", "Solid Tissue Normal", "Primary Blood Derived Cancer - Peripheral Blood". This function is particularly useful for excluding normal samples from analyses.
 }
 \usage{
-filterTumorType(TCGA_barcodes, type_of_tumor, rds_info)
+\S4method{filterTumorType}{NetworkDataCompanion}(TCGA_barcodes, type_of_tumor, rds_info)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

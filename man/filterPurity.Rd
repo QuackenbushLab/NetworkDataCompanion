@@ -1,5 +1,5 @@
 \name{filterPurity}
-\alias{filterPurity}
+\alias{\S4method{filterPurity}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Filter samples based on tumor purity.
@@ -8,7 +8,7 @@ Filter samples based on tumor purity.
 This function filters a character vector of TCGA barcodes for tumor purity based on a particular method and threshold.
 }
 \usage{
-filterPurity(TCGA_barcodes, method="ESTIMATE", threshold=.6)
+\S4method{filterPurity}{NetworkDataCompanion}(TCGA_barcodes, method="ESTIMATE", threshold=.6)
 }
 \arguments{
   \item{TCGA_barcodes}{Character vector of TCGA barcodes that the user wishes to filter based on tumor purity.}

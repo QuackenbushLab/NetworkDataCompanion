@@ -1,12 +1,12 @@
 \name{estimateCellCountsEpiSCORE}
-\alias{estimateCellCountsEpiSCORE}
+\alias{\S4method{estimateCellCountsEpiSCORE}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Run the EpiSCORE algorithm to estimate cell type proportions.}
 \description{
 This function applies the `constAvBetaTSS` and `wRPC` functions from the EpiSCORE R package within the TCGA data structure. The `wRPC` parameters used are the defaults: `useW=TRUE`, `wth=0.4`, and `maxit=100`.
 }
 \usage{
-estimateCellCountsEpiSCORE(methylation_betas, tissue, array = "450k")
+\S4method{estimateCellCountsEpiSCORE}{NetworkDataCompanion}(methylation_betas, tissue, array = "450k")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

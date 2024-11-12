@@ -1,5 +1,5 @@
 \name{filterGenesByTPM}
-\alias{filterGenesByTPM}
+\alias{\S4method{filterGenesByTPM}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Filter genes based on minimum expression level (TPM) across samples.
@@ -8,7 +8,7 @@ Filter genes based on minimum expression level (TPM) across samples.
 Filter all genes which have at least \code{tpm_threshold} TPM scores in at least \code{sample_fraction} of samples.
 }
 \usage{
-filterGenesByTPM(expression_tpm_matrix, tpm_threshold, sample_fraction)
+\S4method{filterGenesByTPM}{NetworkDataCompanion}(expression_tpm_matrix, tpm_threshold, sample_fraction)
 }
 \arguments{
   \item{expression_tpm_matrix}{A data frame extracted from a \code{RangedSummarizedExperiment} object containing expression data using the \code{extractSampleAndGeneInfo} function.}

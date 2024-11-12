@@ -1,12 +1,12 @@
 \name{convertBetaToM}
-\alias{convertBetaToM}
+\alias{\S4method{convertBetaToM}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Convert methylation beta values to M-values.}
 \description{
 This function uses the typical logit base 2 transformation to convert from methylation beta values (in the [0,1] range) to m-values (on the real line). The formula is m = log2(beta/(1-beta)).
 }
 \usage{
-convertBetaToM(methylation_betas)
+\S4method{convertBetaToM}{NetworkDataCompanion}(methylation_betas)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

@@ -1,5 +1,5 @@
 \name{filterChromosome}
-\alias{filterChromosome}
+\alias{\S4method{filterChromosome}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Filter for genes in a particular chromosome or chromosomes.
@@ -8,7 +8,7 @@ Filter for genes in a particular chromosome or chromosomes.
 This function filters for genes in a particular chromosome or chromosomes.
 }
 \usage{
-filterChromosome(rds_gene_info, chroms)
+\S4method{filterChromosome}{NetworkDataCompanion}(rds_gene_info, chroms)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

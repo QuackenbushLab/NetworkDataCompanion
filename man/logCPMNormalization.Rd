@@ -1,5 +1,5 @@
 \name{logCPMNormalization}
-\alias{logCPMNormalization}
+\alias{\S4method{logCPMNormalization}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Function to compute CPM values from raw counts.
 }
@@ -7,15 +7,11 @@
 This function computes CPM values from raw expression counts using the edgeR package as a backend.
 }
 \usage{
-logCPMNormalization(exp_count_mat)
+\S4method{logCPMNormalization}{NetworkDataCompanion}(exp_count_mat)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{exp_count_mat}{Matrix or data.frame of raw expression counts.}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-
 }
 \value{
 \item{counts}{The original count matrix passed as argument to this function.}

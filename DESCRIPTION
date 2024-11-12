@@ -2,8 +2,20 @@ Package: NetworkDataCompanion
 Title: Tools for Analyzing TCGA and GTEx Data
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    person("Soel", "Micheletti", , "smicheletti@hsph.harvard.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-5402-9237"))
+    person("Chen", "Chen",
+                        email = "",role = "aut", comment = c(ORCID = "0000-0002-8042-7201")),
+    person("Kate", "Shutta",
+                        email = "",role = "aut", comment = c(ORCID = "0000-0003-0402-3771")),
+    person("Panagiotis", "Mandros", , "pmandros@hsph.harvard.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0008-9638-9722")),
+    person("Viola", "Fanfani", , "vfanfani@hsph.harvard.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-3852-6908")),
+    person("Jonas", "Fischer", , "jfischer@hsph.harvard.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0000-0000-0000")),
+Author: Soel Micheletti
+Maintainer: Kate Hoff Shutta <kshutta@hsph.harvard.edu>
 Description: An R library of utilities for performing analyses on TCGA and GTEx data using the Network Zoo (https://netzoo.github.io).
 License: GPL-3
 biocViews:
@@ -16,6 +28,7 @@ Depends:
   GenomicDataCommons,
   huge,
   magrittr,
+  methods,
   org.Hs.eg.db, 
   presto,
   recount,

@@ -1,5 +1,5 @@
 \name{mapBarcodeToBarcode}
-\alias{mapBarcodeToBarcode}
+\alias{\S4method{mapBarcodeToBarcode}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Helper function for mapping two sets of TCGA barcodes to each other.
 }
@@ -13,25 +13,18 @@ There are 4 different pieces of information returned in a named list that are al
 The same information is provided for \code{bc2}.
 }
 \usage{
-mapBarcodeToBarcode(bc1,bc2)
+\S4method{mapBarcodeToBarcode}{NetworkDataCompanion}(bc1,bc2)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{bc1}{Character vector of barcodes in the first set.}
   \item{bc2}{Character vector of barcodes in the second set.}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-
-}
 \value{
 \item{is_inter1}{Boolean vector of the same length as \code{bc1} that indicates which elements of \code{bc1} are present in \code{bc2}.}
 \item{idcs1}{Integer vector of the same length as \code{bc1} that indicates where to find each barcode of \code{bc1} in \code{bc2}, returning \code{NA} if there is no match. That is, \code{idcs1[i] != NA}, then \code{bc1[i] == bc2[idcs1[i]]}}
 \item{is_inter2}{Boolean vector of the same length as \code{bc2} that indicates which elements of \code{bc2} are present in \code{bc1}.}
 \item{idcs2}{Integer vector of the same length as \code{bc2} that indicates where to find each barcode of \code{bc2} in \code{bc1}, returning \code{NA} if there is no match. That is, \code{idcs2[i] != NA}, then \code{bc2[i] == bc1[idcs2[i]]}.}
-}
-\references{
-%% ~put references to the literature/web site here ~
 }
 \author{
 Jonas Fischer (jfischer@hsph.harvard.edu)

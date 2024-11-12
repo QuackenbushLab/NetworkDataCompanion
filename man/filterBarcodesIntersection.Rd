@@ -1,5 +1,5 @@
 \name{filterBarcodesIntersection}
-\alias{filterBarcodesIntersection}
+\alias{\S4method{filterBarcodesIntersection}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Convenience wrapper function for \code{mapBarcodeToBarcode} that applies the function directly to two data frames.
@@ -8,7 +8,7 @@ Convenience wrapper function for \code{mapBarcodeToBarcode} that applies the fun
 This function returns a list of the two argument data frames, intersected, and the second frame ordered to match the first. NOTE: Ordering is done based on columns, which are expected to be named by TCGA barcodes.
 }
 \usage{
-filterBarcodesIntersection(exp1, exp2)
+\S4method{filterBarcodesIntersection}{NetworkDataCompanion}(exp1, exp2)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

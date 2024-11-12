@@ -1,5 +1,5 @@
 \name{logTPMNormalization}
-\alias{logTPMNormalization}
+\alias{\S4method{logTPMNormalization}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Function for within-array normalization of a RangedSummarizedExperiment object with log transcripts per million (TPM) normalization.
@@ -9,7 +9,7 @@ Returns a named list with raw counts (useful for duplicate filtering based on se
 and the actual log TPM. A pseudocount of 1 is added to each TPM value for this function, so returned "log TPM" values actually correspond to log(TPM + 1).
 }
 \usage{
-logTPMNormalization(expression_rds_obj)
+\S4method{logTPMNormalization}{NetworkDataCompanion}(expression_rds_obj)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

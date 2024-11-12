@@ -1,5 +1,5 @@
 \name{filterSampleType}
-\alias{filterSampleType}
+\alias{\S4method{filterSampleType}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
   Filter samples based on sample type.
@@ -7,7 +7,7 @@
 \description{This function filters samples based on TCGA sample types.
 }
 \usage{
-  filterSampleType(TCGA_barcodes, types_of_samples)
+  \S4method{filterSampleType}{NetworkDataCompanion}(TCGA_barcodes, types_of_samples)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

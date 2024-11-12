@@ -1,5 +1,5 @@
 \name{filterDuplicatesSeqDepth}
-\alias{filterDuplicatesSeqDepth}
+\alias{\S4method{filterDuplicatesSeqDepth}{NetworkDataCompanion}}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 A function to filter duplicates based on RNA sequencing depth.
@@ -8,7 +8,7 @@ A function to filter duplicates based on RNA sequencing depth.
 This function filters out duplicates based on RNA-seq, keeping the samples with maximum read depth. Returns indices of samples to KEEP.
 }
 \usage{
-filterDuplicatesSeqDepth(expression_count_matrix)
+\S4method{filterDuplicatesSeqDepth}{NetworkDataCompanion}(expression_count_matrix)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
