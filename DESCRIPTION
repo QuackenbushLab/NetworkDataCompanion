@@ -2,7 +2,7 @@ Package: NetworkDataCompanion
 Title: Tools for Analyzing TCGA and GTEx Data
 Version: 0.0.0.9000
 Authors@R: 
-    person("Soel", "Micheletti", , "smicheletti@hsph.harvard.edu", role = c("aut", "cre"),
+    person("Soel", "Micheletti", email = "smicheletti@hsph.harvard.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5402-9237")),
     person("Chen", "Chen",
                         email = "cchen22@hsph.harva",role = "aut", comment = c(ORCID = "0000-0002-8042-7201")),
