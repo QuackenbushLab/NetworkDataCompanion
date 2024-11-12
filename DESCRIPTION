@@ -5,7 +5,7 @@ Authors@R:
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: An R library of utilities for performing analyses on TCGA and GTEx data using the Network Zoo (https://netzoo.github.io).
-License: use_mit_license()
+License: GPL-3
 biocViews:
 Depends:
   AnnotationDbi,
