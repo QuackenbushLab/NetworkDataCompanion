@@ -1,4 +1,5 @@
 # NetworkDataCompanion
+**This package is part of the [Reproducible processing of TCGA regulatory networks](https://www.biorxiv.org/content/biorxiv/early/2024/11/07/2024.11.05.622163.full.pdf) paper available on BioRxiv**
 
 An R library of utilities for performing analyses on TCGA and GTEx data using the Network Zoo (https://netzoo.github.io). This is the engine behind [this Nextflow workflow](https://github.com/QuackenbushLab/tcga-data-nf/tree/main).
 
@@ -65,3 +66,17 @@ devtools::build()
 devtools::document()
 build_manual(path = ".")
 ```
+
+## Citation
+```bibtex
+@article{fanfani2024reproducible,
+  title={Reproducible processing of TCGA regulatory networks},
+  author={Fanfani, Viola and Shutta, Katherine H and Mandros, Panagiotis and Fischer, Jonas and Saha, Enakshi and Micheletti, Soel and Chen, Chen and Ben Guebila, Marouen and Lopes-Ramos, Camila Miranda and Quackenbush, John},
+  journal={bioRxiv},
+  pages={2024--11},
+  year={2024},
+  publisher={Cold Spring Harbor Laboratory}
+}
+```
+
+If you find this package useful, feel free to star this repository!
