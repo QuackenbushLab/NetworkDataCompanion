@@ -10,6 +10,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## Returns a named list with rds_sample_info corresponding to meta information about the samples (columns)
            ##                       and rds_gene_info corresponding to meta information about genes (rows)
            ## 20220913: man page done
+	   #' @export
            extractSampleAndGeneInfo = function(expression_rds_obj){
              return(list(rds_sample_info=as.data.frame(colData(expression_rds_obj)),
                          rds_gene_info=as.data.frame(rowRanges(expression_rds_obj))))
@@ -26,6 +27,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## exp1[,is_inter1]                           --- this will remove samples that are not in exp2
            ## exp2[,idcs1[is_inter1]]                    --- this will remove samples that are not in exp1 and reorder to match exp1
            ## 20220920 man page done
+           #' @export
            mapBarcodeToBarcode = function(bc1, bc2){
              if(class(bc1) != "character" | class(bc2) != "character"){
                stop("Error: barcodes need to be vectors of strings")
@@ -39,6 +41,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## returns a list of the two argument data frames, intersected, and the second frame ordered to match the first
            ## NOTE: Ordering is done based on columns, which are expected to be named by TCGA barcodes
            ## 20220920 man page done
+           #' @export
            filterBarcodesIntersection = function(exp1, exp2){
              if(!("data.frame" %in% class(exp1) | "matrix" %in% class(exp1)) ){
                stop("Error: argument 1 needs to be data.frame or matrix")
@@ -56,6 +59,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ##                               TPM data.frame (useful for TPM based filtering, see filterGenesByNormExpression)
            ##                and the actual logTPM which corresponds to log(TPM + 1)
            ## 20220920 man page done
+	   #' @export
            logTPMNormalization = function(expression_rds_obj){
              if(class(expression_rds_obj) != "RangedSummarizedExperiment"){
                stop("Error: expression matrices need to be an RSE object")
@@ -72,6 +76,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## Returns a named list with the count data.frame (useful for duplicate filtering based on sequencing depth, see filterDuplicatesSeqDepth)
            ##                               CPM data.frame (useful for CPM based filtering, see filterGenesByCPM)
            ##                and the actual logCPM which corresponds to log(CPM + 1)
+	   #' @export
            logCPMNormalization = function(exp_count_mat){
              if(sum(class(exp_count_mat) %in% c("data.frame", "matrix")) == 0){
                stop("Error: expression must be a matrix")
@@ -90,33 +95,39 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            #### more methods go here
 
            # maybe have this presaved in class
+	   #' @export
            extractSampleOnly = function(TCGA_barcodes){
              return(sapply(TCGA_barcodes, substr, 1, 12))
            },
 
+	   #' @export
            extractSampleAndType = function(TCGA_barcodes){
              return(sapply(TCGA_barcodes, substr, 1, 15))
            },
 
+	   #' @export
            extractSampleAndTypeAndVial = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 1, 16))
            },
 
-
+           #' @export
            extractSampleType = function(TCGA_barcodes){
               return(sapply(TCGA_barcodes, substr, 14, 15))
            },
 
+	   #' @export
            extractVialOnly = function(TCGA_barcodes){
              return(sapply(TCGA_barcodes, substr, 16, 16))
            },
 
+           #' @export
            findDuplicates = function(TCGA_barcodes){
              dupPos = duplicated(extractSampleAndTypeAndVial(TCGA_barcodes))
              return(TCGA_barcodes[dupPos])
            },
 
            # UUIDs is a character vector
+	   #' @export
            mapNewUUIDVersion = function(UUIDs)
            {
              updateUUIDVersion = function(x){
@@ -131,6 +142,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            },
 
            # UUIDs is a character vector (can be of length 1)
+	   #' @export
            mapUUIDtoTCGA = function(UUIDs){
               if(class(UUIDs) != "character"){
                 stop("Error: Expected UUID argument to be a character vector")
@@ -168,6 +180,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            # long form: returns one row per gene, so if a probe  maps
            # to the TSS of two different genes, each of those gets a row
            # default if probelist is NULL is to map all the probes in the manifest
+	   #' @export
            mapProbesToGenes = function(probelist = NULL,
                                        rangeUp = 200,
                                        rangeDown = 0,
@@ -276,6 +289,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            # Function to map to probes to a gene-level measurement
            # probe_gene_map is in the format output from the mapProbesToGenes function
            # not all genesOfInterest need to be in probe_gene_map, but if none are, then this is meaningless
+	   #' @export
            probeToMeanPromoterMethylation = function(methylation_betas,
                                                      probe_gene_map,
                                                      genesOfInterest = NULL){
@@ -321,12 +335,14 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            # Input to convertBetaToM is a vector of methylation betas
            # User should use this function with `apply` to convert a matrix
            # 20220920 man page done
+	   #' @export
            convertBetaToM = function(methylation_betas){
               M = log2(methylation_betas/(1-methylation_betas))
               return(M)
            },
 
            ## Run EPISCORE to estimate cell counts
+	   #' @export
            estimateCellCountsEpiSCORE = function(methylation_betas, tissue, array = "450k"){
              tissue_options = c("Bladder",
                                 "Brain",
@@ -430,6 +446,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            },
 
            ## Extract AHRR methylation at probe site cg05575921 as a proxy for smoking status
+	   #' @export
            extractAHRRMethylation = function(methylation_betas)
            {
              ahrr = methylation_betas %>%
@@ -443,6 +460,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## Filter out all duplicates based on sequencing depth
            ## Returns indices about which samples to KEEP
            ## 20220920 man page done
+	   #' @export
            filterDuplicatesSeqDepth = function(expression_count_matrix){
              sample_barcodes <- extractSampleAndType(colnames(expression_count_matrix))
              seq_depth <- colSums(expression_count_matrix)
@@ -466,6 +484,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## Filter out all duplicates based on sequencing depth, take random one if no info on seq depth for all vials
            ## Returns indices in given tcga barcodes to KEEP
            ## 20220920 man page done
+	   #' @export
            filterDuplicatesSeqDepthOther = function(expression_count_matrix, tcga_barcodes){
              sample_vials_ge <- extractSampleAndTypeAndVial(colnames(expression_count_matrix))
              seq_depth <- colSums(expression_count_matrix)
@@ -504,6 +523,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## Filter samples indicated by *TCGA_barcodes* based on the method *method* and threshold *threshold*
            ## Returns a list of indices indicating which samples should be kept
            ## 20220920 Man page done
+	   #' @export
            filterPurity = function(TCGA_barcodes, method="ESTIMATE", threshold=.6){
              if(class(TCGA_barcodes) != "character"){
                stop("Error: Expected TCGA_barcodes argument to be vector of strings")
@@ -524,6 +544,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            },
 
            # return tissue type given an input barcode
+	   #' @export
            getTissueType = function(TCGA_barcode)
            {
              this_sample = substr(str_split(TCGA_barcode,"-",simplify=T)[1,4],1,2)
@@ -544,6 +565,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 	           return(sample_type_mapping)
 	         },
            ## Filtering samples in an rds with particular sample types (e.g., "Primary Tumor", "Solid Tissue Normal", "Primary Blood Derived Cancer - Peripheral Blood")
+	   #' @export
            filterSampleType = function(TCGA_barcodes, types_of_samples){
              if(class(TCGA_barcodes) != "character"){
                stop("Error: TCGA_barcodes argument needs to be a character vector")
@@ -568,6 +590,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            },
 
            ## Filtering all tumor samples (e.g. barcode sample types {01,..09})
+	   #' @export
            filterTumorSamples = function(TCGA_barcodes){
              if(class(TCGA_barcodes) != "character"){
                stop("Error: TCGA_barcodes argument needs to be a character vector")
@@ -582,6 +605,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            },
 
            ## Filtering all normal samples (e.g. barcode sample types {10,..19})
+	   #' @export
            filterNormalSamples = function(TCGA_barcodes){
              if(class(TCGA_barcodes) != "character"){
                stop("Error: TCGA_barcodes argument needs to be a character vector")
@@ -596,6 +620,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            },
 
            ## Filtering all control samples (e.g. barcode sample types {20,..29})
+	   #' @export
            filterControlSamples = function(TCGA_barcodes){
              if(class(TCGA_barcodes) != "character"){
                stop("Error: TCGA_barcodes argument needs to be a character vector")
@@ -612,6 +637,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 
 
            ## Filter out protein coding genes based on rds info
+	   #' @export
            filterGenesProteins = function(rds_gene_info){
              if(class(rds_gene_info) != "data.frame"){
                stop("Error: gene info argument should be a data.frame. Best \
@@ -624,6 +650,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## Filter all genes which have at least *norm_threshold* scores (of normalized gene expression) in at least *sample_fraction* of samples
            ## expression_matrix should be TPM or CPM values (NOT log scaled)
            ## sample_fraction should be in [0,1]
+	   #' @export
            filterGenesByNormExpression = function(expression_matrix, norm_threshold, sample_fraction){
              if(sum(class(expression_matrix) %in% c("data.frame","matrix")) == 0) {
                stop("Error: expression_matrix argument should be a data.frame")
@@ -640,6 +667,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            },
 
            ## 20220921 man page done
+	   #' @export
            filterChromosome = function(rds_gene_info, chroms){
              if(class(rds_gene_info) != "data.frame"){
                stop("Error: gene info argument should be a data.frame. Best \
@@ -655,6 +683,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
     	     ##gets gene information from gencode given a list of genes names or ids from the gene mapping variable
     	     ##automatically infers whether ensmbl ID or name or entrez
     	     ##automatically infers whether version (i.e., the dot) exists in ensemble ID
+	     #' @export
     	     getGeneInfo = function(gene_names_or_ids_or_entrezs){
     	       is_id <-  any(grepl("ENSG", gene_names_or_ids_or_entrezs, fixed=TRUE))
     	       is_entrez <- any(grepl("^\\d+$", gene_names_or_ids_or_entrezs))
@@ -682,6 +711,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
     	     },
 
     	     ## the version corresponds to whether we want the . and number after from gene ids
+	     #' @export
     	     geneEntrezToENSG = function(gene_entrezs, version = FALSE){
     	       if(!("gene_entrez" %in% colnames(gene_mapping)))
     	       {
@@ -697,6 +727,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
     	       return(to_return)
     	     },
 
+	     #' @export
     	     geneENSGToName = function(gene_ids){
     	       to_return <- getGeneInfo(gene_ids)
     	       if(anyNA(to_return$gene_name)){
@@ -705,6 +736,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
     	       return(to_return[c('gene_id_no_ver','gene_name')])
     	     },
 
+	     #' @export
     	     geneENSGToEntrez = function(gene_ids){
     	       if(!("gene_entrez" %in% colnames(gene_mapping)))
     	       {
@@ -717,6 +749,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
     	       return(to_return[c('gene_id_no_ver','gene_entrez')])
     	     },
 
+	     #' @export
     	     geneNameToEntrez = function(gene_names){
     	       if(!("gene_entrez" %in% colnames(gene_mapping)))
     	       {
@@ -731,6 +764,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
     	       return(to_return)
     	     },
 
+	     #' @export
     	     geneEntrezToName = function(gene_entrezs){
     	       if(!("gene_entrez" %in% colnames(gene_mapping)))
     	       {
@@ -746,6 +780,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
     	     },
 
     	     ## the version corresponds to whether we want the . and number after from gene ids
+	     #' @export
     	     geneNameToENSG = function(gene_names, version = FALSE){
     	       to_return <- getGeneInfo(gene_names)
     	       if(version == TRUE){
@@ -757,6 +792,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
     	       return(to_return)
     	     },
 
+	   #' @export
            getGeneIdcs = function(gene_names, rds_gene_info){
              if(class(rds_gene_info) != "data.frame"){
                stop("Error: gene info argument should be a data.frame. Best \
@@ -769,6 +805,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
              return(match(gene_names, rds_gene_info$gene_name))
            },
 
+	   #' @export
            getStage = function(TCGA_barcodes){
              sample_names <- extractSampleOnly(TCGA_barcodes)
              stage_names <- clinical_patient_data$bcr_patient_barcode
@@ -776,6 +813,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
              return(stages)
            },
 
+	   #' @export
            getSex = function(TCGA_barcodes){
              sample_names <- extractSampleOnly(TCGA_barcodes)
              sex_names <- clinical_patient_data$bcr_patient_barcode
