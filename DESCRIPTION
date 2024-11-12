@@ -23,6 +23,7 @@ Depends:
   stringr,
   TCGAPurityFiltering,
   TCGAutils,
+  testthat,
   tidyr
 Remotes:
   pmandros/TCGAPurityFiltering,
