@@ -1,3 +1,4 @@
+#' @export
 NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 
          fields = list(TCGA_purities= "data.frame",
