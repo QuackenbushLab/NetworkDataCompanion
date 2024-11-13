@@ -33,7 +33,7 @@ Placeholder for methods documentation. Define each method here once methods are 
 }
 
 \references{
-Placeholder
+https://www.biorxiv.org/content/10.1101/2024.11.05.622163v1.abstract
 }
 \author{
 Viola Fanfani (\email{vfanfani@hsph.harvard.edu}),

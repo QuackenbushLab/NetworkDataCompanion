@@ -14,7 +14,6 @@ Authors@R:
            comment = c(ORCID = "0000-0003-3852-6908")),
     person("Jonas", "Fischer", email = "jfischer@hsph.harvard.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0000-0000-0000")))
-Author: Soel Micheletti
 Maintainer: Kate Hoff Shutta <kshutta@hsph.harvard.edu>
 Description: An R library of utilities for performing analyses on TCGA and GTEx data using the Network Zoo (https://netzoo.github.io).
 License: GPL-3

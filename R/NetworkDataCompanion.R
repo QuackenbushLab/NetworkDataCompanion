@@ -1,5 +1,35 @@
-#' @import methods
-#' @exportClass NetworkDataCompanion
+#' NetworkDataCompanion Reference Class
+#'
+#' A package for easy and reproducible wrangling of TCGA and GTEx data.
+#'
+#' @name NetworkDataCompanion-class
+#' @docType class
+#' @aliases NetworkDataCompanion-class
+#'
+#' @description
+#' `NetworkDataCompanion` is a reference class that provides fields for handling
+#' data related to TCGA and GTEx projects.
+#'
+#' @field TCGA_purities A `data.frame` containing TCGA sample purity information.
+#' @field clinical_patient_data A `data.frame` with clinical data for each patient.
+#' @field project_name A `character` vector with the name of the project.
+#' @field gene_mapping A `data.frame` that maps gene identifiers between datasets.
+#' @field sample_type_mapping A `data.frame` for sample type classification and mapping.
+#'
+#' @section Methods:
+#' Placeholder for methods documentation. Define each method here once methods are added.
+#'
+#' @references
+#' https://www.biorxiv.org/content/10.1101/2024.11.05.622163v1.abstract
+#'
+#' @author
+#' Viola Fanfani (\email{vfanfani@hsph.harvard.edu}),
+#' Jonas Fischer (\email{jfischer@hsph.harvard.edu}),
+#' Panagiotis Mandros (\email{pmandros@hsph.harvard.edu}),
+#' Soel Micheletti (\email{smicheletti@hsph.harvard.edu}),
+#' Kate Hoff Shutta (\email{kshutta@hsph.harvard.edu})
+#'
+#' @export NetworkDataCompanion
 NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 
          fields = list(TCGA_purities= "data.frame",
