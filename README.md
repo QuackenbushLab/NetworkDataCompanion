@@ -7,15 +7,23 @@ An R library of utilities for performing analyses on TCGA and GTEx data using th
 
 # Installing
 
-The package requires the "GenomicDataCommons", "edgeR", "recount", "recount3" bioconductor packages to be installed prior to the main installation.
-
-To install and use the library you can use the following: 
+To install and use the library, you can clone the repository and use the following: 
 
 ```R
 install.packages("devtools")
 devtools::install()  # provided you are in the project folder
 library(NetworkDataCompanion) # load the library in your code
 ```
+
+You can also install directly from GitHub if you do not need the repository itself:
+
+```{R}
+library(devtools)
+devtools::install_github("QuackenbushLab/NetworkDataCompanion")
+library(NetworkDataCompanion)
+```
+
+The following packages may require separate installation: "GenomicDataCommons", "edgeR", "recount", "recount3" 
 
 # Usage
 
