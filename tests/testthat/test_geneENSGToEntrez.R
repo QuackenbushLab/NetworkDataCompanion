@@ -24,4 +24,9 @@ test_that("geneENSGToEntrez functions correctly converts ENSG to Entrez",{
   out = my_friend$geneENSGToEntrez(gene_id_no_ver)
   expect_equal(out$gene_entrez,rep(gene_entrez, times = c(1, 3, 1, 2)))
 
+  ## assert stop if mixed input
+  gene_ids_mixed = c(gene_id[1:5],gene_id_no_ver[6])
+  expect_error(my_friend$geneENSGToEntrez(gene_ids_mixed),
+               regexp="\\[NetworkDataCompanion::getGeneInfo\\] Currently, ensembl IDs must either all have versions or all have no versions. \n Please adjust your input accordingly.")
+  
 })
