@@ -302,6 +302,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 
            # Function to map to probes to a gene-level measurement
            # probe_gene_map is in the format output from the mapProbesToGenes function
+           # genesOfInterest is a character vector, one gene per entry
            # not all genesOfInterest need to be in probe_gene_map, but if none are, then this is meaningless
 	         probeToMeanPromoterMethylation = function(methylation_betas,
                                                      probe_gene_map,
@@ -330,12 +331,6 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
                  left_join(methylation_betas, by="probeID") %>%
                  data.frame(check.names=F)
              }
-
-             # ## split the probe map to a long form where there are multiple genes mapped to the same probe
-             # mappedBetasLong = mappedBetas %>%
-             #   separate_rows(geneNames, sep = ";") %>%
-             #   drop_na(geneNames) %>%
-             #   data.frame(check.names = F)
 
              ## map probe-level methylation to the mean for each gene
              betaMeans = mappedBetasLong %>%
@@ -375,12 +370,8 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
              # map methylation to gene level
              # methylation betas should be samples in rows
              # and CGs in columns
-             # luad for testing
-             # methylation_betas = fread("~/Desktop/tcga_luad_methylations.txt",data.table=F)
-             # row.names(methylation_betas) = methylation_betas$probeID
-             # array = "450k"
-
-	     row.names(methylation_betas) = methylation_betas$probeID
+             
+             row.names(methylation_betas) = methylation_betas$probeID
 
              geneLevelMeth = methylation_betas %>%
                dplyr::select(-probeID) %>%
