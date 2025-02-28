@@ -20,5 +20,9 @@ test_that("geneENSGToName functions correctly converts ENSG to Name",{
   ## without version number
   out = my_friend$geneENSGToName(gene_id_no_ver)
   expect_equal(out$gene_name,rep(gene_name, times = c(1, 3, 2)))
-
+  
+  ## assert stop if mixed input
+  gene_ids_mixed = c(gene_id[1:5],gene_id_no_ver[6])
+  expect_error(my_friend$geneENSGToName(gene_ids_mixed),
+               regexp="\\[NetworkDataCompanion::getGeneInfo\\] Currently, ensembl IDs must either all have versions or all have no versions. \n Please adjust your input accordingly.")
 })

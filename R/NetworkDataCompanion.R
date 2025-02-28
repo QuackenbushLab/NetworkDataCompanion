@@ -683,6 +683,10 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 
     	       if(is_id){
     	         version <- grepl(".", gene_names_or_ids_or_entrezs, fixed=TRUE)
+    	         if(any(version) & !all(version)){
+    	           stop("[NetworkDataCompanion::getGeneInfo] Currently, ensembl IDs must either all have versions or all have no versions. \n Please adjust your input accordingly.")
+    	         }
+    	         
     	         if(any(version == TRUE)){
     	           to_return <- left_join(data.frame("gene_id"=gene_names_or_ids_or_entrezs),
     	                                  gene_mapping,by="gene_id") 
