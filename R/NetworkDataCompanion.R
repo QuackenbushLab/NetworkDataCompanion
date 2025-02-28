@@ -41,7 +41,6 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## Extract experiment specific information and metadata from ranged summarized experiment object
            ## Returns a named list with rds_sample_info corresponding to meta information about the samples (columns)
            ##                       and rds_gene_info corresponding to meta information about genes (rows)
-           ## 20220913: man page done
            extractSampleAndGeneInfo = function(expression_rds_obj){
              return(list(rds_sample_info=as.data.frame(colData(expression_rds_obj)),
                          rds_gene_info=as.data.frame(rowRanges(expression_rds_obj))))
@@ -57,7 +56,6 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## and reordering the first experiment to match the samples of the second, you can do
            ## exp1[,is_inter1]                           --- this will remove samples that are not in exp2
            ## exp2[,idcs1[is_inter1]]                    --- this will remove samples that are not in exp1 and reorder to match exp1
-           ## 20220920 man page done
            mapBarcodeToBarcode = function(bc1, bc2){
              if(class(bc1) != "character" | class(bc2) != "character"){
                stop("Error: barcodes need to be vectors of strings")
@@ -70,7 +68,6 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## A convenience wrapper function for mapBarcodeToBarcode that applies the function directly to two data frames
            ## returns a list of the two argument data frames, intersected, and the second frame ordered to match the first
            ## NOTE: Ordering is done based on columns, which are expected to be named by TCGA barcodes
-           ## 20220920 man page done
            filterBarcodesIntersection = function(exp1, exp2){
              if(!("data.frame" %in% class(exp1) | "matrix" %in% class(exp1)) ){
                stop("Error: argument 1 needs to be data.frame or matrix")
@@ -87,7 +84,6 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            ## Returns a named list with the count data.frame (useful for duplicate filtering based on sequencing depth, see filterDuplicatesSeqDepth)
            ##                               TPM data.frame (useful for TPM based filtering, see filterGenesByNormExpression)
            ##                and the actual logTPM which corresponds to log(TPM + 1)
-           ## 20220920 man page done
            logTPMNormalization = function(expression_rds_obj){
              if(class(expression_rds_obj) != "RangedSummarizedExperiment"){
                stop("Error: expression matrices need to be an RSE object")
@@ -351,7 +347,6 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 
            # Input to convertBetaToM is a vector of methylation betas
            # User should use this function with `apply` to convert a matrix
-           # 20220920 man page done
 	         convertBetaToM = function(methylation_betas){
               M = log2(methylation_betas/(1-methylation_betas))
               return(M)
@@ -473,7 +468,6 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 
            ## Filter out all duplicates based on sequencing depth
            ## Returns indices about which samples to KEEP
-           ## 20220920 man page done
 	         filterDuplicatesSeqDepth = function(expression_count_matrix){
              sample_barcodes <- extractSampleAndType(colnames(expression_count_matrix))
              seq_depth <- colSums(expression_count_matrix)
@@ -496,7 +490,6 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 
            ## Filter out all duplicates based on sequencing depth, take random one if no info on seq depth for all vials
            ## Returns indices in given tcga barcodes to KEEP
-           ## 20220920 man page done
 	         filterDuplicatesSeqDepthOther = function(expression_count_matrix, tcga_barcodes){
              sample_vials_ge <- extractSampleAndTypeAndVial(colnames(expression_count_matrix))
              seq_depth <- colSums(expression_count_matrix)
@@ -534,7 +527,6 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 
            ## Filter samples indicated by *TCGA_barcodes* based on the method *method* and threshold *threshold*
            ## Returns a list of indices indicating which samples should be kept
-           ## 20220920 Man page done
 	         filterPurity = function(TCGA_barcodes, method="ESTIMATE", threshold=.6){
              if(class(TCGA_barcodes) != "character"){
                stop("Error: Expected TCGA_barcodes argument to be vector of strings")
@@ -670,7 +662,6 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
              return(which(keep))
            },
 
-           ## 20220921 man page done
 	         filterChromosome = function(rds_gene_info, chroms){
              if(class(rds_gene_info) != "data.frame"){
                stop("Error: gene info argument should be a data.frame. Best \
@@ -692,38 +683,47 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 
     	       if(is_id){
     	         version <- grepl(".", gene_names_or_ids_or_entrezs, fixed=TRUE)
+    	         if(any(version) & !all(version)){
+    	           stop("[NetworkDataCompanion::getGeneInfo] Currently, ensembl IDs must either all have versions or all have no versions. \n Please adjust your input accordingly.")
+    	         }
+    	         
     	         if(any(version == TRUE)){
-    	           to_return <- subset(gene_mapping, gene_mapping$gene_id %in% gene_names_or_ids_or_entrezs )
+    	           to_return <- left_join(data.frame("gene_id"=gene_names_or_ids_or_entrezs),
+    	                                  gene_mapping,by="gene_id") 
     	         }
     	         else{
-    	           to_return <- subset(gene_mapping, gene_mapping$gene_id_no_ver %in% gene_names_or_ids_or_entrezs)
+    	           to_return <- left_join(data.frame("gene_id_no_ver"=gene_names_or_ids_or_entrezs),
+    	                                  gene_mapping,by="gene_id_no_ver") 
     	         }
     	       }
     	       else if (is_entrez){
-    	         to_return <- subset(gene_mapping, gene_mapping$gene_entrez %in% gene_names_or_ids_or_entrezs)
+    	         to_return <- left_join(data.frame("gene_entrez"=gene_names_or_ids_or_entrezs),
+    	                                gene_mapping,by="gene_entrez")
     	       }
     	       else{
-    	         to_return <- subset(gene_mapping, gene_mapping$gene_name %in% gene_names_or_ids_or_entrezs)
-    	       }
+    	         to_return <- left_join(data.frame("gene_name"=gene_names_or_ids_or_entrezs),
+    	                                gene_mapping,by="gene_name")    
+    	         }
 
     	       if(nrow(to_return)!=length(gene_names_or_ids_or_entrezs)){
-    	         print('There was at least one one-to-many mapping (most probably from multiple ensembl IDs for the input)')
+    	         print('[NetworkDataCompanion::getGeneInfo] In gene conversion, there was at least one one-to-many mapping (most probably from multiple ensembl IDs for the input)')
     	       }
+    	       
     	       return(to_return)
     	     },
 
     	     ## the version corresponds to whether we want the . and number after from gene ids
-	         geneEntrezToENSG = function(gene_entrezs, version = FALSE){
+	         geneEntrezToENSG = function(gene_entrezs, include_no_version = TRUE){
     	       if(!("gene_entrez" %in% colnames(gene_mapping)))
     	       {
-    	         stop('Column gene_entrez not found in gene mapping.')
+    	         stop('[NetworkDataCompanion::geneEntrezToENSG] Column gene_entrez not found in gene mapping.')
     	       }
     	       to_return <- getGeneInfo(gene_entrezs)
-    	       if(version == TRUE){
+    	       if(include_no_version == FALSE){
     	         to_return <- to_return[c('gene_entrez','gene_id')]
     	       }
     	       else{
-    	         to_return <- to_return[c('gene_entrez','gene_id_no_ver')]
+    	         to_return <- to_return[c('gene_entrez','gene_id','gene_id_no_ver')]
     	       }
     	       return(to_return)
     	     },
@@ -731,59 +731,56 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 	         geneENSGToName = function(gene_ids){
     	       to_return <- getGeneInfo(gene_ids)
     	       if(anyNA(to_return$gene_name)){
-    	         print('Not all ensembl IDs were mapped to names')
+    	         print('[NetworkDataCompanion::geneENSGToName] Not all ensembl IDs were mapped to names')
     	       }
-    	       return(to_return[c('gene_id_no_ver','gene_name')])
+    	       return(to_return[c('gene_id','gene_id_no_ver','gene_name')])
     	     },
 
 	         geneENSGToEntrez = function(gene_ids){
     	       if(!("gene_entrez" %in% colnames(gene_mapping)))
     	       {
-    	         stop('Column gene_entrez not found in gene mapping.')
+    	         stop('[NetworkDataCompanion::geneENSGToEntrez] Column gene_entrez not found in gene mapping.')
     	       }
     	       to_return <- getGeneInfo(gene_ids)
     	       if(anyNA(to_return$gene_entrez)){
-    	         print('Not all ensembl IDs were mapped to entrez')
+    	         print('[NetworkDataCompanion::geneENSGToEntrez] Not all ensembl IDs were mapped to entrez')
     	       }
-    	       return(to_return[c('gene_id_no_ver','gene_entrez')])
+    	       return(to_return[c('gene_id','gene_id_no_ver','gene_entrez')])
     	     },
 
 	         geneNameToEntrez = function(gene_names){
     	       if(!("gene_entrez" %in% colnames(gene_mapping)))
     	       {
-    	         stop('Column gene_entrez not found in gene mapping')
+    	         stop('[NetworkDataCompanion::geneNameToEntrez] Column gene_entrez not found in gene mapping')
     	       }
     	       to_return <- getGeneInfo(gene_names)
     	       if(anyNA(to_return$gene_entrez)){
-    	         print('Not all names were mapped to entrez')
+    	         print('[NetworkDataCompanion::geneNameToEntrez] Not all names were mapped to entrez')
     	       }
     	       to_return <- to_return[c('gene_name','gene_entrez')]
-    	       to_return <- to_return[!duplicated(to_return),]
-    	       return(to_return)
+    	       return(unique(to_return))
     	     },
 
 	         geneEntrezToName = function(gene_entrezs){
     	       if(!("gene_entrez" %in% colnames(gene_mapping)))
-    	       {
-    	         stop('Column gene_entrez not found in gene mapping')
-    	       }
+    	         stop('[NetworkDataCompanion::geneEntrezToName] Column gene_entrez not found in gene mapping')
+    	       
     	       to_return <- getGeneInfo(gene_entrezs)
     	       if(anyNA(to_return$gene_name)){
-    	         print('Not all entrez were mapped to names')
+    	         print('[NetworkDataCompanion::geneEntrezToName] Not all entrez were mapped to names')
     	       }
     	       to_return <- to_return[c('gene_entrez','gene_name')]
-    	       to_return <- to_return[!duplicated(to_return),]
-    	       return(to_return)
+    	       return(unique(to_return))
     	     },
 
     	     ## the version corresponds to whether we want the . and number after from gene ids
-	         geneNameToENSG = function(gene_names, version = FALSE){
+	         geneNameToENSG = function(gene_names, include_no_version = TRUE){
     	       to_return <- getGeneInfo(gene_names)
-    	       if(version == TRUE){
+    	       if(include_no_version == FALSE){
     	         to_return <- to_return[c('gene_name','gene_id')]
     	       }
     	       else{
-    	         to_return <- to_return[c('gene_name','gene_id_no_ver')]
+    	         to_return <- to_return[c('gene_name','gene_id','gene_id_no_ver')]
     	       }
     	       return(to_return)
     	     },
