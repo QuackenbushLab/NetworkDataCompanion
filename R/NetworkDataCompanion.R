@@ -729,7 +729,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
     	       if(anyNA(to_return$gene_name)){
     	         print('[NetworkDataCompanion::geneENSGToName] Not all ensembl IDs were mapped to names')
     	       }
-    	       return(to_return[c('gene_id_no_ver','gene_name')])
+    	       return(to_return[c('gene_id','gene_id_no_ver','gene_name')])
     	     },
 
 	         geneENSGToEntrez = function(gene_ids){
