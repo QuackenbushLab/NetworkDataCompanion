@@ -547,20 +547,22 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
            },
 
            # return tissue type given an input barcode
-	         getTissueType = function(TCGA_barcode)
+	         getTissueType = function(TCGA_barcodes)
            {
-             this_sample = substr(str_split(TCGA_barcode,"-",simplify=T)[1,4],1,2)
-             if(!this_sample%in% sample_type_mapping$numcode)
+             these_samples = extractSampleType(TCGA_barcodes) 
+             if(length(setdiff(these_samples,sample_type_mapping$numcode)>0))
              {
-               print(paste("[NetworkDataCompanion::getTissueType()] Error: unknown sample type:",this_sample))
-               return(NA)
+               print(paste("[NetworkDataCompanion::getTissueType()] Error: unknown sample type(s):",setdiff(these_samples,sample_type_mapping$numcode)))
+               return(NULL)
              }
 
-             this_map = data.frame("TCGA_barcode"=TCGA_barcode)
-             row.names(this_map) = TCGA_barcode
-             this_match = sample_type_mapping[which(as.numeric(sample_type_mapping$numcode) == as.numeric(this_sample)),]
-
-             return(cbind.data.frame(this_map,this_match))
+             this_map = data.frame("TCGA_barcode" = TCGA_barcodes,
+                                   "numcode" = these_samples,
+                                   row.names = TCGA_barcodes)
+             
+             out_map = this_map %>% left_join(sample_type_mapping, by="numcode") %>%
+               dplyr::select("TCGA_barcode","description")
+             return(out_map)
            },
            ## access sample type map
 	         getSampleTypeMap = function(){
