@@ -4,23 +4,43 @@ author: "Kate Hoff Shutta"
 output: 
   rmdformats::robobook:
     code_folding: show
-    toc_depth: 3
+    toc_depth: 4
 bibliography: demo.bib  
 link-citations: true
 ---
 
 # About NetworkDataCompanion
 
+The `NetworkDataCompanion` R package is a collection of utilities for wrangling TCGA data. While it was developed to serve as the engine behind `tcga-data-nf`, the Nextflow workflow presented in @fanfani2024reproducible, `NetworkDataCompanion` is a stand-alone package that can be used independently. The primary goal of the package is to provide version-controlled and unit-tested functions for common tasks involved in network analyses of TCGA data, such as calculating gene-level summary measures of methylation data, normalizing RNA-seq data, and integrating multiple omics by mapping various file identifiers back to TCGA barcodes. 
 
-# Prepare the workspace
+While none of these tasks are particularly complex, `NetworkDataCompanion` is motivated by their ubiquity. Beyond its role in `tcga-data-nf`, this package aims to:
+
+  1. Reduce "re-work" by eliminating the need for everyone to write a few lines of code to, e.g., map TCGA identifiers in their own scripts
+  
+  2. Reduce the error-prone nature of the type of coding described in (1) by offering a centralized, maintained, version-controlled, and unit-tested resource for general use. 
+
+# Preparing the workspace
+
+The first step is to install `NetworkDataCompanion` from GitHub using the `devtools` library and the `install_github` function.
+
+```{R}
+library(devtools)
+devtools::install_github("QuackenbushLab/NetworkDataCompanion")
+```
+
+Once you have installed the package, load the library into your workspace. Here, we have suppressed package loading messages as there are quite a few. 
 
 ```{R, message=F}
 library(NetworkDataCompanion)
 ```
 
-# Data used in this tutorial
+# Download demonstration data
 
-The data used in this tutorial are from the TCGA COAD analysis presented in @fanfani2024reproducible and can be downloaded from the Harvard Dataverse here: https://doi.org/10.7910/DVN/MCSSYJ 
+Once you have installed the package, you next need to download the data used in this quickstart.
+
+These data are from the TCGA COAD analysis presented in @fanfani2024reproducible and can be downloaded from the Harvard Dataverse here: https://doi.org/10.7910/DVN/MCSSYJ 
+
+For the script below to work, please place the `tcga-data-supplement` directory in the same working directory as this RMarkdown. Alternatively, you can modify the `datapath` variable below.
 
 For reference on the source of the data, the full workflow of the COAD analysis is available at https://github.com/QuackenbushLab/tcga-data-supplement/.
 
@@ -43,7 +63,7 @@ ls(my_friend)
 Of these, `gene_mapping` and `sample_type_mapping` are loaded with the empty constructor. For the other attributes, we must supply a patient data file and TCGA cancer type. For the COAD example, we can use the following:
 
 ```{R}
-datapath = "../inst/extdata/tcga-data-supplement/data/processed/batch-coad-subtype-20240510/tcga_coad_cms1/"
+datapath = "tcga-data-supplement/data/processed/batch-coad-subtype-20240510/tcga_coad_cms1/"
 patient_data = paste0(datapath,"data_download/clinical/clinical_patient_coad.csv")
 ```
 
