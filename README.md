@@ -7,15 +7,7 @@ An R library of utilities for performing analyses on TCGA and GTEx data using th
 
 # Installing
 
-To install and use the library, you can clone the repository and use the following: 
-
-```R
-install.packages("devtools")
-devtools::install()  # provided you are in the project folder
-library(NetworkDataCompanion) # load the library in your code
-```
-
-You can also install directly from GitHub if you do not need the repository itself:
+You can install this package with `devtools` using the following code:
 
 ```{R}
 library(devtools)
@@ -23,61 +15,28 @@ devtools::install_github("QuackenbushLab/NetworkDataCompanion")
 library(NetworkDataCompanion)
 ```
 
-The following packages may require separate installation: "GenomicDataCommons", "edgeR", "recount", "recount3" 
+If you want to work with the source, you can also clone the repository and install it from the root directory locally once you have done so. 
+
+```R
+library(devtools)
+devtools::install()  # provided you are in the project folder
+library(NetworkDataCompanion) 
+```
+
+We have noticed that sometimes the following packages may require separate installation: "GenomicDataCommons", "edgeR", "recount", "recount3". If you have problems with these, please raise an issue here: https://github.com/QuackenbushLab/NetworkDataCompanion/issues or directly and/contact the maintainer (Kate Shutta, kshutta at hsph.harvard.edu). 
 
 # Usage
 
-```R
-## load libraries
-library(NetworkDataCompanion)
-library(recount)
-library(recount3)
-library(GenomicDataCommons)
-
-## Obtain expression data from recount
-TCGA_lung <- recount3::create_rse_manual(
-  project = "LUAD",
-  project_home = "data_sources/tcga",
-  organism = "human",
-  annotation = "gencode_v26",
-  type = "gene"
-)
-
-## Generate NetworkDataCompanion instance
-obj <- CreateNetworkDataCompanionObject(project_name = "LUAD")
-
-## use package functionality, for example
-exp_TCGA_lung <- obj$logTPMNormalization(TCGA_lung)
-```
-
-A lot more details can be found in [this vignette](./vignettes/introduction.Rmd).
+We are currently developing a quickstart guide. In the meantime, example usage of all functions are available in the unit tests: https://github.com/QuackenbushLab/NetworkDataCompanion/tree/main/tests/testthat
 
 # Structure of the repo
 - ```R``` contains the source code of our functions.
 - ```vignettes``` contains a tutorial on how to use the package.
 - ```tests``` contains extensive tests of the implemented functions.
-- ```insts``` contains the data needed to run the analyses on TCGA and GTEx.
+- ```inst``` contains external data needed to run the analyses on TCGA and GTEx (e.g., gene mapping files)
 - ```man``` is used to generate documentation. 
 
-# Building
-
-We rely on roxygen2 for package building.
-
-```R
-install.packages("tinytex")
-tinytex::install_tinytex()
-
-library(roxygen2)
-roxygen2::roxygenize()
-
-install.packages("devtools")
-library(devtools)
-devtools::build()
-devtools::document()
-build_manual(path = ".")
-```
-
-## Citation
+# Citation
 ```bibtex
 @article{fanfani2024reproducible,
   title={Reproducible processing of TCGA regulatory networks},
