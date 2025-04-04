@@ -5,7 +5,7 @@ output:
   rmdformats::robobook:
     code_folding: show
     toc_depth: 4
-bibliography: demo.bib  
+bibliography: quickstart.bib  
 link-citations: true
 ---
 
@@ -21,14 +21,14 @@ While none of these tasks are particularly complex, `NetworkDataCompanion` is mo
 
 # Preparing the workspace
 
-The first step is to install `NetworkDataCompanion` from GitHub using the `devtools` library and the `install_github` function.
+The first step is to install `NetworkDataCompanion` from GitHub using the `devtools` library and the `install_github` function. Here, we have suppressed messages as there are quite a few. 
 
-```{R}
+```{R, message=F}
 library(devtools)
 devtools::install_github("QuackenbushLab/NetworkDataCompanion")
 ```
 
-Once you have installed the package, load the library into your workspace. Here, we have suppressed package loading messages as there are quite a few. 
+Once you have installed the package, load the library into your workspace. 
 
 ```{R, message=F}
 library(NetworkDataCompanion)

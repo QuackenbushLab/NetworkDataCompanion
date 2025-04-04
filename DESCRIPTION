@@ -46,6 +46,8 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests: 
+    devtools,
     knitr,
-    rmarkdown
+    rmarkdown,
+    rmdformats
 VignetteBuilder: knitr
