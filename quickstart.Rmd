@@ -5,14 +5,9 @@ output:
   rmdformats::robobook:
     code_folding: show
     toc_depth: 4
-bibliography: demo.bib  
+bibliography: quickstart.bib  
 link-citations: true
 ---
-
-<!--
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteIndexEntry{Demo}
--->
 
 # About NetworkDataCompanion
 
