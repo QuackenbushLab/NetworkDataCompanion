@@ -106,46 +106,119 @@ meth_datapath = paste0(datapath, "data_download/methylation/tcga_coad_cms1_methy
 
 ## Functions for working with expression
 
-<!-- ```{R} -->
-<!-- # Read RDS expression data -->
-<!-- test_exp_rds = readRDS(exp_data) -->
-<!-- ``` -->
+The functions for working with gene expression in NetworkDataCompanion are generally wrappers around the functionality of the `RangedSummarizedExperiment` objects produced by `recount3`. For documentation on this type of object, please see ***.
+
+First, we read in the expression data, which is downloaded as both an .rds file and as a .csv file in the Download phase of the `tcga-data-nf` pipeline. The .rds file contains the `RangedSummarizedExperiment` object, so this is the downloaded file that we work with here. The .csv file is provided for convenience if you have other applications that do not require the `RangedSummarizedExperiment`.
+
+```{R}
+expr_data = readRDS(exp_datapath)
+expr_data
+```
+
+To extract metadata from the `RangedSummarizedExperiment`, we use the `extractSampleAndGeneInfo` method. This produces two dataframes: `rds_gene_info`, which stores gene identifiers and other gene-level metadata, and `rds_sample_info`, which stores sample identifiers such as TCGA barcodes, patient characteristics, and sample characteristics.
 
 <!-- The function `extractSampleAndGeneInfo` provides a way to get metadata from the RangedSummarizedExperiment object that stores the expression data download. -->
 
-<!-- ```{R} -->
-<!-- rds_info = my_friend$extractSampleAndGeneInfo(test_exp_rds) -->
-<!-- rds_sample_info = rds_info$rds_sample_info -->
-<!-- rds_sample_info[1:3,1:3] -->
+```{R}
+expr_metadata = my_friend$extractSampleAndGeneInfo(expr_data)
+ls(expr_metadata)
+```
 
-<!-- rds_gene_info = rds_info$rds_gene_info -->
-<!-- rds_gene_info[1:3,1:3] -->
-<!-- ``` -->
 
-<!-- We can get information about a particular set of genes using either the names or the Ensembl IDs.  -->
+For example, if we wish to get the gene names and Ensembl IDs for the first five genes in the dataset, we can use:
 
-<!-- From gene names: -->
+```{R}
+expr_metadata$rds_gene_info %>%
+  dplyr::select(gene_id,gene_name) %>%
+  slice_head(n=5)
+```
 
-<!-- ```{R} -->
-<!-- rds_gene_info$gene_name[1:3] -->
-<!-- gene_info_from_names = my_friend$getGeneInfo(rds_gene_info$gene_name) -->
-<!-- gene_info_from_names[1:3,] -->
-<!-- ``` -->
+Similarly, let's get the TCGA barcode and vital status of the patients who provided the first 5 samples:
 
-<!-- From Ensembl IDs:  -->
+```{R}
+expr_metadata$rds_sample_info %>%
+  dplyr::select(tcga.tcga_barcode,tcga.gdc_cases.diagnoses.vital_status) %>%
+  slice_head(n=5)
+```
 
-<!-- ```{R} -->
-<!-- rds_gene_info$gene_id[1:3] -->
-<!-- genes_info_from_ids = my_friend$getGeneInfo(rds_gene_info$gene_id) -->
-<!-- genes_info_from_ids[1:3,] -->
-<!-- ``` -->
+To get information about a set of genes, `NetworkDataCompanion` provides a wrapper function `getGeneInfo`. 
 
-<!-- We can also convert between gene name and Ensembl ID and vice versa: -->
+```{R}
+my_friend$getGeneInfo(c("BRCA1","BRCA2"))
+```
 
-<!-- ```{R} -->
-<!-- genes_from_names_to_ids = data.frame(my_friend$geneNameToENSG(rds_gene_info$gene_name)) -->
-<!-- genes_from_ids_to_names = data.frame(my_friend$geneENSGToName(rds_gene_info$gene_id)) -->
-<!-- ``` -->
+These results can also be searched by Ensemble or Entrez gene IDs. The Ensemble IDs for BRCA1 are ENSG00000012048 and ENSG00000139618, respectively:
+
+```{R}
+my_friend$getGeneInfo(c("ENSG00000012048","ENSG00000139618"))
+```
+
+And the Entrez IDs for BRCA1 and BRCA2 are 672 and 675.
+
+```{R}
+my_friend$getGeneInfo(c(672, 675))
+```
+
+### Converting between gene identifiers
+
+There are many, many tools for converting between gene identifiers, and ours has neither bells nor whistles. Our tool simply uses the hardcode Gencode v26 mapping found in the `inst/extdata/gen_v26_mapping_w_entrez.csv` file. A more sophisticated tool may better fit your use case; however, we provide this functionality as we used it in the `tcga-data-nf` pipeline.
+
+```{R}
+my_friend$geneNameToENSG(c("BRCA1","BRCA2"))
+my_friend$geneNameToEntrez(c("BRCA1","BRCA2"))
+```
+
+Sometimes, the gene conversion will yield a one-to-many mapping. For this reason, it is important to use proper merging operations (`merge` in base R; the `left_join`,`right_join`,`inner_join`,`full_join` functions from `dplyr`) when annotating these conversions back to a dataset.
+
+```{R}
+my_friend$geneNameToENSG("NOTCH4")
+```
+
+
+### Normalizing RNAseq data
+
+`NetworkDataCompanion` provides a wrapper for logTPM RNAseq normalization functions from `recount3`. A pseudocount is added in the calculation. The input to this function is the `RangedSummarizedExperiment` object:
+
+
+```{R}
+logTPM = my_friend$logTPMNormalization(expr_data)
+ls(logTPM)
+```
+
+The three items returned include the transformed counts, which have been processed by `recount3::transform_counts`, the logTPM (corresponding to log(TPM+1) with the pseudocount), the TPM (which is provided for use cases related to filtering by TPM, for example, if one would like to do something like remove genes with TPM < 1 in more than 20% of the samples). Rows are indexed by Ensembl gene ID. Let's look at the values for BRCA1 (ENSG00000012048.20):
+
+```{R}
+brca1_counts=logTPM$counts[which(rownames(logTPM$counts)=="ENSG00000012048.20"),1:3]
+brca1_TPM=logTPM$TPM[which(rownames(logTPM$TPM)=="ENSG00000012048.20"),1:3]
+brca1_logTPM=logTPM$logTPM[which(rownames(logTPM$logTPM)=="ENSG00000012048.20"),1:3]
+
+brca1_counts
+brca1_TPM
+brca1_logTPM
+```
+
+There is also a wrapper for logCPM normalization. This is based on the `edgeR` recipe for TMM normalization; see the package documentation for more details. Again, a pseudocount is added in the calculation. Unlike `logTPMNormalization`, which uses the `RangedSummarizedExperiment` as input, `logCPMNormalization` uses a matrix or data frame of raw expression counts as input. This can be accessed using the `assay` function of the `RangedSummarizedExperiment`.
+
+```{R}
+logCPM = my_friend$logCPMNormalization(assay(expr_data))
+ls(logCPM)
+```
+
+Here, counts refer to the raw counts in the `RangedSummarizedExperiment` object. Note that, because these counts have not been transformed with `recount3::transform_counts`, they will not be coherent with the `counts` attribute of `logTPMNormalization`. This is expected behavior.
+
+We again investigate the values for BRCA1:
+
+
+```{R}
+brca1_counts=logCPM$counts[which(rownames(logCPM$counts)=="ENSG00000012048.20"),1:3]
+brca1_CPM=logCPM$CPM[which(rownames(logCPM$CPM)=="ENSG00000012048.20"),1:3]
+brca1_logCPM=logCPM$logCPM[which(rownames(logCPM$logCPM)=="ENSG00000012048.20"),1:3]
+
+brca1_counts
+brca1_CPM
+brca1_logCPM
+```
+
 
 <!-- A function for normalization takes a RangedSummarizedExperiment as input and returns three matrices: raw counts, TPM. and log(TPM + 1). -->
 
