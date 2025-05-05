@@ -494,7 +494,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
                mutate("TCGA_sample_and_type" = extractSampleAndType(TCGA_barcode)) %>%
                rename("purity"=method) %>%
                group_by(TCGA_sample_and_type) %>%
-               summarize("TCGA_barcode_max_purity"=which.max(purity)) %>%
+               summarize("TCGA_barcode_max_purity"=TCGA_barcode[which.max(purity)]) %>%
                pull(TCGA_barcode_max_purity) %>%
                return()
            },
@@ -511,51 +511,28 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
                return()
            },
             
-           # filter methylation duplicates based on less overall missingness
-           # in measured beta values
-           filterDuplicatesMethylationMissingness = function(x)
+           # filter methylation duplicates based on less 
+           # overall missingness in the measured beta values
+           # methylation_betas should be a data frame with 
+           # probes in rows and UUIDs in columns, with the 
+           # exception of the first column which is probeID
+           filterDuplicatesMethylationMissingness = function(methylation_betas)
            {
+             missing_df = data.frame("uuid"=names(methylation_betas[,-1]),
+                                     "prop_miss"=apply(methylation_betas[,-1],2,
+                                                       function(x){sum(is.na(x))/length(x)}))
+             tcga_barcodes = ndc$mapUUIDtoTCGA(missing_df$uuid)
+             keep_barcodes = missing_df %>% inner_join(tcga_barcodes, by=c("uuid"="file_id")) %>%
+               dplyr::rename("TCGA_barcode"=submitter_id) %>% 
+               mutate(TCGA_sample_and_type =  ndc$extractSampleAndType(TCGA_barcode)) %>%
+               group_by(TCGA_sample_and_type) %>%
+               summarize("TCGA_barcode_min_prop_miss"=TCGA_barcode[which.min(prop_miss)]) %>%
+               pull(TCGA_barcode_min_prop_miss) 
              
-           }
-           
-           ## Filter out all duplicates based on sequencing depth, 
-           ## take random one if no info on seq depth for all vials
-           ## Returns indices in given tcga barcodes to KEEP
-	         filterDuplicatesSeqDepthOther = function(expression_count_matrix, tcga_barcodes){
-             sample_vials_ge <- extractSampleAndTypeAndVial(colnames(expression_count_matrix))
-             seq_depth <- colSums(expression_count_matrix)
-             duplicate_throwout <- rep(NA, length(tcga_barcodes))
-             for (idx in 1:length(tcga_barcodes))
-             {
-               if (is.na(duplicate_throwout[idx]))
-               {
-                 ## find all vials and replicates of current barcode
-                 rep_idcs <- which(extractSampleOnly(tcga_barcodes[idx]) == extractSampleOnly(tcga_barcodes))
-                 rep_vials <- extractSampleAndTypeAndVial(tcga_barcodes[rep_idcs])
-                 ## match with vials in expression matrix
-                 mIdx <- match(rep_vials, sample_vials_ge)
-                 ## get matched vial with highest seqdepth, just take first one if no match at all
-                 max_sample_idx <- 1
-                 curr_max <- 0
-                 for (j in 1:length(mIdx))
-                 {
-                   if (!is.na(mIdx[j]))
-                   {
-                     if (seq_depth[mIdx[j]] > curr_max)
-                     {
-                       curr_max <- seq_depth[mIdx[j]]
-                       max_sample_idx <- rep_idcs[j]
-                     }
-                   }
-                 }
-                 ## throw out all but maximum one
-                 duplicate_throwout[rep_idcs] <- T
-                 duplicate_throwout[max_sample_idx] <- F
-               }
-             }
-             return(which(!duplicate_throwout))
+             keep_uuids = tcga_barcodes %>% dplyr::filter(submitter_id %in% keep_barcodes) %>%
+               pull(file_id)
+             return(keep_uuids)
            },
-           
            
            ## Filter samples indicated by *TCGA_barcodes* based on the method *method* and threshold *threshold*
            ## Returns a list of indices indicating which samples should be kept
