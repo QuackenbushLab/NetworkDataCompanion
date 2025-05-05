@@ -115,9 +115,6 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
                          logCPM=log(cpm_vals+1)))
            },
 
-           #### more methods go here
-
-           # maybe have this presaved in class
            extractSampleOnly = function(TCGA_barcodes){
              return(sapply(TCGA_barcodes, substr, 1, 12))
            },
@@ -240,7 +237,6 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
              colnames(mymap) = c("probeID","geneNames","ensemblID","distToTSS")
 
              mymap = as.data.frame(mymap)
-
              # iterate through map with for loop
              # please feel free to vectorize this etc
              for(i in 1:nrow(smallManifest))
@@ -271,7 +267,9 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 
 
              if(!mapToNearest)
+             {
               return(mymap)
+             }
              if(mapToNearest)
              {
                processRow = function(x) # x is one row of mymap
@@ -479,7 +477,49 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
             return(which(!duplicate_throwout))
            },
 
-           ## Filter out all duplicates based on sequencing depth, take random one if no info on seq depth for all vials
+           ## filter duplicates based on tumor purity
+           ## returns a list of TCGA barcodes to keep
+           ## there may still be some duplicates, where purity info is not available
+           filterDuplicatesPurity = function(TCGA_barcodes,method="ESTIMATE")
+           {
+             if (!(method %in% c("ESTIMATE",
+                                 "ABSOLUTE", "LUMP", "IHC", "CPE")))
+             {
+               stop("Error: Expected method name should be ESTIMATE, ABSOLUTE, LUMP, IHC, CPE")
+             }
+             
+             out_df = TCGA_purities %>% dplyr::select(all_of(c("TCGA_barcode",method))) %>%
+               na.omit() %>%
+               inner_join(data.frame("TCGA_barcode"=TCGA_barcodes),by="TCGA_barcode") %>%
+               mutate("TCGA_sample_and_type" = extractSampleAndType(TCGA_barcode)) %>%
+               rename("purity"=method) %>%
+               group_by(TCGA_sample_and_type) %>%
+               summarize("TCGA_barcode_max_purity"=which.max(purity)) %>%
+               pull(TCGA_barcode_max_purity) %>%
+               return()
+           },
+           
+           filterDuplicatesRandom = function(TCGA_barcodes,seed = 1989){
+             set.seed(seed)
+             out_df = data.frame("TCGA_barcode"=TCGA_barcodes) %>%
+               mutate(TCGA_sample_and_type = extractSampleAndType(TCGA_barcodes))
+             
+             permuted_df = out_df[sample(1:nrow(out_df)),]
+             permuted_df %>% 
+               dplyr::filter(!duplicated(TCGA_sample_and_type)) %>%
+               pull(TCGA_barcode) %>%
+               return()
+           },
+            
+           # filter methylation duplicates based on less overall missingness
+           # in measured beta values
+           filterDuplicatesMethylationMissingness = function(x)
+           {
+             
+           }
+           
+           ## Filter out all duplicates based on sequencing depth, 
+           ## take random one if no info on seq depth for all vials
            ## Returns indices in given tcga barcodes to KEEP
 	         filterDuplicatesSeqDepthOther = function(expression_count_matrix, tcga_barcodes){
              sample_vials_ge <- extractSampleAndTypeAndVial(colnames(expression_count_matrix))
@@ -515,7 +555,8 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
              }
              return(which(!duplicate_throwout))
            },
-
+           
+           
            ## Filter samples indicated by *TCGA_barcodes* based on the method *method* and threshold *threshold*
            ## Returns a list of indices indicating which samples should be kept
 	         filterPurity = function(TCGA_barcodes, method="ESTIMATE", threshold=.6){
@@ -813,11 +854,8 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 #' @export CreateNetworkDataCompanionObject
 CreateNetworkDataCompanionObject <- function(clinical_patient_file=NULL, project_name="default_project"){
 
-  ## Load purities for purity package
+  ## Load purities from purity package
   obj <- CreateTCGAPurityFilteringObject()
-
-  #this is an easy hack for not breaking, but something smarter would be great
-  #TODO skip purityfiltering completely and do it here instead
   with_purity = c("ACC","BLCA","BRCA","CESC","COAD","GBM",
                   "HNSC","KIRC","KIRP","KICH","LGG","LIHC",
                   "LUAD","LUSC","OV","PRAD","READ","SKCM",
@@ -826,6 +864,7 @@ CreateNetworkDataCompanionObject <- function(clinical_patient_file=NULL, project
 
   if(project_name %in%  with_purity){
     purities <- obj$get_tissue_purities(cancer_type = project_name)
+    purities$TCGA_barcode = row.names(purities)
   }
 
   ## Load patient's clinical data
