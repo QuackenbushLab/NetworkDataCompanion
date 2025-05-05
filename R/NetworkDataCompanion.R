@@ -521,17 +521,14 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
              missing_df = data.frame("uuid"=names(methylation_betas[,-1]),
                                      "prop_miss"=apply(methylation_betas[,-1],2,
                                                        function(x){sum(is.na(x))/length(x)}))
-             tcga_barcodes = ndc$mapUUIDtoTCGA(missing_df$uuid)
-             keep_barcodes = missing_df %>% inner_join(tcga_barcodes, by=c("uuid"="file_id")) %>%
-               dplyr::rename("TCGA_barcode"=submitter_id) %>% 
-               mutate(TCGA_sample_and_type =  ndc$extractSampleAndType(TCGA_barcode)) %>%
+             tcga_barcodes = mapUUIDtoTCGA(missing_df$uuid)
+             missing_df %>% inner_join(tcga_barcodes, by=c("uuid"="file_id")) %>%
+               dplyr::rename("TCGA_barcode" = submitter_id) %>% 
+               mutate(TCGA_sample_and_type = extractSampleAndType(TCGA_barcode)) %>%
                group_by(TCGA_sample_and_type) %>%
-               summarize("TCGA_barcode_min_prop_miss"=TCGA_barcode[which.min(prop_miss)]) %>%
-               pull(TCGA_barcode_min_prop_miss) 
-             
-             keep_uuids = tcga_barcodes %>% dplyr::filter(submitter_id %in% keep_barcodes) %>%
-               pull(file_id)
-             return(keep_uuids)
+               summarize("uuid_min_prop_miss"=uuid[which.min(prop_miss)]) %>%
+               pull(uuid_min_prop_miss) %>%
+               return()
            },
            
            ## Filter samples indicated by *TCGA_barcodes* based on the method *method* and threshold *threshold*
