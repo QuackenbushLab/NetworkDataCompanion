@@ -1,7 +1,9 @@
 # NetworkDataCompanion
 **This package is part of the [Reproducible processing of TCGA regulatory networks](https://www.biorxiv.org/content/biorxiv/early/2024/11/07/2024.11.05.622163.full.pdf) paper available on BioRxiv**
 
-An R library of utilities for performing analyses on TCGA and GTEx data using the Network Zoo (https://netzoo.github.io). This is the engine behind [this Nextflow workflow](https://github.com/QuackenbushLab/tcga-data-nf/tree/main).
+- `NetworkDataCompanion` is an R library of utilities for performing analyses on TCGA and GTEx data using the [Network Zoo](https://netzoo.github.io)
+- `NetworkDataCompanion` is also the engine behind the [tcga-data-nf workflow](https://workflowhub.eu/workflows/1306)
+- The code for `tcga-data-nf` is available in the QuackenbushLab GitHub: https://github.com/QuackenbushLab/tcga-data-nf
 
 <img align="center" width="90%" src="overview.png">
 
@@ -27,11 +29,12 @@ We have noticed that sometimes the following packages may require separate insta
 
 # Usage
 
-We are currently developing a quickstart guide. In the meantime, example usage of all functions are available in the unit tests: https://github.com/QuackenbushLab/NetworkDataCompanion/tree/main/tests/testthat
+- A quickstart guide is located in the base directory (```quickstart.Rmd``` and ```quickstart.html```). 
+- You can view the rendered html of the quickstart here: [NetworkDataCompanion Quickstart](https://htmlpreview.github.io/?https://github.com/QuackenbushLab/NetworkDataCompanion/blob/main/quickstart.html)
+- Example usage of all functions is also available in the unit tests: https://github.com/QuackenbushLab/NetworkDataCompanion/tree/main/tests/testthat
 
 # Structure of the repo
 - ```R``` contains the source code of our functions.
-- ```vignettes``` contains a tutorial on how to use the package.
 - ```tests``` contains extensive tests of the implemented functions.
 - ```inst``` contains external data needed to run the analyses on TCGA and GTEx (e.g., gene mapping files)
 - ```man``` is used to generate documentation. 
