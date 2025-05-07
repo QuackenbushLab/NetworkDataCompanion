@@ -43,4 +43,4 @@ jobs:
             git add man/\* NAMESPACE DESCRIPTION
             git commit -m "Update documentation" || echo "No changes to commit"
             git pull --ff-only
-            git push origin
+            git push origin main
