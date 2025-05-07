@@ -19,5 +19,5 @@ Filter all genes which have at least \code{tpm_threshold} TPM scores in at least
 \value{Integer vector indexing the rows of \code{expression_tpm_matrix} that correspond to genes that should be kept.}
 
 \author{
-Jonas Fischer (jfischer@hsph.harvard.edu)
+Jonas Fischer 
 }

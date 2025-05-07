@@ -23,5 +23,5 @@ Candidate values for \code{type_of_tumor}: "Primary Tumor", "Solid Tissue Normal
 }
 
 \author{
-Jonas Fischer (jfischer@hsph.harvard.edu)
+Jonas Fischer
 }

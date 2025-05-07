@@ -1,21 +1,21 @@
 Package: NetworkDataCompanion
 Title: Tools for Analyzing TCGA and GTEx Data
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
-    c(person("Soel", "Micheletti", email = "smicheletti@hsph.harvard.edu", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0001-5402-9237")),
-    person("Chen", "Chen",
-                        email = "cchen22@hsph.harva",role = "aut", comment = c(ORCID = "0000-0002-8042-7201")),
-    person("Kate", "Shutta",
-                        email = "kshutta@hsph.harvard.edu",role = "aut", comment = c(ORCID = "0000-0003-0402-3771")),
-    person("Panagiotis", "Mandros", email = "pmandros@hsph.harvard.edu", role = c("aut", "cre"),
+    c(person("Chen", "Chen", email = "chenchen9945@gmail.com",role = "aut", 
+     comment = c(ORCID = "0000-0002-8042-7201")),
+    person("Panagiotis", "Mandros", email = "mandros.p@gmail.com", role = c("aut"),
            comment = c(ORCID = "0009-0008-9638-9722")),
-    person("Viola", "Fanfani", email = "vfanfani@hsph.harvard.edu", role = c("aut", "cre"),
+    person("Viola", "Fanfani", email = "vfanfani@hsph.harvard.edu", role = c("aut"),
            comment = c(ORCID = "0000-0003-3852-6908")),
-    person("Jonas", "Fischer", email = "jfischer@hsph.harvard.edu", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0000-0000-0000")))
-Author: Kate Hoff Shutta <kshutta@hsph.harvard.edu>, Viola Fanfani <vfanfani@hsph.harvard.edu>, Soel Micheletti <smicheletti@hsph.harvard.edu>, Panagiotis Mandros <pmandros@hsph.harvard.edu>, Jonas Fischer <jfischer@hsph.harvard.edu>, Chen Chen <cchen22@hsph.harvard.edu>
-Maintainer: Kate Hoff Shutta <kshutta@hsph.harvard.edu>
+    person("Jonas", "Fischer", email = "jonas.fischer@mpi-inf.mpg.de", role = c("aut"),
+           comment = c(ORCID = "0000-0002-6459-5053")),
+    person("Panagiotis", "Mandros", email = "mandros.p@gmail.com", role = c("aut"),
+           comment = c(ORCID = "0009-0008-9638-9722")),
+    person("Soel", "Micheletti", email = "smicheletti@hsph.harvard.edu", role = c("aut"),
+           comment = c(ORCID = "0000-0001-5402-9237")),
+    person("Kate Hoff", "Shutta",  email = "kshutta@hsph.harvard.edu",role = c("aut","cre"), 
+      comment = c(ORCID = "0000-0003-0402-3771")))
 Description: An R library of utilities for performing analyses on TCGA and GTEx data using the Network Zoo (https://netzoo.github.io).
 License: GPL-3
 biocViews:

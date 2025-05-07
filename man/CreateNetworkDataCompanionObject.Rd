@@ -20,6 +20,6 @@ CreateNetworkDataCompanionObject(clinical_patient_file, project_name)
 }
 
 \author{
-Panagiotis Mandros (pmandros@hsph.harvard.edu)
+Panagiotis Mandros
 
 }

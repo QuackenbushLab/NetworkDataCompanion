@@ -20,5 +20,5 @@ This function filters for genes in a particular chromosome or chromosomes.
 }
 
 \author{
-Jonas Fischer (jfischer@hsph.harvard.edu)
+Jonas Fischer 
 }

@@ -17,5 +17,5 @@
 }
 
 \author{
-Kate Hoff Shutta (kshutta@hsph.harvard.edu)
+Kate Hoff Shutta
 }

@@ -5,3 +5,6 @@
 .Rproj.user
 testdata/*
 *testthat-problems.rds
+.DS_Store
+/doc/
+/Meta/

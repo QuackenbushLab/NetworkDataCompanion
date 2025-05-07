@@ -23,5 +23,5 @@ Teschendorff, A.E., Zhu, T., Breeze, C.E. et al. EPISCORE: cell type deconvoluti
 }
 
 \author{
-Kate Hoff Shutta (kshutta@hsph.harvard.edu)
+Kate Hoff Shutta 
 }

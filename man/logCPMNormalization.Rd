@@ -19,7 +19,7 @@ This function computes CPM values from raw expression counts using the edgeR pac
 \item{logCPM}{log(CPM + 1) transformed values of the same shape as the count matrix.}
 }
 \author{
-Jonas Fischer (jfischer@hsph.harvard.edu)
+Jonas Fischer
 }
 \references{
 \url{https://bioconductor.org/packages/release/bioc/html/edgeR.html}

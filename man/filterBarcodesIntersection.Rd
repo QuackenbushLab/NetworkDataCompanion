@@ -25,6 +25,6 @@ No additional details at this time.
 }
 
 \author{
-Jonas Fischer (jfischer@hsph.harvard.edu)
+Jonas Fischer
 }
 

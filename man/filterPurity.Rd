@@ -27,6 +27,6 @@ Integer vector of indices indicating which samples in \code{TCGA_barcodes} shoul
 This code is based on the \code{TCGAPurityFiltering} package found at \url{https://github.com/pmandros/TCGAPurityFiltering}.}
 
 \author{
-Panagiotis Mandros (pmandros@hsph.harvard.edu)
+Panagiotis Mandros 
 }
 
