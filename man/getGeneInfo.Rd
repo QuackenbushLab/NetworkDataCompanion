@@ -22,6 +22,6 @@ A data frame with rows representing genes and columns representing gene attribut
 }
 
 \author{
-Panagiotis Mandros (pmandros@hsph.harvard.edu)
+Panagiotis Mandros 
 }
 

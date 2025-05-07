@@ -17,18 +17,17 @@
 #' @field sample_type_mapping A `data.frame` for sample type classification and mapping.
 #'
 #' @section Methods:
-#' Placeholder for methods documentation. Define each method here once methods are added.
 #'
 #' @references
 #' https://www.biorxiv.org/content/10.1101/2024.11.05.622163v1.abstract
 #'
 #' @author
+#' Chen Chen (\email{chenchen9945@gmail.com}),
 #' Viola Fanfani (\email{vfanfani@hsph.harvard.edu}),
-#' Jonas Fischer (\email{jfischer@hsph.harvard.edu}),
-#' Panagiotis Mandros (\email{pmandros@hsph.harvard.edu}),
+#' Jonas Fischer (\email{jonas.fischer@mpi-inf.mpg.de}),
+#' Panagiotis Mandros (\email{mandros.p@gmail.com}),
 #' Soel Micheletti (\email{smicheletti@hsph.harvard.edu}),
 #' Kate Hoff Shutta (\email{kshutta@hsph.harvard.edu})
-#'
 #' @export NetworkDataCompanion
 NetworkDataCompanion=setRefClass("NetworkDataCompanion",
 

@@ -27,7 +27,7 @@ The same information is provided for \code{bc2}.
 \item{idcs2}{Integer vector of the same length as \code{bc2} that indicates where to find each barcode of \code{bc2} in \code{bc1}, returning \code{NA} if there is no match. That is, \code{idcs2[i] != NA}, then \code{bc2[i] == bc1[idcs2[i]]}.}
 }
 \author{
-Jonas Fischer (jfischer@hsph.harvard.edu)
+Jonas Fischer 
 }
 \note{For example, if you want to map experiment 1 onto experiment 2, keeping only the information for samples that are present in both, and reordering the first experiment to match the samples of the second, you can do:
 

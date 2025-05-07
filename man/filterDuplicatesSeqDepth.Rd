@@ -19,5 +19,5 @@ This function filters out duplicates based on RNA-seq, keeping the samples with 
 }
 
 \author{
-Jonas Fischer(jfischer@hsph.harvard.edu)
+Jonas Fischer
 }

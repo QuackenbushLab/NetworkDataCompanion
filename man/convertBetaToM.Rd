@@ -22,5 +22,5 @@ A numeric vector of m-values corresponding to the converted values of \code{meth
 \url{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-587}
 }
 \author{
-Kate Hoff Shutta (kshutta@hsph.harvard.edu)
+Kate Hoff Shutta 
 }

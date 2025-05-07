@@ -24,7 +24,7 @@ Extracts experiment-specific information and metadata from ranged summarized exp
 \item{rds_gene_info}{metadata about the genes (rows)}
 }
 \author{
-Jonas Fischer (jfischer@hsph.harvard.edu)
+Jonas Fischer 
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

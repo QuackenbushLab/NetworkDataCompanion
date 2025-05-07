@@ -18,5 +18,5 @@ Filtering protein coding genes through an rds object.
 }
 
 \author{
-Jonas Fischer (jfischer@hsph.harvard.edu)
+Jonas Fischer 
 }

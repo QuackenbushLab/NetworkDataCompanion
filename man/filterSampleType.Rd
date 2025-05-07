@@ -23,5 +23,5 @@
 }
 
 \author{
-  Jonas Fischer (jfischer@hsph.harvard.edu)
+  Jonas Fischer
 }

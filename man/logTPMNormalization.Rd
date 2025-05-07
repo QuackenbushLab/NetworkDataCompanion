@@ -25,6 +25,6 @@ and the actual log TPM. A pseudocount of 1 is added to each TPM value for this f
 RangedSummarizedExperiment documentation
 }
 \author{
-Jonas Fischer (jfischer@hsph.harvard.edu)
+Jonas Fischer
 }
 

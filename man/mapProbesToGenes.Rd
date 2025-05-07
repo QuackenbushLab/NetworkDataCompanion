@@ -25,7 +25,7 @@ https://zwdzwd.github.io/InfiniumAnnotation
 }
 \author{
 %%  ~~who you are~~
-Kate Hoff Shutta (kshutta@hsph.harvard.edu)
+Kate Hoff Shutta 
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

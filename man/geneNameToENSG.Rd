@@ -21,5 +21,5 @@ Convert from gene name to Ensembl stable id.
 \url{https://useast.ensembl.org/index.html}
 }
 \author{
-Panagiotis Mandros (pmandros@hsph.harvard.edu)}
+Panagiotis Mandros}
 
