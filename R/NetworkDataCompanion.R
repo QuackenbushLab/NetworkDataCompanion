@@ -166,7 +166,7 @@ NetworkDataCompanion=setRefClass("NetworkDataCompanion",
               {
                 stop("Error: No UUIDs were matched by TCGA ids.
                        Perhaps you have input legacy UUIDs or your UUIDs
-                       have been superceded by a new version. Try running updateUUIDVersion().")
+                       have been superceded by a new version. Try running mapNewUUIDVersion().")
               }
 
               # Code for extracting barcodes from https://seandavi.github.io/post/2017-12-29-genomicdatacommons-id-mapping/
